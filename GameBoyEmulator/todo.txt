@@ -1,0 +1,38 @@
+
+
+
+CPU
+
+1. All XOR instructions
+
+2. WHY IS ADD 16 bit registers marked as TODO?!
+
+3. Need to enable interupts on reti instruction
+
+4. Pay attention to SIGNED or UNSIGNED immediate values -> and how this effects flags
+
+
+
+DISPLAY
+
+
+
+-- WARNINGS --
+1. Flags may not be set correctly, especially carry / half-carry for subtracts
+2. Stack may start 1 too short of the end of the stack.
+
+
+How to decide which opcode table to use? CB or Normal?
+
+16/06/2017:
+- Ordering of low and high bytes, if it effects jumps?
+- Be careful of missing else' to reset flags, also for missing '~', using 'big' instead of 'flag' and mixing wrong flags.
+- Got up to PC 0x0322 which is CALL 7FF3. up until this point, all data matches No$gmb
+
+18/06/2017:
+- Display maps,
+- Need to write to IO regs in the array as well as the specific variables inside display
+
+09/07/2017:
+- Display granted access to MMU, might not be required, display class can access its own VRAM, including display registers
+
