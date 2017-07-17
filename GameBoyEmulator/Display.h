@@ -6,17 +6,16 @@
 #include "SDL.h"
 #include "Definitions.h"
 
-const int DISPLAY_WIDTH  = 256;
-const int DISPLAY_HEIGHT = 256;
+const int DISPLAY_WIDTH  = 160;
+const int DISPLAY_HEIGHT = 144;
 
-const int VIEWPORT_WIDTH  = 160;
-const int VIEWPORT_HEIGHT = 144;
 
 const u16 VRAM_OFFSET = 0x8000;
 const u8 BG_TILE_MAP_SELECT_OFFSET = 0x08;
 const u8 BG_TILE_MAP_SELECT_BIT = 0x03;
 
 enum GPU_MODE { HBLANK = 0, VBLANK = 1, OAM = 2, VRAM = 3 };
+
 
       
 struct pixel
@@ -80,7 +79,7 @@ private:
     
     u8 bgMapInUse;
 
-    SDL_Color pixels[VIEWPORT_HEIGHT * VIEWPORT_WIDTH]; // display or viewport
+    SDL_Color pixels[DISPLAY_HEIGHT * DISPLAY_WIDTH]; // display or viewport
 
     bool pixelChanged = false;
 

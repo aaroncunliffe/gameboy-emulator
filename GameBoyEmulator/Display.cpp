@@ -8,10 +8,6 @@ Display::Display()
         std::cout << "ERROR Initializing" << std::endl;
     }
 
-    memset(vram, 0x00, 0x2000 * sizeof(u8));
-
-    memset(Tileset, 0x00, (384 * 8 * 8) * sizeof(u8));
-
     window = NULL;
     renderer = NULL;
     screen = NULL;
@@ -20,8 +16,8 @@ Display::Display()
     pw = 1;
     ph = 1;
 
-    viewport.w = VIEWPORT_WIDTH;
-    viewport.h = VIEWPORT_HEIGHT;
+    viewport.w = DISPLAY_WIDTH;
+    viewport.h = DISPLAY_HEIGHT;
 
     scrollX = 0;
     scrollY = 0;
@@ -49,27 +45,22 @@ Display::~Display()
 void Display::init(int multiplier)
 {
     sizeMultiplier = multiplier;
-    w = VIEWPORT_WIDTH * multiplier;
-    h = VIEWPORT_HEIGHT * multiplier;
-    pw = w / VIEWPORT_WIDTH;
-    ph = h / VIEWPORT_HEIGHT;
+    w = DISPLAY_WIDTH * multiplier;
+    h = DISPLAY_HEIGHT * multiplier;
+    pw = w / DISPLAY_WIDTH;
+    ph = h / DISPLAY_HEIGHT;
 
     window = SDL_CreateWindow("Gameboy - Aaron Cunliffe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
-
-    if (renderer == NULL)
-    {
-        printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
-    }
-
-    screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, VIEWPORT_WIDTH, VIEWPORT_HEIGHT); // SDL_TEXTURE_STATIC
+    screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, DISPLAY_WIDTH, DISPLAY_HEIGHT); // SDL_TEXTURE_STATIC
     
+    // Clear VRAM, Tileset and raw pixel store
+    memset(vram, 0x00, 0x2000 * sizeof(u8));
+    memset(Tileset, 0x00, (384 * 8 * 8) * sizeof(u8));
+    memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(Uint32));
 
-    memset(pixels, 0x00000000, VIEWPORT_WIDTH * VIEWPORT_HEIGHT * sizeof(Uint32));
-
-    memset(Tileset, 0x00, 384 * 8 * 8 * sizeof(u8));
-
-    SDL_UpdateTexture(screen, NULL, pixels, VIEWPORT_WIDTH * sizeof(Uint32));
+    
+    SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(Uint32));
     Update();
 
     activeMode = OAM;
@@ -81,7 +72,6 @@ void Display::init(int multiplier)
 
 void Display::RenderScanline()
 {
-    //Tile map #0 - BIOS uses this, so it's a good place to start.
     uint16_t tilemapbase = (mmu->ReadByte(0xFF40) & BG_TILE_MAP_SELECT_OFFSET) >> BG_TILE_MAP_SELECT_BIT ? 0x1C00 : 0x1800;
     uint16_t offsetbase = tilemapbase + ((((currentLine + scrollY) & 255) >> 3) << 5);
     uint8_t x, y, tindex;
@@ -92,17 +82,18 @@ void Display::RenderScanline()
     {
         tindex = vram[offsetbase + (x / 8)];
 
-        pixels[VIEWPORT_WIDTH * currentLine + y].a = pixelPalette[Tileset[tindex][y][x % 8]].a;
-        pixels[VIEWPORT_WIDTH * currentLine + x].r = pixelPalette[Tileset[tindex][y][x % 8]].r;
-        pixels[VIEWPORT_WIDTH * currentLine + x].g = pixelPalette[Tileset[tindex][y][x % 8]].g;
-        pixels[VIEWPORT_WIDTH * currentLine + x].b = pixelPalette[Tileset[tindex][y][x % 8]].b;
+        pixels[DISPLAY_WIDTH * currentLine + y].a = pixelPalette[Tileset[tindex][y][x % 8]].a;
+        pixels[DISPLAY_WIDTH * currentLine + x].r = pixelPalette[Tileset[tindex][y][x % 8]].r;
+        pixels[DISPLAY_WIDTH * currentLine + x].g = pixelPalette[Tileset[tindex][y][x % 8]].g;
+        pixels[DISPLAY_WIDTH * currentLine + x].b = pixelPalette[Tileset[tindex][y][x % 8]].b;
     }
-    SDL_UpdateTexture(screen, NULL, pixels, VIEWPORT_WIDTH * sizeof(Uint32));
+    SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(Uint32));
 }
 
 void Display::clear()
 {
-    memset(pixels, 0x00000000, VIEWPORT_WIDTH * VIEWPORT_HEIGHT * sizeof(Uint32));
+    memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(Uint32));
+    Update();
 }
 
 void Display::SetScrollX(u8 val) 
@@ -119,8 +110,6 @@ void Display::UpdateTileset(u16 addr)
 {
     // Work out which tile and row was updated
     u16 addrtrans = addr & 0x1FFE; // Starts at 0x8001
-
-    //u16 addrtrans = addr & 0x1FFE;
     u16 tile = (addrtrans >> 4); // Divide by 16, 16 bytes in a tile
     u16 y = (addrtrans >> 1) & 0x07; // Get the row, Divide by 2, only need the first byte
 
@@ -140,6 +129,7 @@ void Display::UpdateTileset(u16 addr)
 
 void Display::Draw()
 {
+    
     /*int i;
     for (i = 0; i < (144 / 8) * (160 / 8); i++) {
         int x;
@@ -173,6 +163,7 @@ void Display::Process()
    
 }
 
+// At the end of every display->Step() process any changes to the display registers
 void Display::UpdateRegisters()
 {
     // LCDC
