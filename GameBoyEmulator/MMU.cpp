@@ -219,20 +219,6 @@ u16 MMU::ReadTwoBytes(u16 addr)
 // Writes byte to the correct location in the memory map.
 void MMU::WriteByte(u16 addr, u8 byte)
 {    
-    if (addr == 0x9A05 && byte == 0x84)
-    {
-        int stop = 0;
-    }
-    if (addr == 0xC010 && byte == 0x17)
-    {
-        int stop = 0;
-    }
-    if (addr == 0xFF93 && byte == 0x17)
-    {
-        int stop = 0;
-    }
-
-
     // Switch is faster than if/else if - >5 items, uses lookup table, need to check if this gets optimised out anyway...
     switch ((addr & 0xF000) >> 12)
     {
