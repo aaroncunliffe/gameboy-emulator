@@ -9,7 +9,7 @@
 
 ### Notes:
 * Currently only intended to work with Tetris.
-How to change the rom to be loaded, change this line
+How to change the rom to be loaded, change this line in the "main.cpp" file
 ```c++
     CPU* processor = new CPU("tetris.gb");
 ```
