@@ -70,7 +70,6 @@ class CPU
 {
 private:
 
-
 	char* path;
 
     typedef void(CPU::*opcodePtr)(void);
@@ -88,8 +87,12 @@ private:
 
     bool running = false;
     bool halt = false;
+    bool log = false;
+
 
     int totalInstructions = 0;
+    u32 instructionProfiling[0x100];
+    u32 instructionProfilingCB[0x100];
 
 public:
     CPU();

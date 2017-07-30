@@ -36,3 +36,51 @@ How to decide which opcode table to use? CB or Normal?
 09/07/2017:
 - Display granted access to MMU, might not be required, display class can access its own VRAM, including display registers
 
+18/07/2017:
+- Demo plays for only a split second, begins to execute just after instruction held at 048C. I need to find out what calls this instruction
+- Call to 2874, upon return from that, screen is white.
+- if hit 0560 went too far, this runs at the END of the demo being canceled not at the beginning
+- Jump from RST28 to 04E6
+
+Important instructions
+2816 - after 048C, not during splash,
+04D3
+2387
+
+- 2A0A
+
+
+instructions ran:
+20029364
+
+Memory locations of note:
+
+FFE2 = C6? 
+
+There is definitely something triggering it to re-write the old tileset and return to titlemenu, just unsure of what,
+glitchyness is probably expected.
+
+
+If data in FFC6 == 0 then jump to 048C to start process of changing screen
+04EF is the check and then jump to 048C
+
+
+// Need to do palletes for backgrounds and sprites
+// Input DEFINITELY being misinterpreted
+
+28/07/2017
+After first block hits the floor in the demo, loop starts. Need to see why
+
+29/07/2017
+Never jumps back from instruction 0x21B4
+
+30/07/2017
+
+First block runs instruction 4 times 0x2621 abd 2nd block calls 3 times, my emulator alters the position of the map after the 3 times, not sure why.
+Also need todo bacground properly and palettes
+
+
+31/07/2017 - TODO:
+1. Palettes for background and sprites, Need to look at javascript emulation guide to finish background drawing.
+2. Input for keyboard, use #defines for mapping keys for now.
+3. Try to fill out CB opcode table, a lot of functions there and working but just need to fill out for each possible use, 

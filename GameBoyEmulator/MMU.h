@@ -22,9 +22,10 @@ const u16 SIXTEEN_KB = 0x4000;
 
 const u16 EXTERNAL_RAM_START = 0xA000;
 const u16 INTERNAL_RAM_START = 0xC000;
-const u16 OAM_START = 0xFE00;
+//const u16 OAM_START = 0xFE00;
 const u16 IOREG_START = 0xFF00;
 const u16 HRAM_START = 0xFF80;
+
 
 // Memory management unit, redirects requests for memory to the correct location according to the map
 // Total addressable memory 0000 - FFFF 
@@ -49,8 +50,7 @@ private:
     u8 rom[NUM_ROM_BANKS][SIXTEEN_KB];      // up to 0x200 16kb banks ~ 8MB max rom size
     u8 externalRam[1][EIGHT_KB];            // 8k external ram
     u8 internalRam[SIXTEEN_KB];             // 1 bank in GB 1-7 banks in GBC
-    u8 oam[0x9F];
-    u8 IORegs[0x7F];
+    u8 IORegs[0x80];
     u8 hram[0x80];
     
 
@@ -77,6 +77,7 @@ private:
 
     Display* display;
 
+
 public:
 
     MMU();
@@ -88,7 +89,6 @@ public:
     u16 ReadTwoBytes(u16 addr);
     
     void PushTwoBytes(u16 &sp, u16 data);
-    void PushByte(u16 &sp, u8 data);
     u16 PopTwoBytes(u16 &sp);
 
     void WriteByte(u16 addr, u8 data);
@@ -99,6 +99,7 @@ public:
     bool GetBiosComplete() { return biosComplete; }
 
     void DumpToFile();
+    u8 keytest;
 };
 
 /* 

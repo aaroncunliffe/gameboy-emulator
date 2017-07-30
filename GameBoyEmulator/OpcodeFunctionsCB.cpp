@@ -8,6 +8,20 @@ void CPU::CBopcode0x27() // SLA A
     counter += 8;
 }
 
+void CPU::CBopcode0x30() // SWAP B
+{
+    SWAP(regs.BC.high);
+    regs.pc += 2;
+    counter += 8;
+}
+
+void CPU::CBopcode0x33() // SWAP E
+{
+    SWAP(regs.DE.low);
+    regs.pc += 2;
+    counter += 8;
+}
+
 void CPU::CBopcode0x37() // SWAP A
 {
     SWAP(regs.AF.high);
@@ -18,6 +32,20 @@ void CPU::CBopcode0x37() // SWAP A
 void CPU::CBopcode0x3F() // SRL A
 {
     SRL(regs.AF.high);
+    regs.pc += 2;
+    counter += 8;
+}
+
+void CPU::CBopcode0x40() // BIT 0,B
+{
+    BIT(0x01, regs.BC.high);
+    regs.pc += 2;
+    counter += 8;
+}
+
+void CPU::CBopcode0x47() // BIT 0,A
+{
+    BIT(0x01, regs.AF.high);
     regs.pc += 2;
     counter += 8;
 }
@@ -57,9 +85,23 @@ void CPU::CBopcode0x60() // BIT 4,B
     counter += 8;
 }
 
+void CPU::CBopcode0x61() // BIT 4,C
+{
+    BIT(0x10, regs.BC.low);
+    regs.pc += 2;
+    counter += 8;
+}
+
 void CPU::CBopcode0x68() // BIT 5,B
 {
     BIT(0x20, regs.BC.high);
+    regs.pc += 2;
+    counter += 8;
+}
+
+void CPU::CBopcode0x69()
+{
+    BIT(0x20, regs.BC.low);
     regs.pc += 2;
     counter += 8;
 }
@@ -92,6 +134,15 @@ void CPU::CBopcode0x7F() // BIT 7,A
     counter += 8;
 }
 
+void CPU::CBopcode0x86()
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    RES(0x01, byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    regs.pc += 2;
+    counter += 8;
+}
+
 void CPU::CBopcode0x87() // RES 0,A
 {
     RES(0x01, regs.AF.high);
@@ -106,9 +157,9 @@ void CPU::CBopcode0x87() // RES 0,A
 inline void CPU::BIT(u8 bit, u8 reg) // Test bit in register, FLAGS: Z 0 1 -
 {
     if (reg & bit)
-        regs.AF.low |= ZERO_FLAG;
-    else
         regs.AF.low &= ~ZERO_FLAG;
+    else
+        regs.AF.low |= ZERO_FLAG;
 
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low |= HALF_CARRY_FLAG;
@@ -230,10 +281,10 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0x2D] = nullptr; // = &CPU::CBopcode0x2D;
     opcodeFunctionCB[0x2E] = nullptr; // = &CPU::CBopcode0x2E;
     opcodeFunctionCB[0x2F] = nullptr; // = &CPU::CBopcode0x2F;
-    opcodeFunctionCB[0x30] = nullptr; // = &CPU::CBopcode0x30;
+    opcodeFunctionCB[0x30] = &CPU::CBopcode0x30;
     opcodeFunctionCB[0x31] = nullptr; // = &CPU::CBopcode0x31;
     opcodeFunctionCB[0x32] = nullptr; // = &CPU::CBopcode0x32;
-    opcodeFunctionCB[0x33] = nullptr; // = &CPU::CBopcode0x33;
+    opcodeFunctionCB[0x33] = &CPU::CBopcode0x33;
     opcodeFunctionCB[0x34] = nullptr; // = &CPU::CBopcode0x34;
     opcodeFunctionCB[0x35] = nullptr; // = &CPU::CBopcode0x35;
     opcodeFunctionCB[0x36] = nullptr; // = &CPU::CBopcode0x36;
@@ -246,14 +297,14 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0x3D] = nullptr; // = &CPU::CBopcode0x3D;
     opcodeFunctionCB[0x3E] = nullptr; // = &CPU::CBopcode0x3E;
     opcodeFunctionCB[0x3F] = &CPU::CBopcode0x3F;
-    opcodeFunctionCB[0x40] = nullptr; // = &CPU::CBopcode0x40;
+    opcodeFunctionCB[0x40] = &CPU::CBopcode0x40;
     opcodeFunctionCB[0x41] = nullptr; // = &CPU::CBopcode0x41;
     opcodeFunctionCB[0x42] = nullptr; // = &CPU::CBopcode0x42;
     opcodeFunctionCB[0x43] = nullptr; // = &CPU::CBopcode0x43;
     opcodeFunctionCB[0x44] = nullptr; // = &CPU::CBopcode0x44;
     opcodeFunctionCB[0x45] = nullptr; // = &CPU::CBopcode0x45;
     opcodeFunctionCB[0x46] = nullptr; // = &CPU::CBopcode0x46;
-    opcodeFunctionCB[0x47] = nullptr; // = &CPU::CBopcode0x47;
+    opcodeFunctionCB[0x47] = &CPU::CBopcode0x47;
     opcodeFunctionCB[0x48] = &CPU::CBopcode0x48;
     opcodeFunctionCB[0x49] = nullptr; // = &CPU::CBopcode0x49;
     opcodeFunctionCB[0x4A] = nullptr; // = &CPU::CBopcode0x4A;
@@ -279,7 +330,7 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0x5E] = nullptr; // = &CPU::CBopcode0x5E;
     opcodeFunctionCB[0x5F] = &CPU::CBopcode0x5F;
     opcodeFunctionCB[0x60] = &CPU::CBopcode0x60;
-    opcodeFunctionCB[0x61] = nullptr; // = &CPU::CBopcode0x61;
+    opcodeFunctionCB[0x61] = &CPU::CBopcode0x61;
     opcodeFunctionCB[0x62] = nullptr; // = &CPU::CBopcode0x62;
     opcodeFunctionCB[0x63] = nullptr; // = &CPU::CBopcode0x63;
     opcodeFunctionCB[0x64] = nullptr; // = &CPU::CBopcode0x64;
@@ -287,7 +338,7 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0x66] = nullptr; // = &CPU::CBopcode0x66;
     opcodeFunctionCB[0x67] = nullptr; // = &CPU::CBopcode0x67;
     opcodeFunctionCB[0x68] = &CPU::CBopcode0x68;
-    opcodeFunctionCB[0x69] = nullptr; // = &CPU::CBopcode0x69;
+    opcodeFunctionCB[0x69] = &CPU::CBopcode0x69;
     opcodeFunctionCB[0x6A] = nullptr; // = &CPU::CBopcode0x6A;
     opcodeFunctionCB[0x6B] = nullptr; // = &CPU::CBopcode0x6B;
     opcodeFunctionCB[0x6C] = nullptr; // = &CPU::CBopcode0x6C;
@@ -316,7 +367,7 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0x83] = nullptr; // = &CPU::CBopcode0x83;
     opcodeFunctionCB[0x84] = nullptr; // = &CPU::CBopcode0x84;
     opcodeFunctionCB[0x85] = nullptr; // = &CPU::CBopcode0x85;
-    opcodeFunctionCB[0x86] = nullptr; // = &CPU::CBopcode0x86;
+    opcodeFunctionCB[0x86] = &CPU::CBopcode0x86;
     opcodeFunctionCB[0x87] = &CPU::CBopcode0x87;
     opcodeFunctionCB[0x88] = nullptr; // = &CPU::CBopcode0x88;
     opcodeFunctionCB[0x89] = nullptr; // = &CPU::CBopcode0x89;

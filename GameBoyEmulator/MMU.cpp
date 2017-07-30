@@ -16,9 +16,11 @@ MMU::MMU(char* path, Display* d)
 
     memset(externalRam, 0x00, EIGHT_KB * sizeof(u8));
     memset(internalRam, 0x00, SIXTEEN_KB * sizeof(u8));
-    memset(oam, 0x00, 0x9F * sizeof(u8));
+    
     memset(IORegs, 0x00, 0x7F *sizeof(u8));
     memset(hram, 0x00, 0x7F *sizeof(u8));
+
+    keytest = 0x0F;
 }
 
 MMU::~MMU()
@@ -91,7 +93,7 @@ u8 MMU::ReadByte(u16 addr)
     case 0x8: case 0x9:
         // 8kB vram
         // Switcable 0-1 on GBC
-        return display->ReadByte(addr);
+        return display->ReadVram(addr);
         break;
 
     case 0xA: case 0xB:
@@ -117,53 +119,86 @@ u8 MMU::ReadByte(u16 addr)
 
     case 0xF: // Rest of RAM shadow, sprite table, I/O registers, HRAM, Interupts
 
-        switch ((addr & 0x00F0) >> 4)
+        switch ((addr & 0x0F00) >> 8)   //0x0F00
         {
-        case 0x0: case 0x1: case 0x2: case 0x3: case 0x4: case 0x5: case 0x6: case 0x7: // I/O registers
-            
-            switch (addr)
+        case 0x1: case 0x2: case 0x3: case 0x4: case 0x5: case 0x6: case 0x7: case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD:
+            // RAM shadow
+            break;
+
+        case 0xE: // OAM Table
+            if (addr > 0xFE9F) // Not addressable
             {
-            case 0xFF00:
-                return IORegs[addr - IOREG_START] | 0x0F; // joypad reg
                 break;
-            case 0xFF04:
-                return (u8)rand(); // good enough for now?
-                break;
-            case 0xFF40:
-                return display->GetLCDC();
-                break;
-            case 0xFF41:
-                return display->GetStat();
-            case 0xFF42:
-                display->GetScrollY();
-                break;
-            case 0xFF43:
-                display->GetScrollX();
-                break;
-            case 0xFF44: // LY
-                return display->GetLine(); //0x94 - tetris
-                break;
-
             }
-           
-        default:
-            return IORegs[addr - IOREG_START];
+
+            return display->ReadOAM(addr);
             break;
 
-        case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF:// HRAM
-            //if (addr == 0xFFFF)
-            //{
-            //    // Interupt enable registers
-            //    return IME;
-            //    break;
-            //}
+        case 0xF:
 
-            // STACK
-            return hram[addr - HRAM_START];
+            switch ((addr & 0x00F0) >> 4)
+            {
+            case 0x0: case 0x1: case 0x2: case 0x3: case 0x4: case 0x5: case 0x6: case 0x7: // I/O registers
 
-            break;
+                switch (addr)
+                {
+                case 0xFF00:
+                    if ((IORegs[addr - IOREG_START] & 0x10) == 0x10)
+                        return IORegs[addr - IOREG_START] | 0xC0 | keytest ; // joypad reg
+                        //return 0xFF;
+                    else if ((IORegs[addr - IOREG_START] & 0x20) == 0x20)
+                        return IORegs[addr - IOREG_START] | 0xC0 | 0x0F; // joypad reg
+                    else
+                        int stop = 0;
+                    break;
+
+                case 0xFF04:
+                    return (u8)rand(); // good enough for now?
+                    break;
+                case 0xFF05:  // Timer Counter
+                    return 0x00;
+                    break;
+                case 0xFF06:  // Timer Modulo
+                    return 0x00;
+                    break;
+                case 0xFF40:
+                    return display->GetLCDC();
+                    break;
+                case 0xFF41:
+                    return display->GetStat();
+                case 0xFF42:
+                    display->GetScrollY();
+                    break;
+                case 0xFF43:
+                    display->GetScrollX();
+                    break;
+                case 0xFF44: // LY
+                    return display->GetLine(); //0x94 - tetris
+                    break;
+
+                }
+
+            default:
+                return IORegs[addr - IOREG_START];
+                break;
+
+            case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF:// HRAM
+                //if (addr == 0xFFFF)
+                //{
+                //    // Interupt enable registers
+                //    return IME;
+                //    break;
+                //}
+                // STACK
+                if (addr == 0xFF80 || addr == 0xFF81)
+                {
+                    int stop = 0;
+                }
+                return hram[addr - HRAM_START];
+
+                break;
+            }
         }
-
         break; // case 0xF:
     
 
@@ -183,10 +218,21 @@ u16 MMU::ReadTwoBytes(u16 addr)
 
 // Writes byte to the correct location in the memory map.
 void MMU::WriteByte(u16 addr, u8 byte)
-{
-    if (addr == 0xff85 && byte > 0x00)
+{    
+    if (addr == 0x9A05 && byte == 0x84)
+    {
         int stop = 0;
-    
+    }
+    if (addr == 0xC010 && byte == 0x17)
+    {
+        int stop = 0;
+    }
+    if (addr == 0xFF93 && byte == 0x17)
+    {
+        int stop = 0;
+    }
+
+
     // Switch is faster than if/else if - >5 items, uses lookup table, need to check if this gets optimised out anyway...
     switch ((addr & 0xF000) >> 12)
     {
@@ -200,7 +246,7 @@ void MMU::WriteByte(u16 addr, u8 byte)
     case 0x8: case 0x9:
         // 8kB vram
         // Switcable 0-1 on GBC
-        display->WriteByte(addr, byte);
+        display->WriteVram(addr, byte);
         break;
 
     case 0xA: case 0xB:
@@ -235,7 +281,7 @@ void MMU::WriteByte(u16 addr, u8 byte)
                 break;
             }
 
-            oam[addr - OAM_START] = byte;
+            display->WriteOAM(addr, byte);
             break;
 
         case 0xF:
@@ -247,7 +293,7 @@ void MMU::WriteByte(u16 addr, u8 byte)
                 {
                 case 0xFF00:
                     // Joypad regs
-                    
+                    IORegs[addr - IOREG_START] = byte; // ??????
                 break;
                    
                 case 0xFF40:
@@ -262,11 +308,14 @@ void MMU::WriteByte(u16 addr, u8 byte)
                 case 0xFF43:
                     display->SetScrollX(byte);
                     break;
-
+                case 0xFF46:
+                    display->StartDMA(byte << 8);
+                    break;
+                default:
+                    IORegs[addr - IOREG_START] = byte; // ??????
+                    break;
                 }
-            default:
-                IORegs[addr - IOREG_START] = byte; // ??????
-                break;
+            // Could put default statement here too
 
             case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF:// HRAM
                 //if (addr == 0xFFFF)
@@ -276,6 +325,7 @@ void MMU::WriteByte(u16 addr, u8 byte)
                 //    hram[addr - HRAM_START] = byte;
                 //    break;
                 //}
+                
                 
                 // STACK
                 hram[addr - HRAM_START] = byte;
@@ -297,20 +347,10 @@ void MMU::WriteByte(u16 addr, u8 byte)
    
 }
 
-
-
 void MMU::WriteTwoBytes(u16 addr, u16 data)
 {
     WriteByte(addr, data & 0xFF);
     WriteByte(addr + 1, data >> 8);
-}
-
-
-void MMU::PushByte(u16 &sp, u8 data)
-{
-
-    sp -= 1;
-    WriteByte(sp, data);
 }
 
 void MMU::PushTwoBytes(u16 &sp, u16 data)
@@ -326,10 +366,10 @@ u16 MMU::PopTwoBytes(u16 &sp)
     return data;
 }
 
+
+
 void MMU::DumpToFile()
 {
-
-
     std::ofstream outputFile;
 
     outputFile.open("Memory.ac", std::ios::out | std::ios::binary);
@@ -360,4 +400,4 @@ void MMU::DumpToFile()
 
     outputFile.close();
     std::cout << "Memory written to file" << std::endl;
-}
+} 

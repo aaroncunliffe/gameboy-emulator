@@ -11,12 +11,37 @@ const int DISPLAY_HEIGHT = 144;
 
 
 const u16 VRAM_OFFSET = 0x8000;
-const u8 BG_TILE_MAP_SELECT_OFFSET = 0x08;
-const u8 BG_TILE_MAP_SELECT_BIT = 0x03;
+const u16 OAM_START = 0xFE00;
+
+
+const u16  DMA_LENGTH = 160;
+
+// LCDC offsets
+const u8 BG_ENABLE_OFFSET                = 0x01;
+const u8 SPRITE_ENABLE_OFFSET            = 0x02;
+const u8 SPRITE_SIZE_OFFSET              = 0x04;
+const u8 BG_TILE_MAP_SELECT_OFFSET       = 0x08;
+const u8 BG_TILE_SET_SELECT_OFFSET       = 0x10;
+const u8 WINDOW_ENABLE_OFFSET            = 0x20;
+const u8 WINDOW_TILE_MAP_SELECT_OFFSET   = 0x40;
+const u8 LCD_ENABLE_OFFSET               = 0x80;
+
+
+//const u8 BG_TILE_MAP_SELECT_BIT = 0x03;
 
 enum GPU_MODE { HBLANK = 0, VBLANK = 1, OAM = 2, VRAM = 3 };
 
-
+struct sprite
+{
+    u8 y;
+    u8 x;
+    u8 tileNum;
+    // last byte
+    bool priority;
+    bool yflip;
+    bool xflip;
+    bool palette;
+};
       
 struct pixel
 {
@@ -27,7 +52,7 @@ struct pixel
        
 };
 
-class MMU;
+class MMU; // Stub
 
 
 class Display
@@ -37,9 +62,7 @@ private:
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Texture* screen;
-
-    Uint32 OnColor =  0xFF00FF00; // White
-    Uint32 OffColor = 0x00000000; // Black
+    SDL_Texture* sprites;
 
     GPU_MODE activeMode;
     u32 modeClock;
@@ -51,27 +74,17 @@ private:
     int pw, ph;
     int sizeMultiplier;
 
-    bool displayMemory[DISPLAY_WIDTH * DISPLAY_HEIGHT] = { true };
-
     u8 vram[0x2000];
-
-    /*  
-    8000-87FF	Tile set #1: tiles 0-127
-    8800-8FFF	Tile set #1: tiles 128-255, Tile set #0: tiles -1 to -128 - OVERLAP
-    9000-97FF	Tile set #0: tiles 0-127
-    9800-9BFF	Tile map #0
-    9C00-9FFF	Tile map #1
-    */
-
+    u8 oam[0x100];
 
 
     pixel pixelPalette[4];
 
     u8 Tileset[384][8][8];
+    sprite spriteStore[40];
 
 
-    SDL_Rect viewport;
-
+    // Display Register
     u8 STAT;
     u8 LCDC;
     u8 scrollX;
@@ -80,6 +93,7 @@ private:
     u8 bgMapInUse;
 
     SDL_Color pixels[DISPLAY_HEIGHT * DISPLAY_WIDTH]; // display or viewport
+    SDL_Color spritePixels[DISPLAY_WIDTH * DISPLAY_HEIGHT];
 
     bool pixelChanged = false;
 
@@ -94,9 +108,13 @@ public:
     
     GPU_MODE GetMode() { return activeMode; }
 
-    void WriteByte(u16 addr, u8 byte);
-    u8 ReadByte(u16 addr);
+    void WriteVram(u16 addr, u8 byte);
+    u8 ReadVram(u16 addr);
 
+    void WriteOAM(u16 addr, u8 byte);
+    u8 ReadOAM(u16 addr);
+
+    void StartDMA(u16 source);
 
     // Get display registers
 
@@ -117,15 +135,17 @@ public:
     
 
     void Step(u32 clock);
-    void Process();
+   
     void Update();
 
 private:
     void Draw();
     void RenderScanline();
+    void ProcessSprites();
 
     void UpdateRegisters();
     void UpdateTileset(u16 addr);
+    void UpdateSprite(u16 oamAddr, u8 byte);
 };
 
 
@@ -138,6 +158,16 @@ private:
 // - WIN 0
 // - WIN 1
 // - OBJ WIN
+
+
+/*
+8000-87FF	Tile set #1: tiles 0-127
+8800-8FFF	Tile set #1: tiles 128-255, Tile set #0: tiles -1 to -128 - OVERLAP
+9000-97FF	Tile set #0: tiles 0-127
+9800-9BFF	Tile map #0
+9C00-9FFF	Tile map #1
+*/
+
 
 // FF40 - LCDC - LCD Control (R/W)
 // Bit 7 - LCD Display Enable(0 = Off, 1 = On)

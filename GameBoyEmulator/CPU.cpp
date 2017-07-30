@@ -15,7 +15,7 @@ CPU::CPU(char* romPath) : CPU()
    
     display = new Display();
     keyboard = new Keyboard();
-    display->init(1);
+    display->init(4);
 
     mmu = new MMU(romPath, display);
     mmu->LoadRom();
@@ -36,8 +36,10 @@ CPU::CPU(char* romPath) : CPU()
     regs.AF.low &= ~HALF_CARRY_FLAG;
     regs.AF.low &= ~CARRY_FLAG;*/
 
+    memset(instructionProfiling, (u32)0, 0x100 * sizeof(u32));
+    memset(instructionProfilingCB, (u32)0, 0x100 * sizeof(u32));
 
-    
+
 }
 
 CPU::~CPU()
@@ -123,8 +125,6 @@ void CPU::RunBios()
 
 void CPU::Loop()
 {
-    display->Process();
-
     if (counter == 0)
     {
 
@@ -213,7 +213,7 @@ void CPU::Loop()
     // Only if it is above 1 do we delay
     if (delayTimeMs > 0)
     {
-        SDL_Delay( 100 * delayTimeMs);
+        //SDL_Delay( 100 * delayTimeMs);
     }
     
     
@@ -253,7 +253,11 @@ void CPU::KeysDown(SDL_Event e)
     }
     else if (e.key.keysym.sym == SDLK_LEFT)
     {
-        //display->SetScrollX(display->GetScrollX() - 1);
+        //display->Process();
+        mmu->keytest = 0x07;
+        //log = true;
+        //u8 byte = mmu->ReadByte(0xFF0F);
+        //mmu->WriteByte(0xFF0F, byte |= JOYPAD_INTERUPT_BIT);
     }
     else if (e.key.keysym.sym == SDLK_RIGHT)
     {
@@ -273,7 +277,11 @@ void CPU::KeysDown(SDL_Event e)
 
 void CPU::KeysUp(SDL_Event e)
 {
-
+    if (e.key.keysym.sym == SDLK_LEFT)
+    {
+        //display->Process();
+        mmu->keytest = 0x0F;
+    }
 }
 
 void CPU::ProcessInstruction()
@@ -282,23 +290,33 @@ void CPU::ProcessInstruction()
 
     u8 nextByte = mmu->ReadByte(regs.pc + 1);
 
-//#define _LOG
+#define _LOG
 #ifdef _LOG
-    if (totalInstructions > 4222222)
+    //if (totalInstructions > 0x01527d3a) // Total instructions for 2nd demo block hitting
+    //{
+    //if(totalInstructions > 0x0131a335)
+    //{
+    if (log)
     {
+        //std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (u16)mmu->ReadByte(0xFFC6) << " - " << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
         if (opcodeByte != 0xCB)
             std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
         else
             std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << CBOpcodeTable[opcodeByte].name << std::endl;
-        
     }
+    //}
     
 #endif 
 
-    if (regs.pc == 0x0349)
+    if (opcodeByte != 0xCB)
+        instructionProfiling[opcodeByte]++;
+    else
     {
-        int stop = 0;
+        instructionProfiling[opcodeByte]++;
+        instructionProfiling[nextByte]++;
     }
+     
+    
 
    (this->*opcodeFunction[opcodeByte])();
     totalInstructions++;
