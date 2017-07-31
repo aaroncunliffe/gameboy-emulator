@@ -1,20 +1,33 @@
 #pragma once
 #include "definitions.h"
+#include <SDL.h>
+
+class CPU;
+
 
 class Keyboard
 {
 
 private:
 
-    bool KeysPressed[0xF] = { false };
+	u8 row1;
+	u8 row2;
+
+	CPU* cpu;
 
 public:
+	Keyboard(CPU* c);
 
-    bool GetKey(u8 key) { return KeysPressed[key]; }
-    void SetKey(u8 key, bool on) { KeysPressed[key] = on; }
+	u8 GetRow1() { return row1; }
+	u8 GetRow2() { return row2; }
+    
+	void KeysDown(SDL_Event e);
+	void KeysUp(SDL_Event e);
 
 
 };
+
+// Joypad is activelow
 
 // This is the matrix layout for register $FF00:
 //

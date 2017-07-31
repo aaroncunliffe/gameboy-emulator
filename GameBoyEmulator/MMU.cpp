@@ -5,10 +5,11 @@ MMU::MMU()
 
 }
 
-MMU::MMU(char* path, Display* d)
+MMU::MMU(char* path, Display* d, Keyboard* k)
 {
     romPath = path;
     display = d;
+	keyboard = k;
 
     activeRomBank = 1;
     activeExternalRamBank = 0;
@@ -20,7 +21,6 @@ MMU::MMU(char* path, Display* d)
     memset(IORegs, 0x00, 0x7F *sizeof(u8));
     memset(hram, 0x00, 0x7F *sizeof(u8));
 
-    keytest = 0x0F;
 }
 
 MMU::~MMU()
@@ -143,11 +143,11 @@ u8 MMU::ReadByte(u16 addr)
                 switch (addr)
                 {
                 case 0xFF00:
-                    if ((IORegs[addr - IOREG_START] & 0x10) == 0x10)
-                        return IORegs[addr - IOREG_START] | 0xC0 | keytest ; // joypad reg
+					if ((IORegs[addr - IOREG_START] & 0x10) == 0x10)
+						return IORegs[addr - IOREG_START] | 0xC0 | keyboard->GetRow1(); // joypad reg
                         //return 0xFF;
                     else if ((IORegs[addr - IOREG_START] & 0x20) == 0x20)
-                        return IORegs[addr - IOREG_START] | 0xC0 | 0x0F; // joypad reg
+                        return IORegs[addr - IOREG_START] | 0xC0 | keyboard->GetRow2(); // joypad reg
                     else
                         int stop = 0;
                     break;

@@ -76,12 +76,13 @@ private:
     bool biosComplete;
 
     Display* display;
+	Keyboard* keyboard;
 
 
 public:
 
     MMU();
-    MMU(char* path, Display* d);
+    MMU(char* path, Display* d, Keyboard* k);
     ~MMU();
 
     int LoadRom();
@@ -99,7 +100,6 @@ public:
     bool GetBiosComplete() { return biosComplete; }
 
     void DumpToFile();
-    u8 keytest;
 };
 
 /* 

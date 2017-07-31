@@ -102,11 +102,12 @@ public:
     void Loop();
     bool IsRunning() { return running; }   // Getters
 
+	void SetRunning(bool state) { running = state; }
+	void JoypadInterrupt();
+
 private:
     void Reset();
     void ProcessEvents();
-    void KeysDown(SDL_Event e);
-    void KeysUp(SDL_Event e);
     void ProcessInstruction();
     void RunBios();
 
@@ -115,6 +116,13 @@ private:
 
     void InitOpcodeFunctions();
     void InitOpcodeFunctionsCB();
+
+
+
+
+	//----------------------
+	//	Instruction and helper functions
+	//----------------------
 
     // Helper Functions
     inline void Increment8BitValue(u8 &reg);

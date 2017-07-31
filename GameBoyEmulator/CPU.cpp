@@ -14,11 +14,13 @@ CPU::CPU(char* romPath) : CPU()
 
    
     display = new Display();
-    keyboard = new Keyboard();
+    keyboard = new Keyboard(this);
     display->init(4);
 
-    mmu = new MMU(romPath, display);
-    mmu->LoadRom();
+    mmu = new MMU(romPath, display, keyboard);
+	if (!mmu->LoadRom())
+		assert(false); // Error loading the ROM file
+
     display->SetMMU(mmu);
 
     mmu->cart->ReadTitle();
@@ -227,10 +229,10 @@ void CPU::ProcessEvents()
         switch (e.type)
         {
         case SDL_KEYDOWN:
-            KeysDown(e);
+            keyboard->KeysDown(e);
             break;
         case SDL_KEYUP:
-            KeysUp(e);
+            keyboard->KeysUp(e);
             break;
         case SDL_QUIT:
             running = false;
@@ -240,7 +242,6 @@ void CPU::ProcessEvents()
     }
 }
 
-void CPU::KeysDown(SDL_Event e)
 {
     if (e.key.keysym.sym == SDLK_ESCAPE)
     {
@@ -277,11 +278,6 @@ void CPU::KeysDown(SDL_Event e)
 
 void CPU::KeysUp(SDL_Event e)
 {
-    if (e.key.keysym.sym == SDLK_LEFT)
-    {
-        //display->Process();
-        mmu->keytest = 0x0F;
-    }
 }
 
 void CPU::ProcessInstruction()
