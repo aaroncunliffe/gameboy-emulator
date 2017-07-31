@@ -84,3 +84,7 @@ Also need todo bacground properly and palettes
 1. Palettes for background and sprites, Need to look at javascript emulation guide to finish background drawing.
 2. Input for keyboard, use #defines for mapping keys for now.
 3. Try to fill out CB opcode table, a lot of functions there and working but just need to fill out for each possible use, 
+
+01/07/2017 
+- Now gets to the game selection screen
+- For some reason, doesnt register as showing through background so sprites arent shown on that screen

@@ -10,6 +10,7 @@ class Joypad
 
 private:
 
+	// Joypad is activelow
 	u8 row1;
 	u8 row2;
 
@@ -27,7 +28,6 @@ public:
 
 };
 
-// Joypad is activelow
 
 // This is the matrix layout for register $FF00:
 //

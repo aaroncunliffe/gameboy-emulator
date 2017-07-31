@@ -143,6 +143,7 @@ private:
     inline void RES(u8 bit, u8& reg);
     inline void SLA(u8& reg);
     inline void SRL(u8& reg);
+	inline void SET(u8 bit, u8& reg);
 
     // Interrupt jumps
     void RST40(); // VBlank interrupt

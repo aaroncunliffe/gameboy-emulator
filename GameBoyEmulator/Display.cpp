@@ -20,10 +20,16 @@ Display::Display()
     scrollY = 0;
    
     // 4 shades of gray, default palette
-    pixelPalette[0] = { 0xFF, 0xFF, 0xFF, 80 };
-    pixelPalette[1] = { 0xC0, 0xC0, 0xC0, 80 };
-    pixelPalette[2] = { 0x60, 0x60, 0x60, 80 };
-    pixelPalette[3] = { 0x00, 0x00, 0x00, 00 };
+    bgPalette[0] = { 0xFF, 0xFF, 0xFF, 80 };
+    bgPalette[1] = { 0xC0, 0xC0, 0xC0, 80 };
+    bgPalette[2] = { 0x60, 0x60, 0x60, 80 };
+    bgPalette[3] = { 0x00, 0x00, 0x00, 00 };
+
+	obPalette[0] = { 0xFF, 0xFF, 0xFF, 80 };
+	obPalette[1] = { 0xC0, 0xC0, 0xC0, 80 };
+	obPalette[2] = { 0x60, 0x60, 0x60, 80 };
+	obPalette[3] = { 0x00, 0x00, 0x00, 00 };
+
 }
 
 void Display::SetMMU(MMU* mem)
@@ -97,10 +103,10 @@ void Display::RenderScanline()
             tindex = vram[offsetbase + (x / 8)];
             scanrow[x] = Tileset[tindex][y][x % 8];
 
-            pixels[DISPLAY_WIDTH * currentLine + x].r = pixelPalette[Tileset[tindex][y][x % 8]].r;
-            pixels[DISPLAY_WIDTH * currentLine + x].g = pixelPalette[Tileset[tindex][y][x % 8]].g;
-            pixels[DISPLAY_WIDTH * currentLine + x].b = pixelPalette[Tileset[tindex][y][x % 8]].b;
-            pixels[DISPLAY_WIDTH * currentLine + x].a = pixelPalette[Tileset[tindex][y][x % 8]].a;
+            pixels[DISPLAY_WIDTH * currentLine + x].r = bgPalette[Tileset[tindex][y][x % 8]].r;
+            pixels[DISPLAY_WIDTH * currentLine + x].g = bgPalette[Tileset[tindex][y][x % 8]].g;
+            pixels[DISPLAY_WIDTH * currentLine + x].b = bgPalette[Tileset[tindex][y][x % 8]].b;
+            pixels[DISPLAY_WIDTH * currentLine + x].a = bgPalette[Tileset[tindex][y][x % 8]].a;
         }
     }
 
@@ -147,21 +153,12 @@ void Display::RenderScanline()
                         // If the sprite is X-flipped,
                         // write pixels in reverse order
                         u8 test = tilerow[sprite.xflip ? (7 - x) : x];
-                        colour = pixelPalette[tilerow[sprite.xflip ? (7 - x) : x]];
+                        colour = obPalette[tilerow[sprite.xflip ? (7 - x) : x]];
 
-                        /*GPU._scrn.data[canvasoffs + 0] = colour.r;
-                        GPU._scrn.data[canvasoffs + 1] = colour.g;
-                        GPU._scrn.data[canvasoffs + 2] = colour.b;
-                        GPU._scrn.data[canvasoffs + 3] = colour.a;*/
-                       
-                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].a = pixelPalette[Tileset[sprite.tileNum][(currentLine - sprite.y)][x]].r;
-                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].r = pixelPalette[Tileset[sprite.tileNum][(currentLine - sprite.y)][x]].g;
-                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].g = pixelPalette[Tileset[sprite.tileNum][(currentLine - sprite.y)][x]].b;
-                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].b = pixelPalette[Tileset[sprite.tileNum][(currentLine - sprite.y)][x]].a;
-                       
-                        
-
-                        //canvasoffs += 4;
+                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].a = colour.r;
+                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].r = colour.g;
+                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].g = colour.b;
+                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].b = colour.a;
                    }
                 }
             }

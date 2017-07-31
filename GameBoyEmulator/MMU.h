@@ -100,6 +100,10 @@ public:
     bool GetBiosComplete() { return biosComplete; }
 
     void DumpToFile();
+
+private:
+
+
 };
 
 /* 

@@ -233,6 +233,7 @@ void CPU::ProcessEvents()
             break;
         case SDL_KEYUP:
             keyboard->KeysUp(e);
+			//log = true;
             break;
         case SDL_QUIT:
             running = false;

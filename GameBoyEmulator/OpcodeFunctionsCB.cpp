@@ -43,6 +43,13 @@ void CPU::CBopcode0x40() // BIT 0,B
     counter += 8;
 }
 
+void CPU::CBopcode0x46() // BIT 0, (HL)
+{
+	BIT(0x01, mmu->ReadByte(regs.HL.word));
+	regs.pc += 2;
+	counter += 16;
+}
+
 void CPU::CBopcode0x47() // BIT 0,A
 {
     BIT(0x01, regs.AF.high);
@@ -124,7 +131,7 @@ void CPU::CBopcode0x7E() // BIT 7,(HL)
 {
     BIT(0x80, mmu->ReadByte(regs.HL.word));
     regs.pc += 2;
-    counter += 8;
+    counter += 16;
 }
 
 void CPU::CBopcode0x7F() // BIT 7,A
@@ -148,6 +155,26 @@ void CPU::CBopcode0x87() // RES 0,A
     RES(0x01, regs.AF.high);
     regs.pc += 2;
     counter += 8;
+}
+
+void CPU::CBopcode0xBE() // RES 7,(HL)
+{
+	u8 byte = mmu->ReadByte(regs.HL.word);
+	RES(0x80, byte);
+	mmu->WriteByte(regs.HL.word, byte);
+
+	regs.pc += 2;
+	counter += 16;
+}
+
+void CPU::CBopcode0xFE() // SET 7,(HL)
+{
+	u8 byte = mmu->ReadByte(regs.HL.word);
+	SET(0x80, byte);
+	mmu->WriteByte(regs.HL.word, byte);
+
+	regs.pc += 2;
+	counter += 16;
 }
 
 
@@ -228,6 +255,11 @@ inline void CPU::SRL(u8& reg) // Flags: Z 0 0 C - Shift n right into Carry. MSB 
 }
 
 
+inline void CPU::SET(u8 bit, u8& reg) // Flags:: - - - - : Set bit bit in register reg
+{
+	reg |= bit;
+}
+
 
 
 // Assigns all of the function pointers
@@ -303,7 +335,7 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0x43] = nullptr; // = &CPU::CBopcode0x43;
     opcodeFunctionCB[0x44] = nullptr; // = &CPU::CBopcode0x44;
     opcodeFunctionCB[0x45] = nullptr; // = &CPU::CBopcode0x45;
-    opcodeFunctionCB[0x46] = nullptr; // = &CPU::CBopcode0x46;
+    opcodeFunctionCB[0x46] = &CPU::CBopcode0x46;
     opcodeFunctionCB[0x47] = &CPU::CBopcode0x47;
     opcodeFunctionCB[0x48] = &CPU::CBopcode0x48;
     opcodeFunctionCB[0x49] = nullptr; // = &CPU::CBopcode0x49;
@@ -423,7 +455,7 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0xBB] = nullptr; // = &CPU::CBopcode0xBB;
     opcodeFunctionCB[0xBC] = nullptr; // = &CPU::CBopcode0xBC;
     opcodeFunctionCB[0xBD] = nullptr; // = &CPU::CBopcode0xBD;
-    opcodeFunctionCB[0xBE] = nullptr; // = &CPU::CBopcode0xBE;
+    opcodeFunctionCB[0xBE] = &CPU::CBopcode0xBE;
     opcodeFunctionCB[0xBF] = nullptr; // = &CPU::CBopcode0xBF;
     opcodeFunctionCB[0xC0] = nullptr; // = &CPU::CBopcode0xC0;
     opcodeFunctionCB[0xC1] = nullptr; // = &CPU::CBopcode0xC1;
@@ -476,7 +508,7 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0xF9] = nullptr; // = &CPU::CBopcode0xF9;
     opcodeFunctionCB[0xFA] = nullptr; // = &CPU::CBopcode0xFA;
     opcodeFunctionCB[0xFB] = nullptr; // = &CPU::CBopcode0xFB;
-    opcodeFunctionCB[0xFE] = nullptr; // = &CPU::CBopcode0xFE;
+    opcodeFunctionCB[0xFE] = &CPU::CBopcode0xFE;
     opcodeFunctionCB[0xFF] = nullptr; // = &CPU::CBopcode0xFF;
 
 }

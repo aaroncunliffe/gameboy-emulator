@@ -78,7 +78,8 @@ private:
     u8 oam[0x100];
 
 
-    pixel pixelPalette[4];
+    pixel bgPalette[4];
+	pixel obPalette[4];
 
     u8 Tileset[384][8][8];
     sprite spriteStore[40];
@@ -89,8 +90,6 @@ private:
     u8 LCDC;
     u8 scrollX;
     u8 scrollY;
-    
-    u8 bgMapInUse;
 
     SDL_Color pixels[DISPLAY_HEIGHT * DISPLAY_WIDTH]; // display or viewport
     SDL_Color spritePixels[DISPLAY_WIDTH * DISPLAY_HEIGHT];
@@ -132,7 +131,6 @@ public:
 
     u8 GetLine() { return currentLine; }
 
-    
 
     void Step(u32 clock);
    
