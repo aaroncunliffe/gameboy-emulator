@@ -10,7 +10,7 @@
 #include "MMU.h"
 #include "Cartridge.h"
 #include "Display.h"
-#include "Keyboard.h"
+#include "Joypad.h"
 #include "Opcodes.h"
 
 
@@ -80,7 +80,7 @@ private:
 
     MMU* mmu;
     Display* display;
-    Keyboard* keyboard;
+    Joypad* keyboard;
 
     u16 counter;
     u32 lastCycleTime;

@@ -7,7 +7,7 @@
 #include "Definitions.h"
 #include "Cartridge.h"
 #include "Display.h"
-#include "Keyboard.h"
+#include "joypad.h"
 
 
 const u32 MAX_ROM_SIZE = 0x7A1200; // 8 MB
@@ -76,13 +76,13 @@ private:
     bool biosComplete;
 
     Display* display;
-	Keyboard* keyboard;
+	Joypad* joypad;
 
 
 public:
 
     MMU();
-    MMU(char* path, Display* d, Keyboard* k);
+    MMU(char* path, Display* d, Joypad* j);
     ~MMU();
 
     int LoadRom();

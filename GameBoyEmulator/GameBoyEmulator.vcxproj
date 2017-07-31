@@ -158,7 +158,7 @@
     <ClCompile Include="CPUOLD.cpp" />
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="Display.cpp" />
-    <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="Joypad.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MMU.cpp" />
     <ClCompile Include="OpcodeFunctions.cpp" />
@@ -170,7 +170,7 @@
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="Display.h" />
-    <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Joypad.h" />
     <ClInclude Include="MMU.h" />
     <ClInclude Include="Opcodes.h" />
   </ItemGroup>

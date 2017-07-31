@@ -1,16 +1,16 @@
-#include "Keyboard.h"
+#include "Joypad.h"
 #include "CPU.h"
 
 
 
-Keyboard::Keyboard(CPU* c)
+Joypad::Joypad(CPU* c)
 {
 	cpu = c;
 	row1 = 0x0F;
 	row2 = 0x0F;
 }
 
-void Keyboard::KeysDown(SDL_Event e)
+void Joypad::KeysDown(SDL_Event e)
 {
 	// Utility
 	if (e.key.keysym.sym == SDLK_ESCAPE)
@@ -70,7 +70,7 @@ void Keyboard::KeysDown(SDL_Event e)
 
 }
 
-void Keyboard::KeysUp(SDL_Event e)
+void Joypad::KeysUp(SDL_Event e)
 {
 	// Row 1
 	if (e.key.keysym.sym == Key_Start)

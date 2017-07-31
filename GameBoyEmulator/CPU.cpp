@@ -14,7 +14,7 @@ CPU::CPU(char* romPath) : CPU()
 
    
     display = new Display();
-    keyboard = new Keyboard(this);
+    keyboard = new Joypad(this);
     display->init(4);
 
     mmu = new MMU(romPath, display, keyboard);
@@ -242,42 +242,10 @@ void CPU::ProcessEvents()
     }
 }
 
+void CPU::JoypadInterrupt()
 {
-    if (e.key.keysym.sym == SDLK_ESCAPE)
-    {
-        std::cout << "Quitting" << std::endl;
-        running = false;
-    }
-    else if (e.key.keysym.sym == SDLK_F1)
-    {
-        DumpToScreen();
-    }
-    else if (e.key.keysym.sym == SDLK_LEFT)
-    {
-        //display->Process();
-        mmu->keytest = 0x07;
-        //log = true;
-        //u8 byte = mmu->ReadByte(0xFF0F);
-        //mmu->WriteByte(0xFF0F, byte |= JOYPAD_INTERUPT_BIT);
-    }
-    else if (e.key.keysym.sym == SDLK_RIGHT)
-    {
-        //display->SetScrollX(display->GetScrollX() + 1);
-    }
-    else if (e.key.keysym.sym == SDLK_UP)
-    {
-        //display->SetScrollY(display->GetScrollY() - 1);
-    }
-    else if (e.key.keysym.sym == SDLK_DOWN)
-    {
-        //display->SetScrollY(display->GetScrollY() + 1);
-    }
-    
-
-}
-
-void CPU::KeysUp(SDL_Event e)
-{
+	u8 byte = mmu->ReadByte(0xFF0F);
+	mmu->WriteByte(0xFF0F, byte |= JOYPAD_INTERUPT_BIT);
 }
 
 void CPU::ProcessInstruction()

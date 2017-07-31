@@ -5,7 +5,7 @@
 class CPU;
 
 
-class Keyboard
+class Joypad
 {
 
 private:
@@ -16,7 +16,7 @@ private:
 	CPU* cpu;
 
 public:
-	Keyboard(CPU* c);
+	Joypad(CPU* c);
 
 	u8 GetRow1() { return row1; }
 	u8 GetRow2() { return row2; }
