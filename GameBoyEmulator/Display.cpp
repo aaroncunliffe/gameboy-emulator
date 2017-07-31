@@ -284,11 +284,6 @@ u8 Display::ReadVram(u16 addr)
 
 void Display::WriteOAM(u16 addr, u8 byte)
 {
-
-    if (addr == 0xFE10 && byte == 0x17)
-    {
-        int stop = 0;
-    }
    oam[addr - OAM_START] = byte;
    UpdateSprite(addr, byte);
 }
