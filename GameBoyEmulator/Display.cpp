@@ -148,7 +148,7 @@ void Display::RenderScanline()
                     // if it's not colour 0 (transparent), AND
                     // if this sprite has priority OR shows under the bg
                     // then render the pixel
-                    if ((sprite.x + x) >= 0 && (sprite.x + x) < 160 && tilerow[x] && (sprite.priority || !scanrow[sprite.x + x]))
+                    if ((sprite.x + x) >= 0 && (sprite.x + x) < 160 && tilerow[x] && (~sprite.priority || !scanrow[sprite.x + x])) // ~sprite.priority or sprite.prority??
                     {
                         // If the sprite is X-flipped,
                         // write pixels in reverse order
@@ -242,7 +242,7 @@ void Display::UpdateSprite(u16 oamAddr, u8 byte)
             spriteStore[sprite].palette = (val & 0x10) ?  true : false;
             spriteStore[sprite].xflip = (val & 0x20) ?    true : false;
             spriteStore[sprite].yflip = (val & 0x40) ?    true : false;
-            spriteStore[sprite].priority = (val & 0x80) ? true : false;
+            spriteStore[sprite].priority = (val & 0x80) ? true : false; // True - Below background, False - on top
             break;
         }
     }

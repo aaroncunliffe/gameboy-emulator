@@ -1594,7 +1594,6 @@ void CPU::opcode0xCB() // prefix CB
     else
     {
         assert(false); // Unknown CB operation
-        
     }
 
 }

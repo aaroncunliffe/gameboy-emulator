@@ -88,3 +88,10 @@ Also need todo bacground properly and palettes
 01/07/2017 
 - Now gets to the game selection screen
 - For some reason, doesnt register as showing through background so sprites arent shown on that screen
+
+
+
+
+When down button pressed, 0xCBDE is called
+
+

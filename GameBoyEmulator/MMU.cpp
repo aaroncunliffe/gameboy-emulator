@@ -7,6 +7,8 @@ MMU::MMU()
 
 MMU::MMU(char* path, Display* d, Joypad* j)
 {
+    srand(time(NULL));
+
     romPath = path;
     display = d;
 	joypad = j;

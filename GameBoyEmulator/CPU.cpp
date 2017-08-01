@@ -259,7 +259,7 @@ void CPU::ProcessInstruction()
 #ifdef _LOG
     //if (totalInstructions > 0x01527d3a) // Total instructions for 2nd demo block hitting
     //{
-    //if(totalInstructions > 0x0131a335)
+    //if(totalInstructions > 0x002bb60f)
     //{
     if (log)
     {
@@ -281,6 +281,19 @@ void CPU::ProcessInstruction()
         instructionProfiling[nextByte]++;
     }
      
+    if (regs.pc == 0x1C75)
+    {
+        //log = true;
+    }
+    if (regs.pc == 0x2542)
+    {
+        //log = true;
+    }
+    if (regs.pc == 0x251E)
+    {
+        //log = true;
+    }
+    //log = true;
     
 
    (this->*opcodeFunction[opcodeByte])();
