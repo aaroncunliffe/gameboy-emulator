@@ -29,39 +29,39 @@ void Joypad::KeysDown(SDL_Event e)
 		row1 &= ~0x08;
 		cpu->JoypadInterrupt();
 	}
-	else if (e.key.keysym.sym == Key_Select)
+	if (e.key.keysym.sym == Key_Select)
 	{
 		row1 &= ~0x04;
 		cpu->JoypadInterrupt();
 	}
-	else if (e.key.keysym.sym == Key_B)
+	if (e.key.keysym.sym == Key_B)
 	{
 		row1 &= ~0x02;
 		cpu->JoypadInterrupt();
 	}
-	else if (e.key.keysym.sym == Key_A)
+	if (e.key.keysym.sym == Key_A)
 	{
 		row1 &= ~0x01;
 		cpu->JoypadInterrupt();
 	}
 
 	// Row 2
-	else if (e.key.keysym.sym == Key_Down)
+	if (e.key.keysym.sym == Key_Down)
 	{
 		row2 &= ~0x08;
 		cpu->JoypadInterrupt();
 	}
-	else if (e.key.keysym.sym == Key_Up)
+	if (e.key.keysym.sym == Key_Up)
 	{
 		row2 &= ~0x04;
 		cpu->JoypadInterrupt();
 	}
-	else if (e.key.keysym.sym == Key_Left)
+	if (e.key.keysym.sym == Key_Left)
 	{
 		row2 &= ~0x02;
 		cpu->JoypadInterrupt();
 	}
-	else if (e.key.keysym.sym == Key_Right)
+	if (e.key.keysym.sym == Key_Right)
 	{
 		row2 &= ~0x01;
 		cpu->JoypadInterrupt();
@@ -77,33 +77,33 @@ void Joypad::KeysUp(SDL_Event e)
 	{
 		row1 |= 0x08;
 	}
-	else if (e.key.keysym.sym == Key_Select)
+	if (e.key.keysym.sym == Key_Select)
 	{
 		row1 |= 0x04;
 	}
-	else if (e.key.keysym.sym == Key_B)
+	if (e.key.keysym.sym == Key_B)
 	{
 		row1 |= 0x02;
 	}
-	else if (e.key.keysym.sym == Key_A)
+	if (e.key.keysym.sym == Key_A)
 	{
 		row1 |= 0x01;
 	}
 
 	// Row 2
-	else if (e.key.keysym.sym == Key_Down)
+	if (e.key.keysym.sym == Key_Down)
 	{
 		row2 |= 0x08;
 	}
-	else if (e.key.keysym.sym == Key_Up)
+	if (e.key.keysym.sym == Key_Up)
 	{
 		row2 |= 0x04;
 	}
-	else if (e.key.keysym.sym == Key_Left)
+	if (e.key.keysym.sym == Key_Left)
 	{
 		row2 |= 0x02;
 	}
-	else if (e.key.keysym.sym == Key_Right)
+	if (e.key.keysym.sym == Key_Right)
 	{
 		row2 |= 0x01;
 	}

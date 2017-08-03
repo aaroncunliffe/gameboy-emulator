@@ -1,21 +1,16 @@
 
-
+--- My notes about the emulator development from the ground up and testing with tetris, this is the first todo, but will have 1 for each game i test to track any issues I run into ----
 
 CPU
 
 1. All XOR instructions
 
-2. WHY IS ADD 16 bit registers marked as TODO?!
-
+2. WHY IS ADD 16 bit registers marked as TODO... I must've forgotten something or left that in
 3. Need to enable interupts on reti instruction
-
-4. Pay attention to SIGNED or UNSIGNED immediate values -> and how this effects flags
-
+4. Pay attention to SIGNED or UNSIGNED immediate values -> and how this effects flags - Jump to a RELATIVE address is always signed, so it can jump forwards or backwards
 
 
 DISPLAY
-
-
 
 -- WARNINGS --
 1. Flags may not be set correctly, especially carry / half-carry for subtracts
@@ -68,30 +63,59 @@ If data in FFC6 == 0 then jump to 048C to start process of changing screen
 // Need to do palletes for backgrounds and sprites
 // Input DEFINITELY being misinterpreted
 
-28/07/2017
+27/07/2017
 After first block hits the floor in the demo, loop starts. Need to see why
 
-29/07/2017
+28/07/2017
 Never jumps back from instruction 0x21B4
 
-30/07/2017
+29/07/2017
 
 First block runs instruction 4 times 0x2621 abd 2nd block calls 3 times, my emulator alters the position of the map after the 3 times, not sure why.
 Also need todo bacground properly and palettes
 
 
-31/07/2017 - TODO:
+30/07/2017 - TODO:
 1. Palettes for background and sprites, Need to look at javascript emulation guide to finish background drawing.
 2. Input for keyboard, use #defines for mapping keys for now.
 3. Try to fill out CB opcode table, a lot of functions there and working but just need to fill out for each possible use, 
 
-01/07/2017 
+31/07/2017 
 - Now gets to the game selection screen
 - For some reason, doesnt register as showing through background so sprites arent shown on that screen
-
-
-
-
 When down button pressed, 0xCBDE is called
 
 
+01/08/2017
+- B key now works
+- Down key now works
+- A lot of CB functions implemented
+- When a line is completed after flashing and vanishing the game crashes.
+        pc = 0x2262 is only hit after a line is completed, Track from there, see what goes wrong. (completes flashing then display messes up, gameplay continues though)
+
+03/08/2017 - Tracking down bug after completing line
+
+0x2245 is hit only when a block hits the floor
+
+0x2252 loads value at address regs.DE.word into A, A &= A, if result zero, jump away, if a line is made, 0xCA is the value read from regs.DE.word
+    0x2256 first is hit only when a line is complete (After above checks)
+    When a row is complete, tile 0x8C is used to flash where the line to be removed is, it flashes 3 times, then on the 4th time the blocks are shifted down#
+
+Possible cause of error - Something sets LCDC to 0x00...
+Update Tileset code resets LCDC, no idea why, after write to addr 0x9846 (VRAM)
+
+Need to fix error with MMU, IORegs reads and writes are also attempted to be written to HRAM
+
+### FIX: Tileset array is [384] in length, An instruction writing to VRAM 9FFF translates to tile [388], this inadvertently set LCDC to 0
+         I forced a check that the updateTileset function was only called if vram address was actually tile data.
+
+
+---- General tetris notes ----
+
+pc 0x0218 appears to be the main game loop, many calls to other locations
+
+
+
+---- Big TODO's ----
+1. Save files
+2. DAA instruction

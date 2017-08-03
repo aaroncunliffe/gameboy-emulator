@@ -79,34 +79,34 @@ void Display::init(int multiplier)
     Update();
 
     activeMode = OAM;
-    currentLine = 0;
+    LY = 0;
     modeClock = 0;
     SDL_SetWindowSize(window, DISPLAY_WIDTH * multiplier, DISPLAY_HEIGHT * multiplier);
 }
 
 void Display::RenderScanline()
 {
-
     u8 scanrow[160]; // 1 line of pixels
 
     // Background render
     if (LCDC & BG_ENABLE_OFFSET)
     {
         u16 tilemapbase = (LCDC & BG_TILE_MAP_SELECT_OFFSET) ? 0x1C00 : 0x1800;
-        u16 offsetbase = tilemapbase + ((((currentLine + scrollY) & 255) >> 3) << 5);
+        u16 offsetbase = tilemapbase + ((((LY + scrollY) & 255) >> 3) << 5);
         u8 x, y, tindex;
 
-        y = (currentLine + scrollY) & 7;
+        y = (LY + scrollY) & 7;
 
         for (x = 0; x < 160; x++)
         {
             tindex = vram[offsetbase + (x / 8)];
             scanrow[x] = Tileset[tindex][y][x % 8];
 
-            pixels[DISPLAY_WIDTH * currentLine + x].r = bgPalette[Tileset[tindex][y][x % 8]].r;
-            pixels[DISPLAY_WIDTH * currentLine + x].g = bgPalette[Tileset[tindex][y][x % 8]].g;
-            pixels[DISPLAY_WIDTH * currentLine + x].b = bgPalette[Tileset[tindex][y][x % 8]].b;
-            pixels[DISPLAY_WIDTH * currentLine + x].a = bgPalette[Tileset[tindex][y][x % 8]].a;
+
+            pixels[DISPLAY_WIDTH * LY + x].r = bgPalette[Tileset[tindex][y][x % 8]].r;
+            pixels[DISPLAY_WIDTH * LY + x].g = bgPalette[Tileset[tindex][y][x % 8]].g;
+            pixels[DISPLAY_WIDTH * LY + x].b = bgPalette[Tileset[tindex][y][x % 8]].b;
+            pixels[DISPLAY_WIDTH * LY + x].a = bgPalette[Tileset[tindex][y][x % 8]].a;
         }
     }
 
@@ -118,13 +118,13 @@ void Display::RenderScanline()
             sprite sprite = spriteStore[i];
 
             // Check if this sprite falls on this scanline
-            if (sprite.y <= currentLine && (sprite.y + 8) > currentLine)
+            if (sprite.y <= LY && (sprite.y + 8) > LY)
             {
                 // Palette to use for this sprite
                 //u16 pal = sprite.palette ? GPU._pal.sprite1 : GPU._pal.sprite0;
 
                 // Where to render on the canvas
-                u16 canvasoffs = (DISPLAY_WIDTH * currentLine   + sprite.x);
+                u16 canvasoffs = (DISPLAY_WIDTH * LY   + sprite.x);
 
                 // Data for this line of the sprite
                 u8 tilerow[8];
@@ -133,11 +133,11 @@ void Display::RenderScanline()
                 // use the opposite side of the tile
                 if (sprite.yflip)
                 {
-                    for (int i = 0; i < 8; i++) { tilerow[i] = Tileset[sprite.tileNum][7 - (currentLine - sprite.y)][i]; }
+                    for (int i = 0; i < 8; i++) { tilerow[i] = Tileset[sprite.tileNum][7 - (LY - sprite.y)][i]; }
                 }
                 else
                 {
-                    for (int i = 0; i < 8; i++) { tilerow[i] = Tileset[sprite.tileNum][(currentLine - sprite.y)][i]; }
+                    for (int i = 0; i < 8; i++) { tilerow[i] = Tileset[sprite.tileNum][(LY - sprite.y)][i]; }
                 }
 
                 pixel colour;
@@ -155,10 +155,10 @@ void Display::RenderScanline()
                         u8 test = tilerow[sprite.xflip ? (7 - x) : x];
                         colour = obPalette[tilerow[sprite.xflip ? (7 - x) : x]];
 
-                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].a = colour.r;
-                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].r = colour.g;
-                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].g = colour.b;
-                        pixels[DISPLAY_WIDTH * currentLine + sprite.x + x].b = colour.a;
+                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].a = colour.r;
+                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].r = colour.g;
+                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].g = colour.b;
+                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].b = colour.a;
                    }
                 }
             }
@@ -202,7 +202,7 @@ void Display::UpdateTileset(u16 addr)
 {
     // Work out which tile and row was updated
     u16 addrtrans = addr & 0x1FFE; // Starts at 0x8001
-    u16 tile = (addrtrans >> 4); // Divide by 16, 16 bytes in a tile
+    u16 tile = (addrtrans >> 4) & 511; // Divide by 16, 16 bytes in a tile
     u16 y = (addrtrans >> 1) & 0x07; // Get the row, Divide by 2, only need the first byte
 
     u8 rowIndex;
@@ -270,24 +270,44 @@ void Display::Draw()
 
 void Display::WriteVram(u16 addr, u8 byte)
 {
-    vram[addr - VRAM_OFFSET] = byte;
-    UpdateTileset(addr);
+    //if (activeMode != VRAM)
+    //{
+        vram[addr - VRAM_OFFSET] = byte;
+        if( addr < 0x9800)
+            UpdateTileset(addr);
+    //}
+    //else
+    //{
+    //    int stop = 0;
+    //}
 }
 
 u8 Display::ReadVram(u16 addr)
 {
-    return vram[addr - VRAM_OFFSET];
+    if (activeMode != VRAM)
+    {
+        return vram[addr - VRAM_OFFSET];
+    }
+    return 0xFF;
 }
 
 void Display::WriteOAM(u16 addr, u8 byte)
 {
-   oam[addr - OAM_START] = byte;
-   UpdateSprite(addr, byte);
+    if (activeMode != OAM && activeMode != VRAM)
+    {
+        oam[addr - OAM_START] = byte;
+        UpdateSprite(addr, byte);
+    }
+  
 }
 
 u8 Display::ReadOAM(u16 addr)
 {
-    return oam[addr - OAM_START];
+    if (activeMode != OAM && activeMode != VRAM)
+    {
+        return oam[addr - OAM_START];
+    }
+    return 0xFF;
 }
 
 void Display::ProcessSprites()
@@ -328,6 +348,9 @@ void Display::ProcessSprites()
 void Display::UpdateRegisters()
 {
     // LCDC
+    
+
+    // STAT
     switch (activeMode)
     {
     case HBLANK:
@@ -335,7 +358,7 @@ void Display::UpdateRegisters()
         break;
     case VBLANK:
         STAT &= ~0x03;
-        STAT |=  0x01;
+        STAT |= 0x01;
         break;
     case OAM:
         STAT &= ~0x03;
@@ -347,7 +370,7 @@ void Display::UpdateRegisters()
         break;
     }
 
-    // STAT
+
 
 }
 
@@ -366,9 +389,9 @@ void Display::Step(u32 clock)
         if (modeClock >= 204)
         {
             modeClock = 0;
-            currentLine++;
+            LY++;
 
-            if (currentLine == 143)
+            if (LY == 143)
             {
                 // Enter vblank
                 activeMode = VBLANK;
@@ -391,13 +414,13 @@ void Display::Step(u32 clock)
         if (modeClock >= 456)
         {
             modeClock = 0;
-            currentLine++;
+            LY++;
 
-            if (currentLine > 153)
+            if (LY > 153)
             {
                 // Restart scanning modes
                 activeMode = OAM;
-                currentLine = 0;
+                LY = 0;
             }
         }
         break;
@@ -440,7 +463,6 @@ void Display::Update()
 
 void Display::StartDMA(u16 source)
 {
-
     for (int i = 0; i < DMA_LENGTH; i++)
     {
         WriteOAM(OAM_START + i, mmu->ReadByte(source + i));

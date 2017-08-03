@@ -70,7 +70,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="todo.txt">
+    <Text Include="Tetris-todo.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

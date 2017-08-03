@@ -66,7 +66,7 @@ private:
 
     GPU_MODE activeMode;
     u32 modeClock;
-    u32 currentLine;
+  
 
     MMU* mmu;
 
@@ -85,11 +85,14 @@ private:
     sprite spriteStore[40];
 
 
-    // Display Register
-    u8 STAT;
-    u8 LCDC;
-    u8 scrollX;
-    u8 scrollY;
+    // Display Registers
+
+    u8 LCDC;        // 0xFF40
+    u8 STAT;        // 0xFF41
+    u8 scrollY;     // 0xFF42
+    u8 scrollX;     // 0xFF43
+    u8 LY;          // 0xFF44
+    u8 LYC;         // 0xFF45
 
     SDL_Color pixels[DISPLAY_HEIGHT * DISPLAY_WIDTH]; // display or viewport
     SDL_Color spritePixels[DISPLAY_WIDTH * DISPLAY_HEIGHT];
@@ -129,8 +132,10 @@ public:
     u8 GetScrollX() { return scrollX; }
     u8 GetScrollY() { return scrollY; }
 
-    u8 GetLine() { return currentLine; }
+    u8 GetLY() { return LY; }
 
+    u8 GetLYC() { return LYC; }
+    void SetLYC(u8 val) { LYC = val; }
 
     void Step(u32 clock);
    

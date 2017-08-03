@@ -175,7 +175,7 @@
     <ClInclude Include="Opcodes.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="todo.txt" />
+    <Text Include="Tetris-todo.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

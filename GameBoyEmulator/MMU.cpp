@@ -145,13 +145,13 @@ u8 MMU::ReadByte(u16 addr)
                 switch (addr)
                 {
                 case 0xFF00:
-					if ((IORegs[addr - IOREG_START] & 0x10) == 0x10)
-						return IORegs[addr - IOREG_START] | 0xC0 | joypad->GetRow1(); // joypad reg
+                    if ((IORegs[addr - IOREG_START] & 0x10) == 0x10)
+                        return IORegs[addr - IOREG_START] | 0xC0 | joypad->GetRow1(); // joypad reg
                         //return 0xFF;
                     else if ((IORegs[addr - IOREG_START] & 0x20) == 0x20)
                         return IORegs[addr - IOREG_START] | 0xC0 | joypad->GetRow2(); // joypad reg
                     else
-                        int stop = 0;
+                        return 0xFF;
                     break;
 
                 case 0xFF04:
@@ -175,14 +175,17 @@ u8 MMU::ReadByte(u16 addr)
                     display->GetScrollX();
                     break;
                 case 0xFF44: // LY
-                    return display->GetLine(); //0x94 - tetris
+                    return display->GetLY(); //0x94 - tetris
                     break;
-
+                case 0xFF45:
+                    return display->GetLYC();
+                    break;
                 }
 
             default:
                 return IORegs[addr - IOREG_START];
                 break;
+            
 
             case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF:// HRAM
                 //if (addr == 0xFFFF)
@@ -285,8 +288,11 @@ void MMU::WriteByte(u16 addr, u8 byte)
                 break;
                    
                 case 0xFF40:
+                {
                     display->SetLCDC(byte);
                     break;
+                } 
+                   
                 case 0xFF41:
                     display->SetStat(byte);
                     break;
@@ -296,13 +302,19 @@ void MMU::WriteByte(u16 addr, u8 byte)
                 case 0xFF43:
                     display->SetScrollX(byte);
                     break;
+                case 0xFF44: // LY - Read only.
+                    break;
+                case 0xFF45:
+                    //display->SetLYC(byte);
+                    break;
                 case 0xFF46:
                     display->StartDMA(byte << 8);
                     break;
-                default:
-                    IORegs[addr - IOREG_START] = byte; // ??????
-                    break;
+                
                 }
+            default:
+                IORegs[addr - IOREG_START] = byte; // ??????
+                break;
             // Could put default statement here too
 
             case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF:// HRAM

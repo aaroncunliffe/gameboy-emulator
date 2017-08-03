@@ -129,7 +129,6 @@ void CPU::Loop()
 {
     if (counter == 0)
     {
-
         // Handle interrupts
         if (regs.ime)
         {
@@ -180,14 +179,14 @@ void CPU::Loop()
                 halt = false;
             }
         }
-        
+
+
         if (!halt)
         {
             ProcessInstruction();   // 
         }
-       
-        display->Step(counter); //
 
+        display->Step(counter); //
                        
         //counter = 0;
         //display->Update();
@@ -197,8 +196,6 @@ void CPU::Loop()
         ProcessEvents();
         //std::cout << (mmu->ReadByte(0xFFFF) == 0x00 ? "off" : "on") << std::endl;
 
-       
-
 
     }
     else
@@ -206,16 +203,13 @@ void CPU::Loop()
         counter--;
     }
 
-   
-  
-
     u32 msForCycle = SDL_GetTicks() - this->lastCycleTime;
     int delayTimeMs = (17 - msForCycle);
 
     // Only if it is above 1 do we delay
     if (delayTimeMs > 0)
     {
-        //SDL_Delay( 100 * delayTimeMs);
+        SDL_Delay( 100 * delayTimeMs);
     }
     
     
@@ -261,7 +255,7 @@ void CPU::ProcessInstruction()
     //{
     //if(totalInstructions > 0x002bb60f)
     //{
-    if (log)
+    if (log ) //&& (regs.pc > 0x4000)
     {
         //std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (u16)mmu->ReadByte(0xFFC6) << " - " << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
         if (opcodeByte != 0xCB)
@@ -281,23 +275,35 @@ void CPU::ProcessInstruction()
         instructionProfiling[nextByte]++;
     }
      
-    if (regs.pc == 0x1C75)
+    if (regs.pc == 0x2262)
     {
         //log = true;
     }
-    if (regs.pc == 0x2542)
+    
+    bool afterline = false;
+    if (regs.pc == 0x2256) // check DE.word == 0xC0
     {
+        afterline = true;
         //log = true;
+        int stop = 0;
     }
-    if (regs.pc == 0x251E)
+
+    if (regs.pc == 0x2509 && regs.AF.high == 0x00) // check DE.word == 0xC0
     {
         //log = true;
+        int stop = 0;
     }
     //log = true;
-    
 
    (this->*opcodeFunction[opcodeByte])();
     totalInstructions++;
+
+    if (display->GetLCDC() == 0x00)
+    {
+        int stop = 0;
+
+        //log = true;
+    }
 }
 
 void CPU::DumpToFile()
