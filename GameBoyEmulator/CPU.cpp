@@ -23,7 +23,6 @@ CPU::CPU(char* romPath) : CPU()
 
     display->SetMMU(mmu);
 
-    mmu->cart->ReadTitle();
     InitOpcodeFunctions();
     InitOpcodeFunctionsCB();
 
@@ -209,7 +208,7 @@ void CPU::Loop()
     // Only if it is above 1 do we delay
     if (delayTimeMs > 0)
     {
-        SDL_Delay( 100 * delayTimeMs);
+        //SDL_Delay( 100 * delayTimeMs);
     }
     
     
@@ -274,36 +273,10 @@ void CPU::ProcessInstruction()
         instructionProfiling[opcodeByte]++;
         instructionProfiling[nextByte]++;
     }
-     
-    if (regs.pc == 0x2262)
-    {
-        //log = true;
-    }
-    
-    bool afterline = false;
-    if (regs.pc == 0x2256) // check DE.word == 0xC0
-    {
-        afterline = true;
-        //log = true;
-        int stop = 0;
-    }
-
-    if (regs.pc == 0x2509 && regs.AF.high == 0x00) // check DE.word == 0xC0
-    {
-        //log = true;
-        int stop = 0;
-    }
     //log = true;
 
    (this->*opcodeFunction[opcodeByte])();
     totalInstructions++;
-
-    if (display->GetLCDC() == 0x00)
-    {
-        int stop = 0;
-
-        //log = true;
-    }
 }
 
 void CPU::DumpToFile()

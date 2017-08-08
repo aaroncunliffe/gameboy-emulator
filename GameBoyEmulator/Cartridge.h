@@ -37,20 +37,29 @@ private:
 
     u8* romHeader;
     
-    char* title;
     bool graphicMatch;
+    char* title;
+    u8 gameboyByte;
+    u8 licenseeCodeByte;
+    u8 cartridgeTypeByte;
+    u8 romSizeByte;
+    u8 ramSizeByte;
+    u8 destinationCode;
+
 
 public:
+
     Cartridge();
     Cartridge(u8* data);
     ~Cartridge();
 
-    void ReadTitle();
-    void CompareGraphics();
+    void PrintFormattedData();
 
 private:
-   
 
-
+    void ReadTitle();
+    void CompareGraphics();
+    void ParseHeader();
+    
 
 };

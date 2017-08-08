@@ -66,7 +66,9 @@ int MMU::LoadRom()
             }
         }
 
-        cart = new Cartridge(rom[0]); // Cartridge class only requires the header 0x100 - 0x14F
+        cart = new Cartridge(rom[0]); // Cartridge class only requires the header data 0x100 - 0x14F
+        cart->PrintFormattedData();
+
         delete buffer;
         return 1;
     }

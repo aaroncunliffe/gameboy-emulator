@@ -280,6 +280,12 @@ void Display::WriteVram(u16 addr, u8 byte)
     //{
     //    int stop = 0;
     //}
+
+
+        if (vram[0x99A4 - VRAM_OFFSET] == 0x60 && vram[0x99E4 - VRAM_OFFSET] == 0x60)
+        {
+            int stop = 0;
+        }
 }
 
 u8 Display::ReadVram(u16 addr)
