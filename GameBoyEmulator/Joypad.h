@@ -1,5 +1,5 @@
 #pragma once
-#include "definitions.h"
+#include "Definitions.h"
 #include <SDL.h>
 
 class CPU;

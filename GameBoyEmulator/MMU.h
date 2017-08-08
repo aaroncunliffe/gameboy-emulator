@@ -7,7 +7,7 @@
 #include "Definitions.h"
 #include "Cartridge.h"
 #include "Display.h"
-#include "joypad.h"
+#include "Joypad.h"
 
 
 const u32 MAX_ROM_SIZE = 0x7A1200; // 8 MB

@@ -34,7 +34,7 @@ struct duration
 };
 
 
-static struct instruction
+struct instruction
 {
     instruction() {}
     instruction(char* n, u8 l, duration d, flags f) : name(n), length(l), duration(d), flags(f) {}

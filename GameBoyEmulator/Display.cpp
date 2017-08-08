@@ -1,11 +1,11 @@
-#include "display.h"
+#include "Display.h"
 #include "MMU.h"
 
 Display::Display()
 {
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        std::cout << "ERROR Initializing" << std::endl;
+        SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     }
 
     window = NULL;
