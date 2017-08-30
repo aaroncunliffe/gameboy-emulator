@@ -61,8 +61,8 @@ class Display
 private:
     SDL_Window* window;
     SDL_Renderer* renderer;
+
     SDL_Texture* screen;
-    SDL_Texture* sprites;
 
     GPU_MODE activeMode;
     u32 modeClock;
@@ -95,7 +95,6 @@ private:
     u8 LYC;         // 0xFF45
 
     SDL_Color pixels[DISPLAY_HEIGHT * DISPLAY_WIDTH]; // display or viewport
-    SDL_Color spritePixels[DISPLAY_WIDTH * DISPLAY_HEIGHT];
 
     bool pixelChanged = false;
 

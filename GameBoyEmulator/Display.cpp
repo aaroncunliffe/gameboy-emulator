@@ -54,7 +54,6 @@ void Display::init(int multiplier)
     window = SDL_CreateWindow("Gameboy - Aaron Cunliffe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
     screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, DISPLAY_WIDTH, DISPLAY_HEIGHT); // SDL_TEXTURE_STATIC
-    sprites = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, DISPLAY_WIDTH, DISPLAY_HEIGHT); // SDL_TEXTURE_STATIC
 
     // Clear VRAM, Tileset and raw pixel store
     memset(vram, 0x00, 0x2000 * sizeof(u8));
@@ -62,19 +61,7 @@ void Display::init(int multiplier)
     memset(Tileset, 0x00, (384 * 8 * 8) * sizeof(u8));
     memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(u32));
 
-    // Sets whole sprite texture to blank and transparent
-    for (int i = 0; i < DISPLAY_WIDTH * DISPLAY_HEIGHT; i++)
-    {
-       spritePixels[i].r = 0x00;
-       spritePixels[i].g = 0x00;
-       spritePixels[i].b = 0x00;
-       spritePixels[i].a = 0x00;
-    }
 
-
-    SDL_SetTextureBlendMode(sprites, SDL_BLENDMODE_BLEND); // Allow alpha blending
-
-    SDL_UpdateTexture(sprites, NULL, spritePixels, DISPLAY_WIDTH * sizeof(u32));
     SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
     Update();
 
@@ -167,24 +154,13 @@ void Display::RenderScanline()
     
    
     SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
-    SDL_UpdateTexture(sprites, NULL, spritePixels, DISPLAY_WIDTH * sizeof(u32));
 }
 
 void Display::clear()
 {
     memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(u32));
 
-    // Sets whole sprite texture to blank and transparent
-    for (int i = 0; i < DISPLAY_WIDTH * DISPLAY_HEIGHT; i++)
-    {
-        spritePixels[i].r = 0x00;
-        spritePixels[i].g = 0x00;
-        spritePixels[i].b = 0x00;
-        spritePixels[i].a = 0x00;
-    }
-
     SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
-    SDL_UpdateTexture(sprites, NULL, spritePixels, DISPLAY_WIDTH * sizeof(u32));
     Update();
 }
 
@@ -462,7 +438,6 @@ void Display::Update()
     SDL_RenderClear(renderer);
 
     SDL_RenderCopy(renderer, screen, NULL, NULL); // Puts the texture onto the screen
-    //SDL_RenderCopy(renderer, sprites, NULL, NULL); // Puts the texture onto the screen
     SDL_RenderPresent(renderer);
 }
 

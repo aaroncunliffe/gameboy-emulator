@@ -357,6 +357,27 @@ void CPU::opcode0x27() // DAA - Setup register A to work with Binary coded decim
 {
     // TODO: Whole instruction
 
+    /*u16 s = regs.AF.high;
+
+    if (regs.AF.low & CARRY_FLAG) {
+        if (FLAGS_ISHALFCARRY) s = (s - 0x06) & 0xFF;
+        if (FLAGS_ISCARRY) s -= 0x60;
+    }
+    else {
+        if (FLAGS_ISHALFCARRY || (s & 0xF) > 9) s += 0x06;
+        if (FLAGS_ISCARRY || s > 0x9F) s += 0x60;
+    }
+
+    regs.AF.high = s;
+    FLAGS_CLEAR(FLAGS_HALFCARRY);
+
+    if (registers.a) FLAGS_CLEAR(FLAGS_ZERO);
+    else FLAGS_SET(FLAGS_ZERO);
+
+    if (s >= 0x100) FLAGS_SET(FLAGS_CARRY);
+}*/
+
+
     counter += opcodeTable[0x27].duration.firstCondition;
     regs.pc += opcodeTable[0x27].length;
 }

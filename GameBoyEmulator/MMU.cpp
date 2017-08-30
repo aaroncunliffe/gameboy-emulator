@@ -396,10 +396,6 @@ void MMU::DumpToFile()
     //outputFile << std::endl << std::endl;
 
 
-
-
-
-
     outputFile.close();
     std::cout << "Memory written to file" << std::endl;
 } 

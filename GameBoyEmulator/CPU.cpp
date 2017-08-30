@@ -185,7 +185,8 @@ void CPU::Loop()
             ProcessInstruction();   // 
         }
 
-        display->Step(counter); //
+        display->Step(counter); // This has to be after the instruction is executed (so that the counter is not 0)
+
                        
         //counter = 0;
         //display->Update();
@@ -202,14 +203,14 @@ void CPU::Loop()
         counter--;
     }
 
-    u32 msForCycle = SDL_GetTicks() - this->lastCycleTime;
-    int delayTimeMs = (17 - msForCycle);
+    //u32 msForCycle = SDL_GetTicks() - this->lastCycleTime;
+    //int delayTimeMs = (17 - msForCycle);
 
-    // Only if it is above 1 do we delay
-    if (delayTimeMs > 0)
-    {
-        //SDL_Delay( 100 * delayTimeMs);
-    }
+    //// Only if it is above 1 do we delay
+    //if (delayTimeMs > 0)
+    //{
+    //    //SDL_Delay( 100 * delayTimeMs);
+    //}
     
     
 }
@@ -226,7 +227,6 @@ void CPU::ProcessEvents()
             break;
         case SDL_KEYUP:
             keyboard->KeysUp(e);
-			//log = true;
             break;
         case SDL_QUIT:
             running = false;
@@ -236,6 +236,7 @@ void CPU::ProcessEvents()
     }
 }
 
+// Called by keyboard class when a joypad key is pressed
 void CPU::JoypadInterrupt()
 {
 	u8 byte = mmu->ReadByte(0xFF0F);
@@ -248,13 +249,13 @@ void CPU::ProcessInstruction()
 
     u8 nextByte = mmu->ReadByte(regs.pc + 1);
 
-#define _LOG
+//#define _LOG
 #ifdef _LOG
     //if (totalInstructions > 0x01527d3a) // Total instructions for 2nd demo block hitting
     //{
     //if(totalInstructions > 0x002bb60f)
     //{
-    if (log ) //&& (regs.pc > 0x4000)
+    if (log) //&& (regs.pc > 0x4000)
     {
         //std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (u16)mmu->ReadByte(0xFFC6) << " - " << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
         if (opcodeByte != 0xCB)
@@ -266,17 +267,17 @@ void CPU::ProcessInstruction()
     
 #endif 
 
-    if (opcodeByte != 0xCB)
+   /* if (opcodeByte != 0xCB)
         instructionProfiling[opcodeByte]++;
     else
     {
         instructionProfiling[opcodeByte]++;
         instructionProfiling[nextByte]++;
-    }
+    }*/
     //log = true;
 
    (this->*opcodeFunction[opcodeByte])();
-    totalInstructions++;
+    //totalInstructions++;
 }
 
 void CPU::DumpToFile()
