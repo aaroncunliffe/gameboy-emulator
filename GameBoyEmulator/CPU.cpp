@@ -18,8 +18,9 @@ CPU::CPU(char* romPath) : CPU()
     display->init(4);
 
     mmu = new MMU(romPath, display, keyboard);
-	if (!mmu->LoadRom())
-		assert(false); // Error loading the ROM file
+	
+    if (!mmu->LoadRom())
+        assert(false); // Error loading the ROM file
 
     display->SetMMU(mmu);
 
@@ -39,7 +40,6 @@ CPU::CPU(char* romPath) : CPU()
 
     memset(instructionProfiling, (u32)0, 0x100 * sizeof(u32));
     memset(instructionProfilingCB, (u32)0, 0x100 * sizeof(u32));
-
 
 }
 
@@ -251,19 +251,12 @@ void CPU::ProcessInstruction()
 
 //#define _LOG
 #ifdef _LOG
-    //if (totalInstructions > 0x01527d3a) // Total instructions for 2nd demo block hitting
-    //{
-    //if(totalInstructions > 0x002bb60f)
-    //{
-    if (log) //&& (regs.pc > 0x4000)
-    {
-        //std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (u16)mmu->ReadByte(0xFFC6) << " - " << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
-        if (opcodeByte != 0xCB)
-            std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
-        else
-            std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << CBOpcodeTable[opcodeByte].name << std::endl;
-    }
-    //}
+    //std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (u16)mmu->ReadByte(0xFFC6) << " - " << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
+    if (opcodeByte != 0xCB)
+        std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
+    else
+        std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << CBOpcodeTable[opcodeByte].name << std::endl;
+
     
 #endif 
 

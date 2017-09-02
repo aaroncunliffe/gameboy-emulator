@@ -85,7 +85,7 @@ public:
     MMU(char* path, Display* d, Joypad* j);
     ~MMU();
 
-    int LoadRom();
+    bool LoadRom();
     u8 ReadByte(u16 addr);
     u16 ReadTwoBytes(u16 addr);
     

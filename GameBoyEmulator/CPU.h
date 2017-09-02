@@ -13,11 +13,6 @@
 #include "Joypad.h"
 #include "Opcodes.h"
 
-
-
-
-
-
 const u32 MEMORY_SIZE = 0x2000; //4096
 const u32 VIDEO_MEMORY_SIZE = 0x2000;
 const u32 PROGRAM_START = 0x0100;
@@ -138,12 +133,17 @@ private:
     inline void CP(u8 operand);
 
     // Helper Functions CB
-    inline void BIT(u8 bit, u8 reg);
-    inline void SWAP(u8& reg);
-    inline void RES(u8 bit, u8& reg);
-    inline void SLA(u8& reg);
-    inline void SRL(u8& reg);
-	inline void SET(u8 bit, u8& reg);
+    inline void RLC(u8& n);
+    inline void RRC(u8& n);
+    inline void RL(u8& n);
+    inline void RR(u8& n);
+    inline void SLA(u8& n);
+    inline void SRA(u8& n);
+    inline void SWAP(u8& n);
+    inline void SRL(u8& n);
+    inline void BIT(u8 bit, u8 n);
+    inline void RES(u8 bit, u8& n);
+	inline void SET(u8 bit, u8& n);
 
     // Interrupt jumps
     void RST40(); // VBlank interrupt

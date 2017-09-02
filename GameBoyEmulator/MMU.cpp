@@ -32,7 +32,7 @@ MMU::~MMU()
 }
 
 // Loads Rom from path that is passed in the constructor of MMU
-int MMU::LoadRom()
+bool MMU::LoadRom()
 {
     std::ifstream file;
     file.open(romPath, std::ios::binary | std::ios::ate); // ate is to set the pointer to the end of the file so we can read the size
@@ -44,7 +44,7 @@ int MMU::LoadRom()
         std::cout << "Rom Size: " << romSize << " Bytes" << std::endl;
 
         if (romSize > MAX_ROM_SIZE)
-            return -1;
+            return false;
 
         file.seekg(0, std::ios::beg); // Move pointer back to the beginning of file
         
@@ -70,9 +70,9 @@ int MMU::LoadRom()
         cart->PrintFormattedData();
 
         delete buffer;
-        return 1;
+        return true;
     }
-    return -1;
+    return false;
 }
 
 // Reads byte from the correct location in the memory map
@@ -225,7 +225,13 @@ u16 MMU::ReadTwoBytes(u16 addr)
 
 // Writes byte to the correct location in the memory map.
 void MMU::WriteByte(u16 addr, u8 byte)
-{    
+{   
+    // Blargg's CPU test
+    if (addr == 0xFF02 && byte == 0x81) {
+        std::cout << ReadByte(0xFF01) << std::endl;
+    }
+
+
     // Switch is faster than if/else if - >5 items, uses lookup table, need to check if this gets optimised out anyway...
     switch ((addr & 0xF000) >> 12)
     {

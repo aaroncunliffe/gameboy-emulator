@@ -1,11 +1,352 @@
 #include "CPU.h"
 
+void CPU::CBopcode0x00() // RLC B
+{
+    RLC(regs.BC.high);
+    counter += CBOpcodeTable[0x00].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x00].length;
+}
+
+void CPU::CBopcode0x01() // RLC C
+{
+    RLC(regs.BC.low);
+    counter += CBOpcodeTable[0x01].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x01].length;
+}
+
+void CPU::CBopcode0x02() // RLC D
+{
+    RLC(regs.DE.high);
+    counter += CBOpcodeTable[0x02].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x02].length;
+}
+
+void CPU::CBopcode0x03() // RLC E
+{
+    RLC(regs.DE.low);
+    counter += CBOpcodeTable[0x03].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x03].length;
+}
+
+void CPU::CBopcode0x04() // RLC H
+{
+    RLC(regs.HL.high);
+    counter += CBOpcodeTable[0x04].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x04].length;
+}
+
+void CPU::CBopcode0x05() // RLC L
+{
+    RLC(regs.HL.low);
+    counter += CBOpcodeTable[0x05].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x05].length;
+}
+
+void CPU::CBopcode0x06() // RLC (HL)
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    RLC(byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    counter += CBOpcodeTable[0x06].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x06].length;
+}
+
+void CPU::CBopcode0x07() // RLC A
+{
+    RLC(regs.AF.high);
+    counter += CBOpcodeTable[0x07].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x07].length;
+}
+
+void CPU::CBopcode0x08() // RRC B
+{
+    RRC(regs.BC.high);
+    counter += CBOpcodeTable[0x08].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x08].length;
+}
+
+void CPU::CBopcode0x09() // RRC C
+{
+    RRC(regs.BC.low);
+    counter += CBOpcodeTable[0x09].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x09].length;
+}
+
+void CPU::CBopcode0x0A() // RRC D
+{
+    RRC(regs.DE.high);
+    counter += CBOpcodeTable[0x0A].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x0A].length;
+}
+
+void CPU::CBopcode0x0B() // RRC E
+{
+    RRC(regs.DE.low);
+    counter += CBOpcodeTable[0x0B].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x0B].length;
+}
+
+void CPU::CBopcode0x0C() // RRC H
+{
+    RRC(regs.HL.high);
+    counter += CBOpcodeTable[0x0C].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x0C].length;
+}
+
+void CPU::CBopcode0x0D() // RRC L
+{
+    RRC(regs.HL.low);
+    counter += CBOpcodeTable[0x0D].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x0D].length;
+}
+
+void CPU::CBopcode0x0E() // RRC (HL)
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    RRC(byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    counter += CBOpcodeTable[0x0E].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x0E].length;
+}
+
+void CPU::CBopcode0x0F() // RRC A
+{
+    RRC(regs.AF.high);
+    counter += CBOpcodeTable[0x0F].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x0F].length;
+}
+
+void CPU::CBopcode0x10() // RL B
+{
+    RL(regs.BC.high);
+    counter += CBOpcodeTable[0x10].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x10].length;
+}
+
+void CPU::CBopcode0x11() // RL C
+{
+    RL(regs.BC.low);
+    counter += CBOpcodeTable[0x11].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x11].length;
+}
+
+void CPU::CBopcode0x12() // RL D
+{
+    RL(regs.DE.high);
+    counter += CBOpcodeTable[0x12].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x12].length;
+}
+
+void CPU::CBopcode0x13() // RL E
+{
+    RL(regs.DE.low);
+    counter += CBOpcodeTable[0x13].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x13].length;
+}
+
+void CPU::CBopcode0x14() // RL H
+{
+    RL(regs.HL.high);
+    counter += CBOpcodeTable[0x14].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x14].length;
+}
+
+void CPU::CBopcode0x15() // RL L
+{
+    RL(regs.HL.low);
+    counter += CBOpcodeTable[0x15].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x15].length;
+}
+
+void CPU::CBopcode0x16() // RL (HL)
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    RL(byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    counter += CBOpcodeTable[0x16].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x16].length;
+}
+
+void CPU::CBopcode0x17() // RL A
+{
+    RL(regs.AF.high);
+    counter += CBOpcodeTable[0x17].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x17].length;
+}
+
+void CPU::CBopcode0x18() // RRC B
+{
+    RRC(regs.BC.high);
+    counter += CBOpcodeTable[0x18].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x18].length;
+}
+
+void CPU::CBopcode0x19() // RR C
+{
+    RR(regs.BC.low);
+    counter += CBOpcodeTable[0x19].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x19].length;
+}
+
+void CPU::CBopcode0x1A() // RR D
+{
+    RR(regs.DE.high);
+    counter += CBOpcodeTable[0x1A].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x1A].length;
+}
+
+void CPU::CBopcode0x1B() // RR E
+{
+    RR(regs.DE.low);
+    counter += CBOpcodeTable[0x1B].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x1B].length;
+}
+
+void CPU::CBopcode0x1C() // RR H
+{
+    RR(regs.HL.high);
+    counter += CBOpcodeTable[0x1C].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x1C].length;
+}
+
+void CPU::CBopcode0x1D() // RR L
+{
+    RR(regs.HL.low);
+    counter += CBOpcodeTable[0x1D].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x1D].length;
+}
+
+void CPU::CBopcode0x1E() // RR (HL)
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    RR(byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    counter += CBOpcodeTable[0x1E].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x1E].length;
+}
+
+void CPU::CBopcode0x1F() // RR A
+{
+    RR(regs.AF.high);
+    counter += CBOpcodeTable[0x1F].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x1F].length;
+}
+
+
+void CPU::CBopcode0x20() // SLA B
+{
+    SLA(regs.BC.high);
+    counter += CBOpcodeTable[0x20].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x20].length;
+}
+
+void CPU::CBopcode0x21() // SLA C
+{
+    SLA(regs.BC.low);
+    counter += CBOpcodeTable[0x21].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x21].length;
+}
+
+void CPU::CBopcode0x22() // SLA D
+{
+    SLA(regs.DE.high);
+    counter += CBOpcodeTable[0x22].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x22].length;
+}
+
+void CPU::CBopcode0x23() // SLA E
+{
+    SLA(regs.DE.low);
+    counter += CBOpcodeTable[0x23].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x23].length;
+}
+
+void CPU::CBopcode0x24() // SLA H
+{
+    SLA(regs.HL.high);
+    counter += CBOpcodeTable[0x24].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x24].length;
+}
+
+void CPU::CBopcode0x25() // SLA L
+{
+    SLA(regs.HL.low);
+    counter += CBOpcodeTable[0x25].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x25].length;
+}
+
+void CPU::CBopcode0x26() // SLA (HL)
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    SLA(byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    counter += CBOpcodeTable[0x26].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x26].length;
+}
 
 void CPU::CBopcode0x27() // SLA A
 {
     SLA(regs.AF.high);
     counter += CBOpcodeTable[0x27].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x27].length;
+}
+
+void CPU::CBopcode0x28() // SRA B
+{
+    SRA(regs.BC.high);
+    counter += CBOpcodeTable[0x28].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x28].length;
+}
+
+void CPU::CBopcode0x29() // SRA C
+{
+    SRA(regs.BC.low);
+    counter += CBOpcodeTable[0x29].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x29].length;
+}
+
+void CPU::CBopcode0x2A() // SRA D
+{
+    SRA(regs.DE.high);
+    counter += CBOpcodeTable[0x2A].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x2A].length;
+}
+
+void CPU::CBopcode0x2B() // SRA E
+{
+    SRA(regs.DE.low);
+    counter += CBOpcodeTable[0x2B].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x2B].length;
+}
+
+void CPU::CBopcode0x2C() // SRA H
+{
+    SRA(regs.HL.high);
+    counter += CBOpcodeTable[0x2C].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x2C].length;
+}
+
+void CPU::CBopcode0x2D() // SRA L
+{
+    SRA(regs.HL.high);
+    counter += CBOpcodeTable[0x2D].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x2D].length;
+}
+
+void CPU::CBopcode0x2E() // SRA (HL)
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    SRA(byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    counter += CBOpcodeTable[0x2E].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x2E].length;
+}
+
+void CPU::CBopcode0x2F() // SRA A
+{
+    SRA(regs.AF.high);
+    counter += CBOpcodeTable[0x2F].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x2F].length;
 }
 
 void CPU::CBopcode0x30() // SWAP B
@@ -15,6 +356,20 @@ void CPU::CBopcode0x30() // SWAP B
     regs.pc += CBOpcodeTable[0x30].length;
 }
 
+void CPU::CBopcode0x31() // SWAP C
+{
+    SWAP(regs.BC.low);
+    counter += CBOpcodeTable[0x31].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x31].length;
+}
+
+void CPU::CBopcode0x32() // SWAP D
+{
+    SWAP(regs.DE.high);
+    counter += CBOpcodeTable[0x32].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x32].length;
+}
+
 void CPU::CBopcode0x33() // SWAP E
 {
     SWAP(regs.DE.low);
@@ -22,11 +377,85 @@ void CPU::CBopcode0x33() // SWAP E
     regs.pc += CBOpcodeTable[0x33].length;
 }
 
+void CPU::CBopcode0x34() // SWAP H
+{
+    SWAP(regs.HL.high);
+    counter += CBOpcodeTable[0x34].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x34].length;
+}
+
+void CPU::CBopcode0x35() // SWAP L
+{
+    SWAP(regs.HL.low);
+    counter += CBOpcodeTable[0x35].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x35].length;
+}
+
+void CPU::CBopcode0x36() // SWAP (HL)
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    SWAP(byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    counter += CBOpcodeTable[0x36].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x36].length;
+}
+
 void CPU::CBopcode0x37() // SWAP A
 {
     SWAP(regs.AF.high);
     counter += CBOpcodeTable[0x37].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x37].length;
+}
+
+void CPU::CBopcode0x38() // SRL B
+{
+    SRL(regs.BC.high);
+    counter += CBOpcodeTable[0x38].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x38].length;
+}
+
+void CPU::CBopcode0x39() // SRL B
+{
+    SRL(regs.BC.low);
+    counter += CBOpcodeTable[0x39].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x39].length;
+}
+
+void CPU::CBopcode0x3A() // SRL D
+{
+    SRL(regs.DE.high);
+    counter += CBOpcodeTable[0x3A].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x3A].length;
+}
+
+void CPU::CBopcode0x3B() // SRL E
+{
+    SRL(regs.DE.low);
+    counter += CBOpcodeTable[0x3B].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x3B].length;
+}
+
+void CPU::CBopcode0x3C() // SRL H
+{
+    SRL(regs.HL.high);
+    counter += CBOpcodeTable[0x3C].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x3C].length;
+}
+
+void CPU::CBopcode0x3D() // SRL L
+{
+    SRL(regs.HL.low);
+    counter += CBOpcodeTable[0x3D].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x3D].length;
+}
+
+void CPU::CBopcode0x3E() // SRL (HL)
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    SRL(byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    counter += CBOpcodeTable[0x3E].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x3E].length;
 }
 
 void CPU::CBopcode0x3F() // SRL A
@@ -50,6 +479,34 @@ void CPU::CBopcode0x41() // BIT 0,C
     regs.pc += CBOpcodeTable[0x41].length;
 }
 
+void CPU::CBopcode0x42() // BIT 0,D
+{
+    BIT(0x01, regs.DE.high);
+    counter += CBOpcodeTable[0x42].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x42].length;
+}
+
+void CPU::CBopcode0x43() // BIT 0,E
+{
+    BIT(0x01, regs.DE.low);
+    counter += CBOpcodeTable[0x43].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x43].length;
+}
+
+void CPU::CBopcode0x44() // BIT 0,H
+{
+    BIT(0x01, regs.HL.high);
+    counter += CBOpcodeTable[0x44].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x44].length;
+}
+
+void CPU::CBopcode0x45() // BIT 0,L
+{
+    BIT(0x01, regs.HL.low);
+    counter += CBOpcodeTable[0x45].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x45].length;
+}
+
 void CPU::CBopcode0x46() // BIT 0, (HL)
 {
 	BIT(0x01, mmu->ReadByte(regs.HL.word));
@@ -71,12 +528,106 @@ void CPU::CBopcode0x48() // BIT 1,B
     regs.pc += CBOpcodeTable[0x48].length;
 }
 
+void CPU::CBopcode0x49() // BIT 1,C
+{
+    BIT(0x02, regs.BC.low);
+    counter += CBOpcodeTable[0x49].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x49].length;
+}
+
+void CPU::CBopcode0x4A() // BIT 1,D
+{
+    BIT(0x02, regs.DE.high);
+    counter += CBOpcodeTable[0x4A].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x4A].length;
+}
+
+void CPU::CBopcode0x4B() // BIT 1,E
+{
+    BIT(0x02, regs.DE.low);
+    counter += CBOpcodeTable[0x4B].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x4B].length;
+}
+
+void CPU::CBopcode0x4C() // BIT 1,H
+{
+    BIT(0x02, regs.HL.high);
+    counter += CBOpcodeTable[0x4C].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x4C].length;
+}
+
+void CPU::CBopcode0x4D() // BIT 1,L
+{
+    BIT(0x02, regs.HL.low);
+    counter += CBOpcodeTable[0x4D].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x4D].length;
+}
+
+void CPU::CBopcode0x4E() // BIT 1,(HL)
+{
+    BIT(0x02, mmu->ReadByte(regs.HL.word));
+    counter += CBOpcodeTable[0x4E].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x4E].length;
+}
+
+void CPU::CBopcode0x4F() // BIT 1,A
+{
+    BIT(0x02, regs.AF.high);
+    counter += CBOpcodeTable[0x4F].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x4F].length;
+}
+
 void CPU::CBopcode0x50() // BIT 2,B
 {
     BIT(0x04, regs.BC.high);
     counter += CBOpcodeTable[0x50].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x50].length;
 }
+
+void CPU::CBopcode0x51() // BIT 2,C
+{
+    BIT(0x04, regs.BC.low);
+    counter += CBOpcodeTable[0x51].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x51].length;
+}
+
+void CPU::CBopcode0x52() // BIT 2,D
+{
+    BIT(0x04, regs.DE.high);
+    counter += CBOpcodeTable[0x52].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x52].length;
+}
+
+void CPU::CBopcode0x53() // BIT 2,E
+{
+    BIT(0x04, regs.DE.low);
+    counter += CBOpcodeTable[0x53].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x53].length;
+}
+
+void CPU::CBopcode0x54() // BIT 2,H
+{
+    BIT(0x04, regs.HL.high);
+    counter += CBOpcodeTable[0x54].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x54].length;
+}
+
+void CPU::CBopcode0x55() // BIT 2,L
+{
+    BIT(0x04, regs.HL.low);
+    counter += CBOpcodeTable[0x55].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x55].length;
+}
+
+void CPU::CBopcode0x56() // BIT 2,(HL)
+{
+    u8 byte = mmu->ReadByte(regs.HL.word);
+    BIT(0x04, byte);
+    mmu->WriteByte(regs.HL.word, byte);
+    counter += CBOpcodeTable[0x56].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x56].length;
+}
+
 
 void CPU::CBopcode0x57() // BIT 2,A
 {
@@ -90,6 +641,48 @@ void CPU::CBopcode0x58() // BIT 3,B
     BIT(0x08, regs.BC.high);
     counter += CBOpcodeTable[0x58].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x58].length;
+}
+
+void CPU::CBopcode0x59() // BIT 3,C
+{
+    BIT(0x08, regs.BC.low);
+    counter += CBOpcodeTable[0x59].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x59].length;
+}
+
+void CPU::CBopcode0x5A() // BIT 3,D
+{
+    BIT(0x08, regs.DE.high);
+    counter += CBOpcodeTable[0x5A].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x5A].length;
+}
+
+void CPU::CBopcode0x5B() // BIT 3,E
+{
+    BIT(0x08, regs.DE.low);
+    counter += CBOpcodeTable[0x5B].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x5B].length;
+}
+
+void CPU::CBopcode0x5C() // BIT 3,H
+{
+    BIT(0x08, regs.HL.high);
+    counter += CBOpcodeTable[0x5C].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x5C].length;
+}
+
+void CPU::CBopcode0x5D() // BIT 3,L
+{
+    BIT(0x08, regs.HL.low);
+    counter += CBOpcodeTable[0x5D].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x5D].length;
+}
+
+void CPU::CBopcode0x5E() // BIT 3,(HL)
+{
+    BIT(0x08, mmu->ReadByte(regs.HL.word));
+    counter += CBOpcodeTable[0x5E].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0x5E].length;
 }
 
 void CPU::CBopcode0x5F() // BIT 3,A
@@ -113,45 +706,42 @@ void CPU::CBopcode0x61() // BIT 4,C
     regs.pc += CBOpcodeTable[0x61].length;
 }
 
-
-
-void CPU::CBopcode0x62() // RES 4,D
+void CPU::CBopcode0x62() // BIT 4,D
 {
-    RES(0x10, regs.DE.high);
+    BIT(0x10, regs.DE.high);
     counter += CBOpcodeTable[0x62].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x62].length;
 }
 
-void CPU::CBopcode0x63() // RES 4,E
+void CPU::CBopcode0x63() // BIT 4,E
 {
-    RES(0x10, regs.DE.low);
+    BIT(0x10, regs.DE.low);
     counter += CBOpcodeTable[0x63].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x63].length;
 }
 
-void CPU::CBopcode0x64() // RES 4,H
+void CPU::CBopcode0x64() // BIT 4,H
 {
-    RES(0x10, regs.HL.high);
+    BIT(0x10, regs.HL.high);
     counter += CBOpcodeTable[0x64].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x64].length;
 }
 
-void CPU::CBopcode0x65() // RES 4,L
+void CPU::CBopcode0x65() // BIT 4,L
 {
-    RES(0x10, regs.HL.low);
+    BIT(0x10, regs.HL.low);
     counter += CBOpcodeTable[0x65].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x65].length;
 }
 
-void CPU::CBopcode0x66() // RES 4,(HL)
+void CPU::CBopcode0x66() // BIT 4,(HL)
 {
     u8 byte = mmu->ReadByte(regs.HL.word);
-    RES(0x10, byte);
+    BIT(0x10, byte);
     mmu->WriteByte(regs.HL.word, byte);
     counter += CBOpcodeTable[0x66].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x66].length;
 }
-
 
 void CPU::CBopcode0x67() //BIT 4,A
 {
@@ -175,30 +765,30 @@ void CPU::CBopcode0x69() // BIT 5,C
     regs.pc += CBOpcodeTable[0x69].length;
 }
 
-void CPU::CBopcode0x6A() // RES 5,D
+void CPU::CBopcode0x6A() // BIT 5,D
 {
-    RES(0x20, regs.DE.high);
+    BIT(0x20, regs.DE.high);
     counter += CBOpcodeTable[0x6A].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x6A].length;
 }
 
-void CPU::CBopcode0x6B() // RES 5,E
+void CPU::CBopcode0x6B() // BIT 5,E
 {
-    RES(0x20, regs.DE.low);
+    BIT(0x20, regs.DE.low);
     counter += CBOpcodeTable[0x6B].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x6B].length;
 }
 
-void CPU::CBopcode0x6C() // RES 5,H
+void CPU::CBopcode0x6C() // BIT 5,H
 {
-    RES(0x20, regs.HL.high);
+    BIT(0x20, regs.HL.high);
     counter += CBOpcodeTable[0x6C].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x6C].length;
 }
 
-void CPU::CBopcode0x6D() // RES 5,L
+void CPU::CBopcode0x6D() // BIT 5,L
 {
-    RES(0x20, regs.HL.low);
+    BIT(0x20, regs.HL.low);
     counter += CBOpcodeTable[0x6D].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x6D].length;
 }
@@ -224,45 +814,45 @@ void CPU::CBopcode0x70() // BIT 6,B
     regs.pc += CBOpcodeTable[0x70].length;
 }
 
-void CPU::CBopcode0x71() // RES 6,C
+void CPU::CBopcode0x71() // BIT 6,C
 {
-    RES(0x40, regs.BC.low);
+    BIT(0x40, regs.BC.low);
     counter += CBOpcodeTable[0x71].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x71].length;
 }
 
-void CPU::CBopcode0x72() // RES 6,D
+void CPU::CBopcode0x72() // BIT 6,D
 {
-    RES(0x40, regs.DE.high);
+    BIT(0x40, regs.DE.high);
     counter += CBOpcodeTable[0x72].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x72].length;
 }
 
-void CPU::CBopcode0x73() // RES 6,E
+void CPU::CBopcode0x73() // BIT 6,E
 {
-    RES(0x40, regs.DE.low);
+    BIT(0x40, regs.DE.low);
     counter += CBOpcodeTable[0x73].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x73].length;
 }
 
-void CPU::CBopcode0x74() // RES 6,H
+void CPU::CBopcode0x74() // BIT 6,H
 {
-    RES(0x40, regs.HL.high);
+    BIT(0x40, regs.HL.high);
     counter += CBOpcodeTable[0x74].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x74].length;
 }
 
-void CPU::CBopcode0x75() // RES 6,L
+void CPU::CBopcode0x75() // BIT 6,L
 {
-    RES(0x40, regs.HL.low);
+    BIT(0x40, regs.HL.low);
     counter += CBOpcodeTable[0x75].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x75].length;
 }
 
-void CPU::CBopcode0x76() // RES 6,(HL)
+void CPU::CBopcode0x76() // BIT 6,(HL)
 {
     u8 byte = mmu->ReadByte(regs.HL.word);
-    RES(0x40, byte);
+    BIT(0x40, byte);
     mmu->WriteByte(regs.HL.word, byte);
     counter += CBOpcodeTable[0x76].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x76].length;
@@ -283,37 +873,37 @@ void CPU::CBopcode0x78() //BIT 7,B
     regs.pc += CBOpcodeTable[0x78].length;
 }
 
-void CPU::CBopcode0x79() // RES 7,C
+void CPU::CBopcode0x79() // BIT 7,C
 {
-    RES(0x80, regs.BC.low);
+    BIT(0x80, regs.BC.low);
     counter += CBOpcodeTable[0x79].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x79].length;
 }
 
-void CPU::CBopcode0x7A() // RES 7,D
+void CPU::CBopcode0x7A() // BIT 7,D
 {
-    RES(0x80, regs.DE.high);
+    BIT(0x80, regs.DE.high);
     counter += CBOpcodeTable[0x7A].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x7A].length;
 }
 
-void CPU::CBopcode0x7B() // RES 7,E
+void CPU::CBopcode0x7B() // BIT 7,E
 {
-    RES(0x80, regs.DE.low);
+    BIT(0x80, regs.DE.low);
     counter += CBOpcodeTable[0x7B].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x7B].length;
 }
 
-void CPU::CBopcode0x7C() // RES 7,H
+void CPU::CBopcode0x7C() // BIT 7,H
 {
-    RES(0x80, regs.HL.high);
+    BIT(0x80, regs.HL.high);
     counter += CBOpcodeTable[0x7C].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x7C].length;
 }
 
-void CPU::CBopcode0x7D() // RES 7,L
+void CPU::CBopcode0x7D() // BIT 7,L
 {
-    RES(0x80, regs.HL.low);
+    BIT(0x80, regs.HL.low);
     counter += CBOpcodeTable[0x7D].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x7D].length;
 }
@@ -1291,42 +1881,99 @@ void CPU::CBopcode0xFF() // SET 7,A
 
 // Helper Functions CB
 
-inline void CPU::BIT(u8 bit, u8 reg) // Test bit in register, FLAGS: Z 0 1 -
-{
-    if (reg & bit)
-        regs.AF.low &= ~ZERO_FLAG;
-    else
-        regs.AF.low |= ZERO_FLAG;
 
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low |= HALF_CARRY_FLAG;
-    
-}
-
-inline void CPU::SWAP(u8& reg) // Flags: Z 0 0 0
+inline void CPU::RLC(u8& n) // Flags: Z 0 0 C - Rotate n left. Old bit 7 to Carry flag
 {
-    // reset flags
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low &= ~HALF_CARRY_FLAG;
-    regs.AF.low &= ~CARRY_FLAG;
+    
+    u8 oldbit7 = (n & 0x80);
 
-    u8 lower = reg & 0x0F;
-    reg = (reg >> 4) | (lower << 4);
+    n = n << 1;
 
-    if (reg == 0x00)
+    if (oldbit7)
+        regs.AF.low |= CARRY_FLAG;
+    else
+        regs.AF.low &= CARRY_FLAG;
+
+    if (n == 0x00)
         regs.AF.low |= ZERO_FLAG;
     else
         regs.AF.low &= ~ZERO_FLAG;
 }
 
-inline void CPU::RES(u8 bit, u8& reg) // Reset bit
+inline void CPU::RRC(u8& n) // Flags: Z 0 0 C - Rotate n right. Old bit 0 to Carry flag
 {
-    reg &= ~bit;
+    regs.AF.low &= ~SUBTRACT_FLAG;
+    regs.AF.low &= ~HALF_CARRY_FLAG;
+
+    u8 oldbit0 = (n & 0x01);
+
+    n = n >> 1;
+
+    if(oldbit0)
+        regs.AF.low |= CARRY_FLAG;
+    else
+        regs.AF.low &= CARRY_FLAG;
+
+    if (n == 0x00)
+        regs.AF.low |= ZERO_FLAG;
+    else
+        regs.AF.low &= ~ZERO_FLAG;
+
 }
 
-inline void CPU::SLA(u8& reg) // Flags: Z 0 0 C - Shift n left into Carry.LSB of n set to 0.
+
+inline void CPU::RL(u8& n) // Flags: Z 0 0 C - Rotate n left through Carry flag.
 {
-    u8 msb = (reg & 0x80) >> 7; // Store the msb before the shift
+    regs.AF.low &= ~SUBTRACT_FLAG;
+    regs.AF.low &= ~HALF_CARRY_FLAG;
+
+    u8 carryValue = (regs.AF.low & CARRY_FLAG) >> CARRY_BIT; // Gets the old carry value
+
+    if (n & 0x08)
+        regs.AF.low |= CARRY_FLAG;
+    else
+        regs.AF.low &= CARRY_FLAG;
+
+    n = n << 1;
+    n = n + carryValue;
+
+    if (n == 0x00)
+        regs.AF.low |= ZERO_FLAG;
+    else
+        regs.AF.low &= ~ZERO_FLAG;
+
+}
+
+// TODO: Carry value replaced with ternary operators rather than shifting
+inline void CPU::RR(u8& n) // Flags: Z 0 0 C - Rotate n right through Carry flag.
+{
+    regs.AF.low &= ~SUBTRACT_FLAG;
+    regs.AF.low &= ~HALF_CARRY_FLAG;
+
+    u8 carryValue = (regs.AF.low & CARRY_FLAG) >> CARRY_BIT; // Gets the old carry value
+
+    if (n & 0x01)
+        regs.AF.low |= CARRY_FLAG;
+    else
+        regs.AF.low &= CARRY_FLAG;
+
+    n = n >> 1;
+    n = n + carryValue;
+
+    if(n == 0x00)
+        regs.AF.low |= ZERO_FLAG;
+    else
+        regs.AF.low &= ~ZERO_FLAG;
+
+}
+
+
+
+inline void CPU::SLA(u8& n) // Flags: Z 0 0 C - Shift n left into Carry. LSB of n set to 0.
+{
+    u8 msb = (n & 0x80); // Store the msb before the shift
 
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low &= ~HALF_CARRY_FLAG;
@@ -1336,17 +1983,56 @@ inline void CPU::SLA(u8& reg) // Flags: Z 0 0 C - Shift n left into Carry.LSB of
     else
         regs.AF.low &= ~CARRY_FLAG;
 
-    reg = reg << 1;
+    n = n << 1;
 
-    if (reg == 0x00)
+    if (n == 0x00)
         regs.AF.low |= ZERO_FLAG;
     else
         regs.AF.low &= ~ZERO_FLAG;
 }
 
-inline void CPU::SRL(u8& reg) // Flags: Z 0 0 C - Shift n right into Carry. MSB set to 0
+
+inline void CPU::SRA(u8& n) // Flags: Z 0 0 C - Shift n right into Carry. MSB doesn't change.
 {
-    u8 lsb = (reg & 0x01); // Store the msb before the shift
+    u8 msb = (n & 0x80); // Store the msb before the shift
+
+    regs.AF.low &= ~SUBTRACT_FLAG;
+    regs.AF.low &= ~HALF_CARRY_FLAG;
+
+    if (msb)
+        regs.AF.low |= CARRY_FLAG;
+    else
+        regs.AF.low &= ~CARRY_FLAG;
+
+    n = n >> 1;
+    n = n | msb; // maintain the MSB's old value
+
+    if (n == 0x00)
+        regs.AF.low |= ZERO_FLAG;
+    else
+        regs.AF.low &= ~ZERO_FLAG;
+
+}
+
+inline void CPU::SWAP(u8& n) // Flags: Z 0 0 0
+{
+    // reset flags
+    regs.AF.low &= ~SUBTRACT_FLAG;
+    regs.AF.low &= ~HALF_CARRY_FLAG;
+    regs.AF.low &= ~CARRY_FLAG;
+
+    u8 lower = n & 0x0F;
+    n = (n >> 4) | (lower << 4);
+
+    if (n == 0x00)
+        regs.AF.low |= ZERO_FLAG;
+    else
+        regs.AF.low &= ~ZERO_FLAG;
+}
+
+inline void CPU::SRL(u8& n) // Flags: Z 0 0 C - Shift n right into Carry. MSB set to 0
+{
+    u8 lsb = (n & 0x01); // Store the msb before the shift
 
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low &= ~HALF_CARRY_FLAG;
@@ -1356,18 +2042,35 @@ inline void CPU::SRL(u8& reg) // Flags: Z 0 0 C - Shift n right into Carry. MSB 
     else
         regs.AF.low &= ~CARRY_FLAG;
 
-    reg = reg >> 1;
+    n = n >> 1;
 
-    if (reg == 0x00)
+    if (n == 0x00)
         regs.AF.low |= ZERO_FLAG;
     else
         regs.AF.low &= ~ZERO_FLAG;
 }
 
-
-inline void CPU::SET(u8 bit, u8& reg) // Flags:: - - - - : Set bit bit in register reg
+inline void CPU::BIT(u8 bit, u8 n) // Test bit in register, FLAGS: Z 0 1 -
 {
-	reg |= bit;
+    if (n & bit)
+        regs.AF.low &= ~ZERO_FLAG;
+    else
+        regs.AF.low |= ZERO_FLAG;
+
+    regs.AF.low &= ~SUBTRACT_FLAG;
+    regs.AF.low |= HALF_CARRY_FLAG;
+
+}
+
+
+inline void CPU::RES(u8 bit, u8& n) // Flags:: - - - - : Reset bit in byte n
+{
+    n &= ~bit;
+}
+
+inline void CPU::SET(u8 bit, u8& n) // Flags:: - - - - : Set bit bit in register n
+{
+	n |= bit;
 }
 
 
@@ -1375,101 +2078,101 @@ inline void CPU::SET(u8 bit, u8& reg) // Flags:: - - - - : Set bit bit in regist
 // Assigns all of the function pointers
 void CPU::InitOpcodeFunctionsCB()
 {
-    opcodeFunctionCB[0x00] = nullptr; // = &CPU::CBopcode0x00;
-    opcodeFunctionCB[0x01] = nullptr; // = &CPU::CBopcode0x01;
-    opcodeFunctionCB[0x02] = nullptr; // = &CPU::CBopcode0x02;
-    opcodeFunctionCB[0x03] = nullptr; // = &CPU::CBopcode0x03;
-    opcodeFunctionCB[0x04] = nullptr; // = &CPU::CBopcode0x04;
-    opcodeFunctionCB[0x05] = nullptr; // = &CPU::CBopcode0x05;
-    opcodeFunctionCB[0x06] = nullptr; // = &CPU::CBopcode0x06;
-    opcodeFunctionCB[0x07] = nullptr; // = &CPU::CBopcode0x07;
-    opcodeFunctionCB[0x08] = nullptr; // = &CPU::CBopcode0x08;
-    opcodeFunctionCB[0x09] = nullptr; // = &CPU::CBopcode0x09;
-    opcodeFunctionCB[0x0A] = nullptr; // = &CPU::CBopcode0x0A;
-    opcodeFunctionCB[0x0B] = nullptr; // = &CPU::CBopcode0x0B;
-    opcodeFunctionCB[0x0C] = nullptr; // = &CPU::CBopcode0x0C;
-    opcodeFunctionCB[0x0D] = nullptr; // = &CPU::CBopcode0x0D;
-    opcodeFunctionCB[0x0E] = nullptr; // = &CPU::CBopcode0x0E;
-    opcodeFunctionCB[0x0F] = nullptr; // = &CPU::CBopcode0x0F;
-    opcodeFunctionCB[0x10] = nullptr; // = &CPU::CBopcode0x10;
-    opcodeFunctionCB[0x11] = nullptr; // = &CPU::CBopcode0x11;
-    opcodeFunctionCB[0x12] = nullptr; // = &CPU::CBopcode0x12;
-    opcodeFunctionCB[0x13] = nullptr; // = &CPU::CBopcode0x13;
-    opcodeFunctionCB[0x14] = nullptr; // = &CPU::CBopcode0x14;
-    opcodeFunctionCB[0x15] = nullptr; // = &CPU::CBopcode0x15;
-    opcodeFunctionCB[0x16] = nullptr; // = &CPU::CBopcode0x16;
-    opcodeFunctionCB[0x17] = nullptr; // = &CPU::CBopcode0x17;
-    opcodeFunctionCB[0x18] = nullptr; // = &CPU::CBopcode0x18;
-    opcodeFunctionCB[0x19] = nullptr; // = &CPU::CBopcode0x19;
-    opcodeFunctionCB[0x1A] = nullptr; // = &CPU::CBopcode0x1A;
-    opcodeFunctionCB[0x1B] = nullptr; // = &CPU::CBopcode0x1B;
-    opcodeFunctionCB[0x1C] = nullptr; // = &CPU::CBopcode0x1C;
-    opcodeFunctionCB[0x1D] = nullptr; // = &CPU::CBopcode0x1D;
-    opcodeFunctionCB[0x1E] = nullptr; // = &CPU::CBopcode0x1E;
-    opcodeFunctionCB[0x1F] = nullptr; // = &CPU::CBopcode0x1F;
-    opcodeFunctionCB[0x20] = nullptr; // = &CPU::CBopcode0x20;
-    opcodeFunctionCB[0x21] = nullptr; // = &CPU::CBopcode0x21;
-    opcodeFunctionCB[0x22] = nullptr; // = &CPU::CBopcode0x22;
-    opcodeFunctionCB[0x23] = nullptr; // = &CPU::CBopcode0x23;
-    opcodeFunctionCB[0x24] = nullptr; // = &CPU::CBopcode0x24;
-    opcodeFunctionCB[0x25] = nullptr; // = &CPU::CBopcode0x25;
-    opcodeFunctionCB[0x26] = nullptr; // = &CPU::CBopcode0x26;
+    opcodeFunctionCB[0x00] = &CPU::CBopcode0x00;
+    opcodeFunctionCB[0x01] = &CPU::CBopcode0x01;
+    opcodeFunctionCB[0x02] = &CPU::CBopcode0x02;
+    opcodeFunctionCB[0x03] = &CPU::CBopcode0x03;
+    opcodeFunctionCB[0x04] = &CPU::CBopcode0x04;
+    opcodeFunctionCB[0x05] = &CPU::CBopcode0x05;
+    opcodeFunctionCB[0x06] = &CPU::CBopcode0x06;
+    opcodeFunctionCB[0x07] = &CPU::CBopcode0x07;
+    opcodeFunctionCB[0x08] = &CPU::CBopcode0x08;
+    opcodeFunctionCB[0x09] = &CPU::CBopcode0x09;
+    opcodeFunctionCB[0x0A] = &CPU::CBopcode0x0A;
+    opcodeFunctionCB[0x0B] = &CPU::CBopcode0x0B;
+    opcodeFunctionCB[0x0C] = &CPU::CBopcode0x0C;
+    opcodeFunctionCB[0x0D] = &CPU::CBopcode0x0D;
+    opcodeFunctionCB[0x0E] = &CPU::CBopcode0x0E;
+    opcodeFunctionCB[0x0F] = &CPU::CBopcode0x0F;
+    opcodeFunctionCB[0x10] = &CPU::CBopcode0x10;
+    opcodeFunctionCB[0x11] = &CPU::CBopcode0x11;
+    opcodeFunctionCB[0x12] = &CPU::CBopcode0x12;
+    opcodeFunctionCB[0x13] = &CPU::CBopcode0x13;
+    opcodeFunctionCB[0x14] = &CPU::CBopcode0x14;
+    opcodeFunctionCB[0x15] = &CPU::CBopcode0x15;
+    opcodeFunctionCB[0x16] = &CPU::CBopcode0x16;
+    opcodeFunctionCB[0x17] = &CPU::CBopcode0x17;
+    opcodeFunctionCB[0x18] = &CPU::CBopcode0x18;
+    opcodeFunctionCB[0x19] = &CPU::CBopcode0x19;
+    opcodeFunctionCB[0x1A] = &CPU::CBopcode0x1A;
+    opcodeFunctionCB[0x1B] = &CPU::CBopcode0x1B;
+    opcodeFunctionCB[0x1C] = &CPU::CBopcode0x1C;
+    opcodeFunctionCB[0x1D] = &CPU::CBopcode0x1D;
+    opcodeFunctionCB[0x1E] = &CPU::CBopcode0x1E;
+    opcodeFunctionCB[0x1F] = &CPU::CBopcode0x1F;
+    opcodeFunctionCB[0x20] = &CPU::CBopcode0x20;
+    opcodeFunctionCB[0x21] = &CPU::CBopcode0x21;
+    opcodeFunctionCB[0x22] = &CPU::CBopcode0x22;
+    opcodeFunctionCB[0x23] = &CPU::CBopcode0x23;
+    opcodeFunctionCB[0x24] = &CPU::CBopcode0x24;
+    opcodeFunctionCB[0x25] = &CPU::CBopcode0x25;
+    opcodeFunctionCB[0x26] = &CPU::CBopcode0x26;
     opcodeFunctionCB[0x27] = &CPU::CBopcode0x27;
-    opcodeFunctionCB[0x28] = nullptr; // = &CPU::CBopcode0x28;
-    opcodeFunctionCB[0x29] = nullptr; // = &CPU::CBopcode0x29;
-    opcodeFunctionCB[0x2A] = nullptr; // = &CPU::CBopcode0x2A;
-    opcodeFunctionCB[0x2B] = nullptr; // = &CPU::CBopcode0x2B;
-    opcodeFunctionCB[0x2C] = nullptr; // = &CPU::CBopcode0x2C;
-    opcodeFunctionCB[0x2D] = nullptr; // = &CPU::CBopcode0x2D;
-    opcodeFunctionCB[0x2E] = nullptr; // = &CPU::CBopcode0x2E;
-    opcodeFunctionCB[0x2F] = nullptr; // = &CPU::CBopcode0x2F;
+    opcodeFunctionCB[0x28] = &CPU::CBopcode0x28;
+    opcodeFunctionCB[0x29] = &CPU::CBopcode0x29;
+    opcodeFunctionCB[0x2A] = &CPU::CBopcode0x2A;
+    opcodeFunctionCB[0x2B] = &CPU::CBopcode0x2B;
+    opcodeFunctionCB[0x2C] = &CPU::CBopcode0x2C;
+    opcodeFunctionCB[0x2D] = &CPU::CBopcode0x2D;
+    opcodeFunctionCB[0x2E] = &CPU::CBopcode0x2E;
+    opcodeFunctionCB[0x2F] = &CPU::CBopcode0x2F;
     opcodeFunctionCB[0x30] = &CPU::CBopcode0x30;
-    opcodeFunctionCB[0x31] = nullptr; // = &CPU::CBopcode0x31;
-    opcodeFunctionCB[0x32] = nullptr; // = &CPU::CBopcode0x32;
+    opcodeFunctionCB[0x31] = &CPU::CBopcode0x31;
+    opcodeFunctionCB[0x32] = &CPU::CBopcode0x32;
     opcodeFunctionCB[0x33] = &CPU::CBopcode0x33;
-    opcodeFunctionCB[0x34] = nullptr; // = &CPU::CBopcode0x34;
-    opcodeFunctionCB[0x35] = nullptr; // = &CPU::CBopcode0x35;
-    opcodeFunctionCB[0x36] = nullptr; // = &CPU::CBopcode0x36;
+    opcodeFunctionCB[0x34] = &CPU::CBopcode0x34;
+    opcodeFunctionCB[0x35] = &CPU::CBopcode0x35;
+    opcodeFunctionCB[0x36] = &CPU::CBopcode0x36;
     opcodeFunctionCB[0x37] = &CPU::CBopcode0x37;
-    opcodeFunctionCB[0x38] = nullptr; // = &CPU::CBopcode0x38;
-    opcodeFunctionCB[0x39] = nullptr; // = &CPU::CBopcode0x39;
-    opcodeFunctionCB[0x3A] = nullptr; // = &CPU::CBopcode0x3A;
-    opcodeFunctionCB[0x3B] = nullptr; // = &CPU::CBopcode0x3B;
-    opcodeFunctionCB[0x3C] = nullptr; // = &CPU::CBopcode0x3C;
-    opcodeFunctionCB[0x3D] = nullptr; // = &CPU::CBopcode0x3D;
-    opcodeFunctionCB[0x3E] = nullptr; // = &CPU::CBopcode0x3E;
+    opcodeFunctionCB[0x38] = &CPU::CBopcode0x38;
+    opcodeFunctionCB[0x39] = &CPU::CBopcode0x39;
+    opcodeFunctionCB[0x3A] = &CPU::CBopcode0x3A;
+    opcodeFunctionCB[0x3B] = &CPU::CBopcode0x3B;
+    opcodeFunctionCB[0x3C] = &CPU::CBopcode0x3C;
+    opcodeFunctionCB[0x3D] = &CPU::CBopcode0x3D;
+    opcodeFunctionCB[0x3E] = &CPU::CBopcode0x3E;
     opcodeFunctionCB[0x3F] = &CPU::CBopcode0x3F;
     opcodeFunctionCB[0x40] = &CPU::CBopcode0x40;
     opcodeFunctionCB[0x41] = &CPU::CBopcode0x41;
-    opcodeFunctionCB[0x42] = nullptr; // = &CPU::CBopcode0x42;
-    opcodeFunctionCB[0x43] = nullptr; // = &CPU::CBopcode0x43;
-    opcodeFunctionCB[0x44] = nullptr; // = &CPU::CBopcode0x44;
-    opcodeFunctionCB[0x45] = nullptr; // = &CPU::CBopcode0x45;
+    opcodeFunctionCB[0x42] = &CPU::CBopcode0x42;
+    opcodeFunctionCB[0x43] = &CPU::CBopcode0x43;
+    opcodeFunctionCB[0x44] = &CPU::CBopcode0x44;
+    opcodeFunctionCB[0x45] = &CPU::CBopcode0x45;
     opcodeFunctionCB[0x46] = &CPU::CBopcode0x46;
     opcodeFunctionCB[0x47] = &CPU::CBopcode0x47;
     opcodeFunctionCB[0x48] = &CPU::CBopcode0x48;
-    opcodeFunctionCB[0x49] = nullptr; // = &CPU::CBopcode0x49;
-    opcodeFunctionCB[0x4A] = nullptr; // = &CPU::CBopcode0x4A;
-    opcodeFunctionCB[0x4B] = nullptr; // = &CPU::CBopcode0x4B;
-    opcodeFunctionCB[0x4C] = nullptr; // = &CPU::CBopcode0x4C;
-    opcodeFunctionCB[0x4D] = nullptr; // = &CPU::CBopcode0x4D;
-    opcodeFunctionCB[0x4E] = nullptr; // = &CPU::CBopcode0x4E;
-    opcodeFunctionCB[0x4F] = nullptr; // = &CPU::CBopcode0x4F;
+    opcodeFunctionCB[0x49] = &CPU::CBopcode0x49;
+    opcodeFunctionCB[0x4A] = &CPU::CBopcode0x4A;
+    opcodeFunctionCB[0x4B] = &CPU::CBopcode0x4B;
+    opcodeFunctionCB[0x4C] = &CPU::CBopcode0x4C;
+    opcodeFunctionCB[0x4D] = &CPU::CBopcode0x4D;
+    opcodeFunctionCB[0x4E] = &CPU::CBopcode0x4E;
+    opcodeFunctionCB[0x4F] = &CPU::CBopcode0x4F;
     opcodeFunctionCB[0x50] = &CPU::CBopcode0x50;
-    opcodeFunctionCB[0x51] = nullptr; // = &CPU::CBopcode0x51;
-    opcodeFunctionCB[0x52] = nullptr; // = &CPU::CBopcode0x52;
-    opcodeFunctionCB[0x53] = nullptr; // = &CPU::CBopcode0x53;
-    opcodeFunctionCB[0x54] = nullptr; // = &CPU::CBopcode0x54;
-    opcodeFunctionCB[0x55] = nullptr; // = &CPU::CBopcode0x55;
-    opcodeFunctionCB[0x56] = nullptr; // = &CPU::CBopcode0x56;
+    opcodeFunctionCB[0x51] = &CPU::CBopcode0x51;
+    opcodeFunctionCB[0x52] = &CPU::CBopcode0x52;
+    opcodeFunctionCB[0x53] = &CPU::CBopcode0x53;
+    opcodeFunctionCB[0x54] = &CPU::CBopcode0x54;
+    opcodeFunctionCB[0x55] = &CPU::CBopcode0x55;
+    opcodeFunctionCB[0x56] = &CPU::CBopcode0x56;
     opcodeFunctionCB[0x57] = &CPU::CBopcode0x57;
     opcodeFunctionCB[0x58] = &CPU::CBopcode0x58;
-    opcodeFunctionCB[0x59] = nullptr; // = &CPU::CBopcode0x59;
-    opcodeFunctionCB[0x5A] = nullptr; // = &CPU::CBopcode0x5A;
-    opcodeFunctionCB[0x5B] = nullptr; // = &CPU::CBopcode0x5B;
-    opcodeFunctionCB[0x5C] = nullptr; // = &CPU::CBopcode0x5C;
-    opcodeFunctionCB[0x5D] = nullptr; // = &CPU::CBopcode0x5D;
-    opcodeFunctionCB[0x5E] = nullptr; // = &CPU::CBopcode0x5E;
+    opcodeFunctionCB[0x59] = &CPU::CBopcode0x59;
+    opcodeFunctionCB[0x5A] = &CPU::CBopcode0x5A;
+    opcodeFunctionCB[0x5B] = &CPU::CBopcode0x5B;
+    opcodeFunctionCB[0x5C] = &CPU::CBopcode0x5C;
+    opcodeFunctionCB[0x5D] = &CPU::CBopcode0x5D;
+    opcodeFunctionCB[0x5E] = &CPU::CBopcode0x5E;
     opcodeFunctionCB[0x5F] = &CPU::CBopcode0x5F;
     opcodeFunctionCB[0x60] = &CPU::CBopcode0x60;
     opcodeFunctionCB[0x61] = &CPU::CBopcode0x61;

@@ -2065,7 +2065,6 @@ inline void CPU::Decrement8BitValue(u8 &reg) // Flags: Z 1 H -
 }
 
 
-//TODO: I think registers messed up?
 inline void CPU::Add16BitRegisters(u16 &reg1, u16 &reg2) // Flags: - 0 H C
 {
     regs.AF.low &= ~SUBTRACT_FLAG; // Reset flag
@@ -2156,7 +2155,7 @@ inline void CPU::SUB(u8 operand) // Flags: Z 1 H C
     regs.AF.high -= operand;
 }
 
-inline void CPU::SBC(u8 operand) // Flags: Z 1 H C
+inline void CPU::SBC(u8 operand) // Flags: Z 1 H C - Subtract n + Carry flag from A
 {
     operand += (regs.AF.low & CARRY_FLAG);
 
@@ -2245,12 +2244,6 @@ inline void CPU::CP(u8 operand) // Flags: Z 1 H C
     else
         regs.AF.low &= ~CARRY_FLAG;
 }
-
-
-
-
-
-
 
 // Interrupt jumps
 
