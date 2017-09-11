@@ -228,7 +228,7 @@ void MMU::WriteByte(u16 addr, u8 byte)
 {   
     // Blargg's CPU test
     if (addr == 0xFF02 && byte == 0x81) {
-        std::cout << ReadByte(0xFF01) << std::endl;
+        std::cout << (char)ReadByte(0xFF01) << std::endl;
     }
 
 

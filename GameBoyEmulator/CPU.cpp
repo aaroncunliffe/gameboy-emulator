@@ -255,7 +255,7 @@ void CPU::ProcessInstruction()
     if (opcodeByte != 0xCB)
         std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
     else
-        std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << CBOpcodeTable[opcodeByte].name << std::endl;
+        std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << CBOpcodeTable[nextByte].name << std::endl;
 
     
 #endif 
@@ -268,6 +268,51 @@ void CPU::ProcessInstruction()
         instructionProfiling[nextByte]++;
     }*/
     //log = true;
+
+    if (regs.pc == 0xC070)
+    {
+        int stop = 0;
+    }
+
+    if (regs.pc == 0xC06A)
+    {
+        int stop = 0;
+    }
+
+    if (regs.pc == 0xC084)
+    {
+        int stop = 0;
+    }
+
+    if (regs.pc == 0xC086)
+    {
+        int stop = 0;
+    }
+
+    if (regs.pc == 0xC092)
+    {
+        int stop = 0;
+    }
+
+    if (regs.pc == 0xC05E)
+    {
+        int stop = 0;
+    }
+
+    if (regs.pc == 0xC0CD)
+    {
+        int stop = 0;
+    }
+
+    if (regs.HL.word == 0xCB76)
+    {
+        int stop = 0;
+    }
+
+    if (regs.HL.word == 0xC0AD)
+    {
+        int stop = 0;
+    }
 
    (this->*opcodeFunction[opcodeByte])();
     //totalInstructions++;

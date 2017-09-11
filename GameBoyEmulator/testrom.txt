@@ -1,0 +1,25 @@
+
+None of the test roms output to the screen OR write to the serial register.
+
+Never gets past the check at 0xC084
+
+RR instruction incorrect.
+
+
+11/09/17:
+
+- Fixed issue with RRA instruction, where it was not placing the carry value into bit 7 of the register.
+
+- Hits instruction 0xC084 twice with the correct registers, on 3rd hit the registers are wrong
+
+- Doesnt hit instruction 0xC0CD more than once, it should
+
+- Fixed issue with RR and RL instructions, carry was being set to the value AFTER the shift not before.
+
+- Fixed MASSIVE oversight, when CALLING depending on flag condition, pushed CURRENT instructions address to the stack, not the next instruction.
+  - After fixing the above, prints the first character to the console window. doesn't progress any further
+
+- Fixed SUB function did not set carry flag properly. Was comparing flags register rather than A register. (Same bug existed in other maths functions)
+  - Now prints the test name to the screen and gets stuck
+
+ NOTE: One of the above changes also fixed the scoreboard issue in tetris. Tetris is now completely playable apart from DAA instruction (scores are still HEX)

@@ -17,7 +17,7 @@ typedef signed int s32;
 #define Key_Left	SDLK_LEFT
 #define Key_Up		SDLK_UP
 #define Key_Down	SDLK_DOWN
-#define Key_A		SDLK_a
-#define Key_B		SDLK_s
+#define Key_A		SDLK_s      // Changed to match BGB
+#define Key_B		SDLK_a
 #define Key_Select	SDLK_LSHIFT
 #define Key_Start	SDLK_RETURN

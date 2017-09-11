@@ -1882,19 +1882,19 @@ void CPU::CBopcode0xFF() // SET 7,A
 // Helper Functions CB
 
 
-inline void CPU::RLC(u8& n) // Flags: Z 0 0 C - Rotate n left. Old bit 7 to Carry flag
+inline void CPU::RLC(u8& n) // Flags: Z 0 0 C    Rotate n left. Old bit 7 to Carry flag
 {
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low &= ~HALF_CARRY_FLAG;
     
-    u8 oldbit7 = (n & 0x80);
+    u8 oldbit7 = (n & 0x80) ? 1 : 0;
 
     n = n << 1;
 
     if (oldbit7)
         regs.AF.low |= CARRY_FLAG;
     else
-        regs.AF.low &= CARRY_FLAG;
+        regs.AF.low &= ~CARRY_FLAG;
 
     if (n == 0x00)
         regs.AF.low |= ZERO_FLAG;
@@ -1902,19 +1902,19 @@ inline void CPU::RLC(u8& n) // Flags: Z 0 0 C - Rotate n left. Old bit 7 to Carr
         regs.AF.low &= ~ZERO_FLAG;
 }
 
-inline void CPU::RRC(u8& n) // Flags: Z 0 0 C - Rotate n right. Old bit 0 to Carry flag
+inline void CPU::RRC(u8& n) // Flags: Z 0 0 C    Rotate n right. Old bit 0 to Carry flag
 {
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low &= ~HALF_CARRY_FLAG;
 
-    u8 oldbit0 = (n & 0x01);
+    u8 oldbit0 = (n & 0x01) ? 1 : 0;
 
     n = n >> 1;
 
     if(oldbit0)
         regs.AF.low |= CARRY_FLAG;
     else
-        regs.AF.low &= CARRY_FLAG;
+        regs.AF.low &= ~CARRY_FLAG;
 
     if (n == 0x00)
         regs.AF.low |= ZERO_FLAG;
@@ -1924,20 +1924,21 @@ inline void CPU::RRC(u8& n) // Flags: Z 0 0 C - Rotate n right. Old bit 0 to Car
 }
 
 
-inline void CPU::RL(u8& n) // Flags: Z 0 0 C - Rotate n left through Carry flag.
+inline void CPU::RL(u8& n) // Flags: Z 0 0 C    Rotate n left through Carry flag.
 {
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low &= ~HALF_CARRY_FLAG;
 
-    u8 carryValue = (regs.AF.low & CARRY_FLAG) >> CARRY_BIT; // Gets the old carry value
-
-    if (n & 0x08)
-        regs.AF.low |= CARRY_FLAG;
-    else
-        regs.AF.low &= CARRY_FLAG;
+    u8 oldVal = n;
 
     n = n << 1;
-    n = n + carryValue;
+    if (regs.AF.high & CARRY_FLAG)
+        n |= 0x01;
+
+    if (oldVal & 0x08) // Contains old bit 7 data
+        regs.AF.low |= CARRY_FLAG;
+    else
+        regs.AF.low &= ~CARRY_FLAG;
 
     if (n == 0x00)
         regs.AF.low |= ZERO_FLAG;
@@ -1946,21 +1947,21 @@ inline void CPU::RL(u8& n) // Flags: Z 0 0 C - Rotate n left through Carry flag.
 
 }
 
-// TODO: Carry value replaced with ternary operators rather than shifting
-inline void CPU::RR(u8& n) // Flags: Z 0 0 C - Rotate n right through Carry flag.
+inline void CPU::RR(u8& n) // Flags: Z 0 0 C    Rotate n right through Carry flag.
 {
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low &= ~HALF_CARRY_FLAG;
-
-    u8 carryValue = (regs.AF.low & CARRY_FLAG) >> CARRY_BIT; // Gets the old carry value
-
-    if (n & 0x01)
-        regs.AF.low |= CARRY_FLAG;
-    else
-        regs.AF.low &= CARRY_FLAG;
+    
+    u8 oldVal = n;
 
     n = n >> 1;
-    n = n + carryValue;
+    if (regs.AF.low & CARRY_FLAG)
+        n |= 0x80;
+
+    if (oldVal & 0x01) // Contains old bit 0 data
+        regs.AF.low |= CARRY_FLAG;
+    else
+        regs.AF.low &= ~CARRY_FLAG;
 
     if(n == 0x00)
         regs.AF.low |= ZERO_FLAG;
@@ -1971,7 +1972,7 @@ inline void CPU::RR(u8& n) // Flags: Z 0 0 C - Rotate n right through Carry flag
 
 
 
-inline void CPU::SLA(u8& n) // Flags: Z 0 0 C - Shift n left into Carry. LSB of n set to 0.
+inline void CPU::SLA(u8& n) // Flags: Z 0 0 C   Shift n left into Carry. LSB of n set to 0.
 {
     u8 msb = (n & 0x80); // Store the msb before the shift
 
@@ -1992,7 +1993,7 @@ inline void CPU::SLA(u8& n) // Flags: Z 0 0 C - Shift n left into Carry. LSB of 
 }
 
 
-inline void CPU::SRA(u8& n) // Flags: Z 0 0 C - Shift n right into Carry. MSB doesn't change.
+inline void CPU::SRA(u8& n) // Flags: Z 0 0 C   Shift n right into Carry. MSB doesn't change.
 {
     u8 msb = (n & 0x80); // Store the msb before the shift
 
@@ -2014,7 +2015,7 @@ inline void CPU::SRA(u8& n) // Flags: Z 0 0 C - Shift n right into Carry. MSB do
 
 }
 
-inline void CPU::SWAP(u8& n) // Flags: Z 0 0 0
+inline void CPU::SWAP(u8& n) // Flags: Z 0 0 0  Swap upper & lower nibles of n.
 {
     // reset flags
     regs.AF.low &= ~SUBTRACT_FLAG;
@@ -2030,7 +2031,7 @@ inline void CPU::SWAP(u8& n) // Flags: Z 0 0 0
         regs.AF.low &= ~ZERO_FLAG;
 }
 
-inline void CPU::SRL(u8& n) // Flags: Z 0 0 C - Shift n right into Carry. MSB set to 0
+inline void CPU::SRL(u8& n) // Flags: Z 0 0 C   Shift n right into Carry. MSB set to 0
 {
     u8 lsb = (n & 0x01); // Store the msb before the shift
 
@@ -2050,12 +2051,12 @@ inline void CPU::SRL(u8& n) // Flags: Z 0 0 C - Shift n right into Carry. MSB se
         regs.AF.low &= ~ZERO_FLAG;
 }
 
-inline void CPU::BIT(u8 bit, u8 n) // Test bit in register, FLAGS: Z 0 1 -
+inline void CPU::BIT(u8 bit, u8 n) // FLAGS: Z 0 1 -    Test bit in register, 
 {
     if (n & bit)
-        regs.AF.low &= ~ZERO_FLAG;
+        regs.AF.low &= ~ZERO_FLAG; 
     else
-        regs.AF.low |= ZERO_FLAG;
+        regs.AF.low |= ZERO_FLAG; // Set to 1, if result is 0 (false)
 
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low |= HALF_CARRY_FLAG;

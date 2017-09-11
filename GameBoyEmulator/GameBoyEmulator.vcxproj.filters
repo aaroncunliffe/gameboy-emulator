@@ -73,5 +73,8 @@
     <Text Include="Tetris-todo.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="testrom.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

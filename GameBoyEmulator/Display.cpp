@@ -73,7 +73,7 @@ void Display::init(int multiplier)
 
 void Display::RenderScanline()
 {
-    u8 scanrow[160]; // 1 line of pixels
+    u8 scanrow[160]; // 1 complete row of pixels
 
     // Background render
     if (LCDC & BG_ENABLE_OFFSET)
@@ -88,7 +88,6 @@ void Display::RenderScanline()
         {
             tindex = vram[offsetbase + (x / 8)];
             scanrow[x] = Tileset[tindex][y][x % 8];
-
 
             pixels[DISPLAY_WIDTH * LY + x].r = bgPalette[Tileset[tindex][y][x % 8]].r;
             pixels[DISPLAY_WIDTH * LY + x].g = bgPalette[Tileset[tindex][y][x % 8]].g;
