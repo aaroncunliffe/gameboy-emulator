@@ -44,6 +44,7 @@ void Cartridge::PrintFormattedData()
     std::cout << std::endl;
     std::cout << "---- ROM HEADER DATA ----" << std::endl;
     std::cout << "Title:            " << title << std::endl;
+    std::cout << "Gameboy:          " << std::uppercase << std::setw(2) << std::setfill('0') << std::hex << (int)gameboyByte << std::endl;
     std::cout << "Graphic Match:    " << (graphicMatch ? "True" : "False") << std::endl;
     std::cout << "Licensee Code:    " << std::uppercase << std::setw(2) << std::setfill('0') << std::hex << (int)licenseeCodeByte << std::endl;
     std::cout << "Cartridge Type:   " << std::uppercase << std::setw(2) << std::setfill('0') << std::hex << (int)cartridgeTypeByte << std::endl;

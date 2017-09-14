@@ -1431,8 +1431,8 @@ void CPU::CBopcode0xC2() // SET 0,D
 void CPU::CBopcode0xC3() // SET 0,D
 {
     SET(0x01, regs.DE.low);
-    counter += CBOpcodeTable[0xD3].duration.firstCondition;
-    regs.pc += CBOpcodeTable[0xD3].length;
+    counter += CBOpcodeTable[0xC3].duration.firstCondition;
+    regs.pc += CBOpcodeTable[0xC3].length;
 }
 
 void CPU::CBopcode0xC4() // SET 0,H
@@ -1548,7 +1548,7 @@ void CPU::CBopcode0xD2() // SET 2,D
 
 void CPU::CBopcode0xD3() // SET 2,D
 {
-    SET(0x04, regs.DE.low);
+    SET(0x04, regs.DE.high); 
     counter += CBOpcodeTable[0xD3].duration.firstCondition;
     regs.pc += CBOpcodeTable[0xD3].length;
 }
@@ -2291,30 +2291,39 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0xD1] = &CPU::CBopcode0xD1;
     opcodeFunctionCB[0xD2] = &CPU::CBopcode0xD2;
     opcodeFunctionCB[0xD4] = &CPU::CBopcode0xD4;
+    opcodeFunctionCB[0xD3] = &CPU::CBopcode0xD3;
     opcodeFunctionCB[0xD5] = &CPU::CBopcode0xD5;
     opcodeFunctionCB[0xD6] = &CPU::CBopcode0xD6;
     opcodeFunctionCB[0xD7] = &CPU::CBopcode0xD7;
     opcodeFunctionCB[0xD8] = &CPU::CBopcode0xD8;
     opcodeFunctionCB[0xD9] = &CPU::CBopcode0xD9;
     opcodeFunctionCB[0xDA] = &CPU::CBopcode0xDA;
+    opcodeFunctionCB[0xDB] = &CPU::CBopcode0xDB;
     opcodeFunctionCB[0xDC] = &CPU::CBopcode0xDC;
+    opcodeFunctionCB[0xDD] = &CPU::CBopcode0xDD;
     opcodeFunctionCB[0xDE] = &CPU::CBopcode0xDE;
     opcodeFunctionCB[0xDF] = &CPU::CBopcode0xDF;
     opcodeFunctionCB[0xE0] = &CPU::CBopcode0xE0;
     opcodeFunctionCB[0xE1] = &CPU::CBopcode0xE1;
     opcodeFunctionCB[0xE2] = &CPU::CBopcode0xE2;
+    opcodeFunctionCB[0xE3] = &CPU::CBopcode0xE3;
+    opcodeFunctionCB[0xE4] = &CPU::CBopcode0xE4;
     opcodeFunctionCB[0xE5] = &CPU::CBopcode0xE5;
     opcodeFunctionCB[0xE6] = &CPU::CBopcode0xE6;
     opcodeFunctionCB[0xE7] = &CPU::CBopcode0xE7;
     opcodeFunctionCB[0xE8] = &CPU::CBopcode0xE8;
     opcodeFunctionCB[0xE9] = &CPU::CBopcode0xE9;
     opcodeFunctionCB[0xEA] = &CPU::CBopcode0xEA;
+    opcodeFunctionCB[0xEB] = &CPU::CBopcode0xEB;
+    opcodeFunctionCB[0xEC] = &CPU::CBopcode0xEC;
+    opcodeFunctionCB[0xED] = &CPU::CBopcode0xED;
     opcodeFunctionCB[0xEE] = &CPU::CBopcode0xEE;
     opcodeFunctionCB[0xEF] = &CPU::CBopcode0xEF;
     opcodeFunctionCB[0xF0] = &CPU::CBopcode0xF0;
     opcodeFunctionCB[0xF1] = &CPU::CBopcode0xF1;
     opcodeFunctionCB[0xF2] = &CPU::CBopcode0xF2;
     opcodeFunctionCB[0xF3] = &CPU::CBopcode0xF3;
+    opcodeFunctionCB[0xF4] = &CPU::CBopcode0xF4;
     opcodeFunctionCB[0xF5] = &CPU::CBopcode0xF5;
     opcodeFunctionCB[0xF6] = &CPU::CBopcode0xF6;
     opcodeFunctionCB[0xF7] = &CPU::CBopcode0xF7;
@@ -2322,6 +2331,8 @@ void CPU::InitOpcodeFunctionsCB()
     opcodeFunctionCB[0xF9] = &CPU::CBopcode0xF9;
     opcodeFunctionCB[0xFA] = &CPU::CBopcode0xFA;
     opcodeFunctionCB[0xFB] = &CPU::CBopcode0xFB;
+    opcodeFunctionCB[0xFC] = &CPU::CBopcode0xFC;
+    opcodeFunctionCB[0xFD] = &CPU::CBopcode0xFD;
     opcodeFunctionCB[0xFE] = &CPU::CBopcode0xFE;
     opcodeFunctionCB[0xFF] = &CPU::CBopcode0xFF;
 

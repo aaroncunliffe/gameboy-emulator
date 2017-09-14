@@ -257,62 +257,17 @@ void CPU::ProcessInstruction()
     else
         std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << CBOpcodeTable[nextByte].name << std::endl;
 
-    
+
 #endif 
 
-   /* if (opcodeByte != 0xCB)
-        instructionProfiling[opcodeByte]++;
-    else
-    {
-        instructionProfiling[opcodeByte]++;
-        instructionProfiling[nextByte]++;
-    }*/
-    //log = true;
-
-    if (regs.pc == 0xC070)
-    {
-        int stop = 0;
-    }
-
-    if (regs.pc == 0xC06A)
-    {
-        int stop = 0;
-    }
-
-    if (regs.pc == 0xC084)
-    {
-        int stop = 0;
-    }
-
-    if (regs.pc == 0xC086)
-    {
-        int stop = 0;
-    }
-
-    if (regs.pc == 0xC092)
-    {
-        int stop = 0;
-    }
-
-    if (regs.pc == 0xC05E)
-    {
-        int stop = 0;
-    }
-
-    if (regs.pc == 0xC0CD)
-    {
-        int stop = 0;
-    }
-
-    if (regs.HL.word == 0xCB76)
-    {
-        int stop = 0;
-    }
-
-    if (regs.HL.word == 0xC0AD)
-    {
-        int stop = 0;
-    }
+    /* if (opcodeByte != 0xCB)
+         instructionProfiling[opcodeByte]++;
+     else
+     {
+         instructionProfiling[opcodeByte]++;
+         instructionProfiling[nextByte]++;
+     }*/
+     //log = true;
 
    (this->*opcodeFunction[opcodeByte])();
     //totalInstructions++;

@@ -74,7 +74,8 @@ void CPU::opcode0x07() // RLCA - Rotate A left. Old bit 7 to Carry flag.
 
 void CPU::opcode0x08() // LD (a16), SP
 {
-    regs.sp = mmu->ReadTwoBytes(regs.pc + 1);
+    //regs.sp = mmu->ReadTwoBytes(regs.pc + 1);
+    mmu->WriteTwoBytes(mmu->ReadTwoBytes(regs.pc + 1), regs.sp);
     counter += opcodeTable[0x08].duration.firstCondition;
     regs.pc += opcodeTable[0x08].length;
 }
@@ -1633,7 +1634,7 @@ void CPU::opcode0xCB() // prefix CB
 
 void CPU::opcode0xCC() // CALL Z, a16
 {
-    if (((regs.AF.low & ZERO_FLAG) >> ZERO_FLAG) == 0x01)
+    if (((regs.AF.low & ZERO_FLAG) >> ZERO_BIT) == 0x01)
     {
         counter += opcodeTable[0xCC].duration.firstCondition;
         mmu->PushTwoBytes(regs.sp, regs.pc + opcodeTable[0xCC].length);
@@ -1784,12 +1785,12 @@ void CPU::opcode0xDA() // JP C, a16
 
 // opcode DB unused
 
-void CPU::opcode0xDC()
+void CPU::opcode0xDC() // CALL C,a16
 {
     if (((regs.AF.low & CARRY_FLAG) >> CARRY_BIT) == 0x01)
     {
         counter += opcodeTable[0xDC].duration.firstCondition;
-        mmu->PushTwoBytes(regs.sp, regs.pc);
+        mmu->PushTwoBytes(regs.sp, regs.pc + +opcodeTable[0xDC].length);
         regs.pc = mmu->ReadTwoBytes(regs.pc + 1);
     }
     else
@@ -2104,7 +2105,7 @@ inline void CPU::ADD(u8 operand) // Flags: Z 0 H C
 
     regs.AF.high = (u8)(result & 0xFF);
 
-    if ((regs.AF.high + operand) == 0x00) // Check for Zero flag
+    if (regs.AF.high == 0x00) // Check for Zero flag
         regs.AF.low |= ZERO_FLAG;
     else
         regs.AF.low &= ~ZERO_FLAG;
@@ -2123,7 +2124,7 @@ inline void CPU::ADC(u8 operand) // FLAGS: Z 0 H C
 
      s32 result = regs.AF.high + operand;
 
-    if (result == regs.AF.high) // Check for Zero flag
+    if ((u8)result == 0x00) // Check for Zero flag
         regs.AF.low |= ZERO_FLAG;
     else
         regs.AF.low &= ~ZERO_FLAG;

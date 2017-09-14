@@ -23,3 +23,27 @@ RR instruction incorrect.
   - Now prints the test name to the screen and gets stuck
 
  NOTE: One of the above changes also fixed the scoreboard issue in tetris. Tetris is now completely playable apart from DAA instruction (scores are still HEX)
+
+
+ 14/9/17:
+-- ADD A,10 --- 
+0xC6B8 JR NZ, C659
+0xC6BA RET (Returns to C4E3)
+
+The add 10 to A relies on the unsigned value wrapping around to 0,
+There was a problem with testing whether to set the zero flag after an addition has been completed. fixed.
+I'm not confident logic for setting the flags for any arithmetic operations is correct, this needs to be tested
+
+C18B called just before the word passed appears on the screen
+
+Return at 0xC6BA returns to 0x93C which is never hit in BGB and causes an infinate loop
+
+Register values at the instructions leading up to 0xC6BA are incorrect, HL has value of 0x0000, and that is loaded into the stack pointer, and causes issues.
+
+0xC67D is the last instructions where the values match up
+
+Issue with 0x08() // LD (a16), SP. accidentally loaded value at address into stack pointer. Now gets a result from the test!
+
+- Test 7 failures
+    - 0xCC - tried to shift by ZERO_FLAG not ZERO_BIT. This is a bad system for conditional jumps and calls can skip shifting and just compare to the expected value.
+    - 0cDC - Call operation that wasn't pushing the right address. Was a previously found bug that was missed for this one instruction.

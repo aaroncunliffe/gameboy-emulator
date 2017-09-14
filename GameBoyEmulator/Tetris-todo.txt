@@ -72,7 +72,7 @@ Never jumps back from instruction 0x21B4
 29/07/2017
 
 First block runs instruction 4 times 0x2621 abd 2nd block calls 3 times, my emulator alters the position of the map after the 3 times, not sure why.
-Also need todo bacground properly and palettes
+Also need todo background properly and palettes
 
 
 30/07/2017 - TODO:
