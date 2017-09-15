@@ -84,6 +84,7 @@ private:
     u8 Tileset[384][8][8];
     sprite spriteStore[40];
 
+    bool onlyTiles;
 
     // Display Registers
 
@@ -141,7 +142,7 @@ public:
     void Update();
 
 private:
-    void Draw();
+    void DrawTiles();
     void RenderScanline();
     void ProcessSprites();
 

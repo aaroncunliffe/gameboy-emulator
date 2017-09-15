@@ -1932,10 +1932,10 @@ inline void CPU::RL(u8& n) // Flags: Z 0 0 C    Rotate n left through Carry flag
     u8 oldVal = n;
 
     n = n << 1;
-    if (regs.AF.high & CARRY_FLAG)
+    if (regs.AF.low & CARRY_FLAG)
         n |= 0x01;
 
-    if (oldVal & 0x08) // Contains old bit 7 data
+    if (oldVal & 0x80) // Contains old bit 7 data
         regs.AF.low |= CARRY_FLAG;
     else
         regs.AF.low &= ~CARRY_FLAG;

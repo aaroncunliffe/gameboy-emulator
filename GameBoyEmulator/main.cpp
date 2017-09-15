@@ -7,7 +7,7 @@ int main(int argc, char* args[])
 {
 
     //CPU* processor = new CPU("Pokemon - Red Version.gb");
-    //CPU* processor = new CPU("tetris.gb");
+    CPU* processor = new CPU;
 
     // MBC1
     //CPU* processor = new CPU("Tamagotchi.gb"); // Lots of scrolling backgrounds, fails.
@@ -24,7 +24,12 @@ int main(int argc, char* args[])
     //CPU* processor = new CPU("Test//08.gb"); // 08-misc instrs.gb
     //CPU* processor = new CPU("Test//09.gb"); // 09-op r,r.gb
     //CPU* processor = new CPU("Test//10.gb"); // 10-bit ops.gb
-    CPU* processor = new CPU("Test//11.gb"); // 11-op a,(hl).gb
+    //CPU* processor = new CPU("Test//11.gb"); // 11-op a,(hl).gb
+
+    //processor->SetBios("bios.gb");
+    processor->SetRom("tetris.gb");
+
+    processor->Start();
 
     while (processor->IsRunning())
     {

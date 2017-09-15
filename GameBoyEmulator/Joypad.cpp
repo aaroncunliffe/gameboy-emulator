@@ -16,7 +16,7 @@ void Joypad::KeysDown(SDL_Event e)
 	if (e.key.keysym.sym == SDLK_ESCAPE)
 	{
 		std::cout << "Quitting" << std::endl;
-		cpu->SetRunning(false);
+        cpu->Stop();
 	}
 	else if (e.key.keysym.sym == SDLK_F1)
 	{

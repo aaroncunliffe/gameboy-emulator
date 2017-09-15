@@ -18,7 +18,9 @@ Display::Display()
 
     scrollX = 0;
     scrollY = 0;
-   
+
+    onlyTiles = false; // To show only tiles, if false, scanlines are rendered as normal
+
     // 4 shades of gray, default palette
     bgPalette[0] = { 0xFF, 0xFF, 0xFF, 80 };
     bgPalette[1] = { 0xC0, 0xC0, 0xC0, 80 };
@@ -223,22 +225,22 @@ void Display::UpdateSprite(u16 oamAddr, u8 byte)
     }
 }
 
-void Display::Draw()
+void Display::DrawTiles()
 {
     
-   /* int i;
+    int i;
     for (i = 0; i < (144 / 8) * (160 / 8); i++) {
         int x;
         for (x = 0; x < 8; x++) {
             int y;
             for (y = 0; y < 8; y++) {
-                pixels[(i * 8 % 160) + y + (x + i * 8 / 160 * 8) * 160].r = pixelPalette[Tileset[i][x][y]].r;
-                pixels[(i * 8 % 160) + y + (x + i * 8 / 160 * 8) * 160].g = pixelPalette[Tileset[i][x][y]].g;
-                pixels[(i * 8 % 160) + y + (x + i * 8 / 160 * 8) * 160].b = pixelPalette[Tileset[i][x][y]].b;
+                pixels[(i * 8 % 160) + y + (x + i * 8 / 160 * 8) * 160].r = bgPalette[Tileset[i][x][y]].r;
+                pixels[(i * 8 % 160) + y + (x + i * 8 / 160 * 8) * 160].g = bgPalette[Tileset[i][x][y]].g;
+                pixels[(i * 8 % 160) + y + (x + i * 8 / 160 * 8) * 160].b = bgPalette[Tileset[i][x][y]].b;
             }
         }
     }
-    SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(Uint32));*/
+    SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(Uint32));
 
     
 }
@@ -378,7 +380,9 @@ void Display::Step(u32 clock)
                 activeMode = VBLANK;
                 
                 // Put image on screen here
-                Draw();
+                if(onlyTiles)
+                    DrawTiles();
+
                 Update();
 
                 u8 byte = mmu->ReadByte(0xFF0F);
@@ -423,7 +427,8 @@ void Display::Step(u32 clock)
             activeMode = HBLANK;
 
             // Write a scanline to the framebuffer
-            RenderScanline();
+            if (!onlyTiles)
+                RenderScanline();
         }
         break;
     }

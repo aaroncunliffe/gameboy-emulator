@@ -5,42 +5,30 @@
 
 CPU::CPU()
 {
-}
+    bios = false;
 
-CPU::CPU(char* romPath) : CPU()
-{
-	path = romPath;
-	regs.pc = PROGRAM_START;
+    regs.pc = 0x0000;
+    regs.ime = 0x00;
 
-   
     display = new Display();
     keyboard = new Joypad(this);
     display->init(4);
 
-    mmu = new MMU(romPath, display, keyboard);
-	
-    if (!mmu->LoadRom())
-        assert(false); // Error loading the ROM file
+    mmu = new MMU(display, keyboard);
 
     display->SetMMU(mmu);
 
     InitOpcodeFunctions();
     InitOpcodeFunctionsCB();
 
-    Reset();
-
-    //RunBios();
-    mmu->SetBiosComplete(true);
-
-    /*regs.AF.word = 0xFFFF;
-    regs.AF.low &= ~ZERO_FLAG;
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
-    regs.AF.low &= ~CARRY_FLAG;*/
-
     memset(instructionProfiling, (u32)0, 0x100 * sizeof(u32));
     memset(instructionProfilingCB, (u32)0, 0x100 * sizeof(u32));
+}
 
+CPU::CPU(char* romPath) : CPU()
+{
+	path = romPath;
+    SetRom(path);
 }
 
 CPU::~CPU()
@@ -50,19 +38,60 @@ CPU::~CPU()
     delete keyboard;
 }
 
+void CPU::SetBios(char* path)
+{
+    if (!mmu->LoadBios(path))
+    {
+        std::cout << "Error loading bios, continuing with default values" << std::endl;
+        std::cout << std::endl;
+        DefaultValues();
+        mmu->SetBiosComplete(true);
+    }
+    else
+    {
+        bios = true;
+    }
+}
+
+void CPU::SetRom(char* path)
+{
+    if (!mmu->LoadRom(path))
+        assert(false); // Error loading the ROM file
+}
+
+void CPU::Start()
+{
+    display->clear();
+    if (bios == false)
+    {
+        std::cout << "Bios file not loaded" << std::endl;
+        std::cout << std::endl;
+        DefaultValues();
+        mmu->SetBiosComplete(true);
+    }
+    running = true;
+}
+
+void CPU::Stop()
+{
+    running = false;
+}
+
 void CPU::Reset()
 {
-
     display->clear();
     lastCycleTime = SDL_GetTicks();
 
-    running = true;
     counter = 0;
     
-    regs.ime = 0x01;
+    regs.ime = 0x00;
+    regs.pc = 0x00;// PROGRAM_START;
 
-    regs.pc = PROGRAM_START;
+    mmu->SetBiosComplete(false);
+}
 
+void CPU::DefaultValues()
+{
     // MANUAL BIOS 
     regs.AF.high = 0x01;
     regs.AF.low = 0xB0;
@@ -70,6 +99,7 @@ void CPU::Reset()
     regs.DE.word = 0x00D8;
     regs.HL.word = 0x014D;
     regs.sp = 0xFFFE;
+    regs.pc = 0x0100;
     mmu->WriteByte(0xFF05, 0x00);
     mmu->WriteByte(0xFF06, 0x00);
     mmu->WriteByte(0xFF07, 0x00);
@@ -101,27 +131,6 @@ void CPU::Reset()
     mmu->WriteByte(0xFF4A, 0x00);
     mmu->WriteByte(0xFF4B, 0x00);
     mmu->WriteByte(0xFFFF, 0x00);
-
-
-}
-
-void CPU::RunBios()
-{
-    for (int i = 0; i < 0x100; i++)
-    {
-        u8 opcodeByte = mmu->ReadByte(regs.pc);
-
-#ifdef _LOG
-
-        std::cout << opcodeTable[opcodeByte].name << std::endl;
-#endif 
-
-        (this->*opcodeFunction[opcodeByte])();
-
-    }
-
-    mmu->SetBiosComplete(true);
-    
 }
 
 void CPU::Loop()
@@ -251,12 +260,16 @@ void CPU::ProcessInstruction()
 
 //#define _LOG
 #ifdef _LOG
+    if (regs.pc < 0x0064 || regs.pc > 0x0070)
+    {
+
+    
     //std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (u16)mmu->ReadByte(0xFFC6) << " - " << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
     if (opcodeByte != 0xCB)
         std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
     else
         std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << CBOpcodeTable[nextByte].name << std::endl;
-
+    }
 
 #endif 
 
@@ -268,6 +281,54 @@ void CPU::ProcessInstruction()
          instructionProfiling[nextByte]++;
      }*/
      //log = true;
+
+    if (regs.pc == 0x431A)
+    {
+        int stop = 0;
+    }
+    if (mmu->ReadByte(0xFF44) == 0x90)
+    {
+        int stop = 0;
+    }
+    if (regs.pc == 0x0070)
+    {
+        int stop = 0;
+    }
+    if (regs.pc == 0x00E9)
+    {
+        int stop = 0;
+    }
+    if (regs.pc == 0x0055)
+    {
+        int stop = 0;
+    }
+    if (regs.pc == 0x000C)
+    {
+        int stop = 0;
+    }
+    if (regs.pc == 0x000F)
+    {
+        int stop = 0;
+    }
+    if (regs.pc > 0x000F)
+    {
+        int stop = 0;
+    }
+    if (regs.pc == 0x0098)
+    {
+            int stop = 0;
+    }
+
+    if (regs.pc == 0x009D)
+    {
+        int stop = 0;
+    }
+
+    if (regs.pc == 0x0099)
+    {
+        int stop = 0;
+    }
+
 
    (this->*opcodeFunction[opcodeByte])();
     //totalInstructions++;

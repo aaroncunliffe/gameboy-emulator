@@ -5,11 +5,10 @@ MMU::MMU()
 
 }
 
-MMU::MMU(char* path, Display* d, Joypad* j)
+MMU::MMU(Display* d, Joypad* j)
 {
     srand(time(NULL));
 
-    romPath = path;
     display = d;
 	joypad = j;
 
@@ -32,12 +31,13 @@ MMU::~MMU()
 }
 
 // Loads Rom from path that is passed in the constructor of MMU
-bool MMU::LoadRom()
+bool MMU::LoadRom(char* path)
 {
+    romPath = path;
     std::ifstream file;
-    file.open(romPath, std::ios::binary | std::ios::ate); // ate is to set the pointer to the end of the file so we can read the size
+    file.open(path, std::ios::binary | std::ios::ate); // ate is to set the pointer to the end of the file so we can read the size
 
-    std::cout << "Opening rom file: " << romPath << std::endl;
+    std::cout << "Opening rom file: " << path << std::endl;
     if (file.is_open())
     {
         romSize = file.tellg();
@@ -75,6 +75,43 @@ bool MMU::LoadRom()
     return false;
 }
 
+bool MMU::LoadBios(char* path)
+{
+    std::ifstream file;
+    file.open(path, std::ios::binary | std::ios::ate); // ate is to set the pointer to the end of the file so we can read the size
+
+    std::cout << "Opening bios file " << path << std::endl;
+    if (file.is_open())
+    {
+        u16 size = file.tellg();
+        std::cout << "bios Size: " << size << " Bytes" << std::endl;
+
+        if (size > 0x100)
+            return false;
+
+        file.seekg(0, std::ios::beg); // Move pointer back to the beginning of file
+
+        // Create buffer of the right size and read data to it
+        u8* buffer = new u8[size];
+        file.read((char*)buffer, size);
+
+        std::cout << "bios loaded successfully" << std::endl;
+        std::cout << std::endl;
+        file.close();
+
+        // Moves the data from the buffer to the array
+        for (int byte = 0; byte < size; ++byte)
+        {
+            bios[byte] = buffer[byte];
+        }
+
+        delete buffer;
+        return true;
+    }
+
+    return false;
+}
+
 // Reads byte from the correct location in the memory map
 u8 MMU::ReadByte(u16 addr)
 {
@@ -86,7 +123,10 @@ u8 MMU::ReadByte(u16 addr)
         if (biosComplete)
             return rom[0][addr];
         else
-            return bios[addr];
+            if (addr < 0x100)
+                return bios[addr];
+            else
+                return rom[0][addr];
 
         break;
 
@@ -318,6 +358,10 @@ void MMU::WriteByte(u16 addr, u8 byte)
                 case 0xFF46:
                     display->StartDMA(byte << 8);
                     break;
+                case 0xFF50:
+                    if (byte == 0x01) 
+                        SetBiosComplete(true); // BIOS lockout
+                    break;
                 
                 }
             default:
@@ -373,8 +417,6 @@ u16 MMU::PopTwoBytes(u16 &sp)
     sp += 2;
     return data;
 }
-
-
 
 void MMU::DumpToFile()
 {

@@ -47,3 +47,13 @@ Issue with 0x08() // LD (a16), SP. accidentally loaded value at address into sta
 - Test 7 failures
     - 0xCC - tried to shift by ZERO_FLAG not ZERO_BIT. This is a bad system for conditional jumps and calls can skip shifting and just compare to the expected value.
     - 0cDC - Call operation that wasn't pushing the right address. Was a previously found bug that was missed for this one instruction.
+
+
+
+----- BIOS -----
+
+Bios sits in the rom in place 0x0000 - 0x00FF needs access to the rom higher than this.
+
+- Issue with RR checking for carry flag in AF.high not low.
+
+- RL 0x80 is bit 7 not 0x08.

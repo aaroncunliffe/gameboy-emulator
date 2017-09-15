@@ -66,6 +66,7 @@ class CPU
 private:
 
 	char* path;
+    bool bios;
 
     typedef void(CPU::*opcodePtr)(void);
     opcodePtr opcodeFunction[0x100];
@@ -92,19 +93,23 @@ private:
 public:
     CPU();
     CPU(char* romPath);
+    void DefaultValues();
 	~CPU();
 
     void Loop();
-    bool IsRunning() { return running; }   // Getters
+    bool IsRunning() { return running; }   // Get
 
-	void SetRunning(bool state) { running = state; }
+    void Start();
+    void Stop();
+    void SetRom(char* path);
+    void SetBios(char* path);
 	void JoypadInterrupt();
 
 private:
+
     void Reset();
     void ProcessEvents();
     void ProcessInstruction();
-    void RunBios();
 
     void DumpToFile();
     void DumpToScreen();
