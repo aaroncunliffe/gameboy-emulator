@@ -1868,15 +1868,19 @@ void CPU::opcode0xE7() // RST 20h
 
 void CPU::opcode0xE8() // ADD SP, r8 Flags: 0 0 H C
 {
-    u8 operand = mmu->ReadByte(regs.pc + 1);
+    s8 operand = mmu->ReadByte(regs.pc + 1);
     regs.AF.low &= ~ZERO_FLAG;
     regs.AF.low &= ~SUBTRACT_FLAG; // reset subtract flag
 
     if ((((regs.AF.high & 0xF) - (operand & 0xF)) & 0x10) == 0x10) // Carry from 3rd bit
         regs.AF.low |= HALF_CARRY_FLAG;
+    else
+        regs.AF.low &= HALF_CARRY_FLAG;
 
     if ((regs.AF.high + operand) > 0xFF)
         regs.AF.low |= CARRY_FLAG;
+    else
+        regs.AF.low &= CARRY_FLAG;
 
     regs.sp += (s8)operand;
     counter += opcodeTable[0xE8].duration.firstCondition;
@@ -1977,15 +1981,19 @@ void CPU::opcode0xF7() // RST 30h
 
 void CPU::opcode0xF8() // LD HL,SP+r8 Flags: 0 0 H C
 {
-    u8 operand = mmu->ReadByte(regs.pc + 1);
+    s8 operand = mmu->ReadByte(regs.pc + 1);
     regs.AF.low &= ~ZERO_FLAG;
     regs.AF.low &= ~SUBTRACT_FLAG; // reset subtract flag
 
     if ((((regs.sp & 0xF) - (operand & 0xF)) & 0x10) == 0x10) // Carry from 3rd bit
         regs.AF.low |= HALF_CARRY_FLAG;
+    else
+        regs.AF.low &= HALF_CARRY_FLAG;
 
     if ((regs.sp + operand) > 0xFF)
         regs.AF.low |= CARRY_FLAG;
+    else
+        regs.AF.low &= ~CARRY_FLAG;
 
     regs.HL.word = regs.sp + (s8)operand;
     counter += opcodeTable[0xF8].duration.firstCondition;

@@ -446,4 +446,23 @@ void MMU::DumpToFile()
 
     outputFile.close();
     std::cout << "Memory written to file" << std::endl;
-} 
+}
+
+void MMU::WriteSaveFile()
+{
+    std::ofstream outputFile;
+
+    /*outputFile.open("game.sav");
+
+    std::hex;
+    for (int byte = 0x0000; byte < EIGHT_KB; ++byte)
+    {
+        outputFile << externalRam[1][byte];
+    }
+*/
+
+    outputFile.close();
+
+    std::cout << "Registers written to file" << std::endl;
+
+}

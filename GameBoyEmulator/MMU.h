@@ -84,6 +84,7 @@ public:
     bool GetBiosComplete() { return biosComplete; }
 
     void DumpToFile();
+    void WriteSaveFile();
 
 private:
 

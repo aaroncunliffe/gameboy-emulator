@@ -1995,12 +1995,13 @@ inline void CPU::SLA(u8& n) // Flags: Z 0 0 C   Shift n left into Carry. LSB of 
 
 inline void CPU::SRA(u8& n) // Flags: Z 0 0 C   Shift n right into Carry. MSB doesn't change.
 {
-    u8 msb = (n & 0x80); // Store the msb before the shift
+    u8 msb = n & 0x80; // Store the msb before the shift
+    u8 lsb = n & 0x01;
 
     regs.AF.low &= ~SUBTRACT_FLAG;
     regs.AF.low &= ~HALF_CARRY_FLAG;
 
-    if (msb)
+    if (lsb)
         regs.AF.low |= CARRY_FLAG;
     else
         regs.AF.low &= ~CARRY_FLAG;

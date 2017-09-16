@@ -3,6 +3,8 @@
 
 # My specific Ignores
 *.gb
+*.bin
+*.sav
 
 # User-specific files
 *.suo

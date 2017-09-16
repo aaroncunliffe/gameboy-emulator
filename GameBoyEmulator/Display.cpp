@@ -439,7 +439,7 @@ void Display::Step(u32 clock)
 // Clear copy update screen surface
 void Display::Update()
 {
-    SDL_RenderClear(renderer);
+    //SDL_RenderClear(renderer);
 
     SDL_RenderCopy(renderer, screen, NULL, NULL); // Puts the texture onto the screen
     SDL_RenderPresent(renderer);

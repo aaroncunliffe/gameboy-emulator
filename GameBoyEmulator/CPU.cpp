@@ -79,15 +79,25 @@ void CPU::Stop()
 
 void CPU::Reset()
 {
-    display->clear();
+    //display->clear();
     lastCycleTime = SDL_GetTicks();
 
     counter = 0;
-    
-    regs.ime = 0x00;
-    regs.pc = 0x00;// PROGRAM_START;
 
-    mmu->SetBiosComplete(false);
+    regs.ime = 0x00;
+
+    if (bios)
+    {
+        regs.pc = 0x00;// PROGRAM_START;
+        mmu->SetBiosComplete(false);
+    }
+    else
+    {
+        std::cout << "Bios file not loaded" << std::endl;
+        std::cout << std::endl;
+        DefaultValues();
+        mmu->SetBiosComplete(true);
+    }
 }
 
 void CPU::DefaultValues()
@@ -233,6 +243,20 @@ void CPU::ProcessEvents()
         {
         case SDL_KEYDOWN:
             keyboard->KeysDown(e);
+            if (e.key.keysym.sym == SDLK_ESCAPE)
+            {
+                Stop();
+            }
+            else if (e.key.keysym.sym == SDLK_F1)
+            {
+                //mmu->WriteSaveFile();
+                DumpToFile();
+            }
+            else if (e.key.keysym.sym == SDLK_F5)
+            {
+                Reset();
+            }
+
             break;
         case SDL_KEYUP:
             keyboard->KeysUp(e);
@@ -282,53 +306,6 @@ void CPU::ProcessInstruction()
      }*/
      //log = true;
 
-    if (regs.pc == 0x431A)
-    {
-        int stop = 0;
-    }
-    if (mmu->ReadByte(0xFF44) == 0x90)
-    {
-        int stop = 0;
-    }
-    if (regs.pc == 0x0070)
-    {
-        int stop = 0;
-    }
-    if (regs.pc == 0x00E9)
-    {
-        int stop = 0;
-    }
-    if (regs.pc == 0x0055)
-    {
-        int stop = 0;
-    }
-    if (regs.pc == 0x000C)
-    {
-        int stop = 0;
-    }
-    if (regs.pc == 0x000F)
-    {
-        int stop = 0;
-    }
-    if (regs.pc > 0x000F)
-    {
-        int stop = 0;
-    }
-    if (regs.pc == 0x0098)
-    {
-            int stop = 0;
-    }
-
-    if (regs.pc == 0x009D)
-    {
-        int stop = 0;
-    }
-
-    if (regs.pc == 0x0099)
-    {
-        int stop = 0;
-    }
-
 
    (this->*opcodeFunction[opcodeByte])();
     //totalInstructions++;
@@ -338,17 +315,16 @@ void CPU::DumpToFile()
 {
     std::ofstream outputFile;
 
-    outputFile.open("Registers.txt");
+    outputFile.open("Registers.bin");
     
     std::hex;
-    outputFile << "Registers:" << std::endl;
-    outputFile << "A: " << regs.AF.high << " F: " << regs.AF.low << std::endl;
-    outputFile << "B: " << regs.BC.high << " C: " << regs.BC.low << std::endl;
-    outputFile << "D: " << regs.DE.high << " E: " << regs.DE.low << std::endl;
-    outputFile << "H: " << regs.HL.high << " L: " << regs.HL.low << std::endl;
-    outputFile << std::endl;
-    outputFile << "PC " << regs.pc << " - " << opcodeTable[mmu->ReadByte(regs.pc)].name <<  std::endl;
-    outputFile << "SP " << regs.sp << std::endl;
+    outputFile << "Registers:";
+    outputFile << "A:" << regs.AF.high << "F:" << regs.AF.low;
+    outputFile << "B:" << regs.BC.high << "C:" << regs.BC.low;
+    outputFile << "D:" << regs.DE.high << "E:" << regs.DE.low;
+    outputFile << "H:" << regs.HL.high << "L:" << regs.HL.low;
+    outputFile << "PC:" << (u8)regs.pc;
+    outputFile << "SP:" << (u8)regs.sp;
 
 
     outputFile.close();
@@ -356,6 +332,7 @@ void CPU::DumpToFile()
     std::cout << "Registers written to file" << std::endl;
 
 }
+
 
 void CPU::DumpToScreen()
 {
