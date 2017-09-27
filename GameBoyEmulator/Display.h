@@ -36,6 +36,7 @@ struct sprite
     u8 y;
     u8 x;
     u8 tileNum;
+
     // last byte
     bool priority;
     bool yflip;
@@ -48,12 +49,14 @@ struct pixel
     u8 r;
     u8 g;
     u8 b;
-    u8 a;
-       
+	u8 a;
+
+	pixel() {};
+	pixel(u8 rv, u8 gv, u8 bv, u8 av) : r(rv), g(gv), b(bv), a(av) {}
+	
 };
 
 class MMU; // Stub
-
 
 class Display
 {
@@ -79,7 +82,8 @@ private:
 
 
     pixel bgPalette[4];
-	pixel obPalette[4];
+	pixel ob0Palette[4];
+	pixel ob1Palette[4];
 
     u8 Tileset[384][8][8];
     sprite spriteStore[40];
@@ -96,8 +100,6 @@ private:
     u8 LYC;         // 0xFF45
 
     SDL_Color pixels[DISPLAY_HEIGHT * DISPLAY_WIDTH]; // display or viewport
-
-    bool pixelChanged = false;
 
 public:
 
@@ -133,12 +135,13 @@ public:
     u8 GetScrollY() { return scrollY; }
 
     u8 GetLY() { return LY; }
-
     u8 GetLYC() { return LYC; }
     void SetLYC(u8 val) { LYC = val; }
 
+	void UpdateBGPalette(u8 value);
+	void UpdateOBPalette(bool pal1, u8 value);
+
     void Step(u32 clock);
-   
     void Update();
 
 private:

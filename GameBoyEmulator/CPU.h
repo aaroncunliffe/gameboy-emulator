@@ -66,7 +66,8 @@ class CPU
 private:
 
 	char* path;
-    bool bios;
+    bool biosLoaded;
+	bool RomLoaded;
 
     typedef void(CPU::*opcodePtr)(void);
     opcodePtr opcodeFunction[0x100];
@@ -125,9 +126,9 @@ private:
 	//----------------------
 
     // Helper Functions
-    inline void Increment8BitValue(u8 &reg);
-    inline void Decrement8BitValue(u8 &reg);
-    inline void Add16BitRegisters(u16 &reg1, u16 &reg2);
+    inline void INC(u8 &reg);
+    inline void DEC(u8 &reg);
+    inline void ADD16(u16 &reg1, u16 &reg2);
     inline void ADD(u8 operand);
     inline void ADC(u8 operand);
     inline void SUB(u8 operand);

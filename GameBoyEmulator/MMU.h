@@ -68,7 +68,7 @@ public:
     ~MMU();
 
     bool LoadRom(char* path);
-    bool MMU::LoadBios(char* path);
+    bool LoadBios(char* path);
 
     u8 ReadByte(u16 addr);
     u16 ReadTwoBytes(u16 addr);

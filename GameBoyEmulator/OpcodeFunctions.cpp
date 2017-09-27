@@ -30,14 +30,14 @@ void CPU::opcode0x03() // INC BC
 
 void CPU::opcode0x04() // INC B
 {
-    Increment8BitValue(regs.BC.high);
+    INC(regs.BC.high);
     counter += opcodeTable[0x04].duration.firstCondition;
     regs.pc += opcodeTable[0x04].length;
 }
 
 void CPU::opcode0x05() // DEC B
 {
-    Decrement8BitValue(regs.BC.high);
+    DEC(regs.BC.high);
     counter += opcodeTable[0x05].duration.firstCondition;
     regs.pc += opcodeTable[0x05].length;
 }
@@ -82,7 +82,7 @@ void CPU::opcode0x08() // LD (a16), SP
 
 void CPU::opcode0x09() // ADD HL, BC
 {
-    Add16BitRegisters(regs.HL.word, regs.BC.word);
+    ADD16(regs.HL.word, regs.BC.word);
     counter += opcodeTable[0x09].duration.firstCondition;
     regs.pc += opcodeTable[0x09].length;
 }
@@ -104,14 +104,14 @@ void CPU::opcode0x0B() // DEC BC
 
 void CPU::opcode0x0C() // INC C
 {
-    Increment8BitValue(regs.BC.low);
+    INC(regs.BC.low);
     counter += opcodeTable[0x0C].duration.firstCondition;
     regs.pc += opcodeTable[0x0C].length;
 }
 
 void CPU::opcode0x0D() // DEC C
 {
-    Decrement8BitValue(regs.BC.low);
+    DEC(regs.BC.low);
     counter += opcodeTable[0x0D].duration.firstCondition;
     regs.pc += opcodeTable[0x0D].length;
 }
@@ -180,14 +180,14 @@ void CPU::opcode0x13() // INC DE
 
 void CPU::opcode0x14() // INC D
 {
-    Increment8BitValue(regs.DE.high);
+    INC(regs.DE.high);
     counter += opcodeTable[0x14].duration.firstCondition;
     regs.pc += opcodeTable[0x14].length;
 }
 
 void CPU::opcode0x15() // DEC D
 {
-    Decrement8BitValue(regs.DE.high);
+    DEC(regs.DE.high);
     counter += opcodeTable[0x15].duration.firstCondition;
     regs.pc += opcodeTable[0x15].length;
 }
@@ -237,7 +237,7 @@ void CPU::opcode0x18() // JR r8
 
 void CPU::opcode0x19() // ADD HL, DE 
 {
-    Add16BitRegisters(regs.HL.word, regs.DE.word);
+    ADD16(regs.HL.word, regs.DE.word);
     counter += opcodeTable[0x19].duration.firstCondition;
     regs.pc += opcodeTable[0x19].length;
 }
@@ -258,14 +258,14 @@ void CPU::opcode0x1B() // DEC DE
 
 void CPU::opcode0x1C() // INC E 
 {
-    Increment8BitValue(regs.DE.low);
+    INC(regs.DE.low);
     counter += opcodeTable[0x1C].duration.firstCondition;
     regs.pc += opcodeTable[0x1C].length;
 }
 
 void CPU::opcode0x1D() // DEC E  
 {
-    Decrement8BitValue(regs.DE.low);
+    DEC(regs.DE.low);
     counter += opcodeTable[0x1D].duration.firstCondition;
     regs.pc += opcodeTable[0x1D].length;
 }
@@ -344,14 +344,14 @@ void CPU::opcode0x23() // INC HL
 
 void CPU::opcode0x24() // INC H 
 {
-    Increment8BitValue(regs.HL.high);
+    INC(regs.HL.high);
     counter += opcodeTable[0x24].duration.firstCondition;
     regs.pc += opcodeTable[0x24].length;
 }
 
 void CPU::opcode0x25() // DEC H 
 {
-    Decrement8BitValue(regs.HL.high);
+    DEC(regs.HL.high);
     counter += opcodeTable[0x25].duration.firstCondition;
     regs.pc += opcodeTable[0x25].length;
 }
@@ -410,7 +410,7 @@ void CPU::opcode0x28() // JR Z, r8
 
 void CPU::opcode0x29() // ADD HL, HL  
 {
-    Add16BitRegisters(regs.HL.word, regs.HL.word);
+    ADD16(regs.HL.word, regs.HL.word);
     counter += opcodeTable[0x29].duration.firstCondition;
     regs.pc += opcodeTable[0x29].length;
 }
@@ -432,14 +432,14 @@ void CPU::opcode0x2B() // DEC HL
 
 void CPU::opcode0x2C() // INC L 
 {
-    Increment8BitValue(regs.HL.low);
+    INC(regs.HL.low);
     counter += opcodeTable[0x2C].duration.firstCondition;
     regs.pc += opcodeTable[0x2C].length;
 }
 
 void CPU::opcode0x2D() // DEC L 
 {
-    Decrement8BitValue(regs.HL.low);
+    DEC(regs.HL.low);
     counter += opcodeTable[0x2D].duration.firstCondition;
     regs.pc += opcodeTable[0x2D].length;
 }
@@ -500,7 +500,7 @@ void CPU::opcode0x33() // INC SP
 void CPU::opcode0x34() // INC (HL) Flags: Z 0 H -
 {
     u8 byte = mmu->ReadByte(regs.HL.word);
-    Increment8BitValue(byte);
+    INC(byte);
     mmu->WriteByte(regs.HL.word, byte);
     counter += opcodeTable[0x34].duration.firstCondition;
     regs.pc += opcodeTable[0x34].length;
@@ -509,7 +509,7 @@ void CPU::opcode0x34() // INC (HL) Flags: Z 0 H -
 void CPU::opcode0x35() // DEC (HL) Flags: Z 1 H -
 {
     u8 byte = mmu->ReadByte(regs.HL.word);
-    Decrement8BitValue(byte);
+    DEC(byte);
     mmu->WriteByte(regs.HL.word, byte);
     counter += opcodeTable[0x35].duration.firstCondition;
     regs.pc += opcodeTable[0x35].length;
@@ -550,7 +550,7 @@ void CPU::opcode0x38() // JR C, r8
 
 void CPU::opcode0x39() // ADD HL, SP
 {
-    Add16BitRegisters(regs.HL.word, regs.sp);
+    ADD16(regs.HL.word, regs.sp);
     counter += opcodeTable[0x39].duration.firstCondition;
     regs.pc += opcodeTable[0x39].length;
 }
@@ -572,14 +572,14 @@ void CPU::opcode0x3B() // DEC SP
 
 void CPU::opcode0x3C() // INC A
 {
-    Increment8BitValue(regs.AF.high);
+    INC(regs.AF.high);
     counter += opcodeTable[0x3C].duration.firstCondition;
     regs.pc += opcodeTable[0x3C].length;
 }
 
 void CPU::opcode0x3D() // DEC A
 {
-    Decrement8BitValue(regs.AF.high);
+    DEC(regs.AF.high);
     counter += opcodeTable[0x3D].duration.firstCondition;
     regs.pc += opcodeTable[0x3D].length;
 }
@@ -985,7 +985,7 @@ void CPU::opcode0x75() // LD (HL), L
 void CPU::opcode0x76() // HALT   
 {
     // Power down CPU until an interrupt occurs. Use this when ever possible to reduce energy consumption.
-    halt = true;
+    //halt = true;
     counter += opcodeTable[0x76].duration.firstCondition;
     regs.pc += opcodeTable[0x76].length;
 }
@@ -2049,7 +2049,7 @@ void CPU::opcode0xFF() // RST 38h
 //      Helper functions
 //---------------------------------------------
 
-inline void CPU::Increment8BitValue(u8 &reg) // Flags: Z 0 H -
+inline void CPU::INC(u8 &reg) // Flags: Z 0 H -
 {
     reg++;
 
@@ -2067,7 +2067,7 @@ inline void CPU::Increment8BitValue(u8 &reg) // Flags: Z 0 H -
         regs.AF.low &= ~HALF_CARRY_FLAG;
 }
 
-inline void CPU::Decrement8BitValue(u8 &reg) // Flags: Z 1 H -
+inline void CPU::DEC(u8 &reg) // Flags: Z 1 H -
 {
     reg--;
 
@@ -2085,7 +2085,7 @@ inline void CPU::Decrement8BitValue(u8 &reg) // Flags: Z 1 H -
 }
 
 // TODO: Ordering of flags or addition
-inline void CPU::Add16BitRegisters(u16 &reg1, u16 &reg2) // Flags: - 0 H C
+inline void CPU::ADD16(u16 &reg1, u16 &reg2) // Flags: - 0 H C
 {
     regs.AF.low &= ~SUBTRACT_FLAG; // Reset flag
 

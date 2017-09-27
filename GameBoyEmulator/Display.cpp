@@ -20,17 +20,22 @@ Display::Display()
     scrollY = 0;
 
     onlyTiles = false; // To show only tiles, if false, scanlines are rendered as normal
-
+	
     // 4 shades of gray, default palette
-    bgPalette[0] = { 0xFF, 0xFF, 0xFF, 80 };
-    bgPalette[1] = { 0xC0, 0xC0, 0xC0, 80 };
-    bgPalette[2] = { 0x60, 0x60, 0x60, 80 };
-    bgPalette[3] = { 0x00, 0x00, 0x00, 00 };
+    bgPalette[0]  = { 0xFF, 0xFF, 0xFF, 0xFF };
+    bgPalette[1]  = { 0xC0, 0xC0, 0xC0, 0xFF };
+    bgPalette[2]  = { 0x60, 0x60, 0x60, 0xFF };
+	bgPalette[3]  = { 0x00, 0x00, 0x00, 0xFF };
+	
+	ob0Palette[0] = { 0xFF, 0xFF, 0xFF, 0x80 };
+	ob0Palette[1] = { 0xC0, 0xC0, 0xC0, 0x80 };
+	ob0Palette[2] = { 0x60, 0x60, 0x60, 0x80 };
+	ob0Palette[3] = { 0x00, 0x00, 0x00, 0x80 };
 
-	obPalette[0] = { 0xFF, 0xFF, 0xFF, 80 };
-	obPalette[1] = { 0xC0, 0xC0, 0xC0, 80 };
-	obPalette[2] = { 0x60, 0x60, 0x60, 80 };
-	obPalette[3] = { 0x00, 0x00, 0x00, 00 };
+	ob1Palette[0] = { 0xFF, 0xFF, 0xFF, 0x80 };
+	ob1Palette[1] = { 0xC0, 0xC0, 0xC0, 0x80 };
+	ob1Palette[2] = { 0x60, 0x60, 0x60, 0x80 };
+	ob1Palette[3] = { 0x00, 0x00, 0x00, 0x80 };
 
 }
 
@@ -54,18 +59,21 @@ void Display::init(int multiplier)
     h = DISPLAY_HEIGHT;
 
     window = SDL_CreateWindow("Gameboy - Aaron Cunliffe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
-    screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, DISPLAY_WIDTH, DISPLAY_HEIGHT); // SDL_TEXTURE_STATIC
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); // Accelerated or software
+    screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, DISPLAY_WIDTH, DISPLAY_HEIGHT); // STATIC or STREAMING - Also pixel format is ABGR
+
+
+	//SDL_SetWindowGrab(window, SDL_TRUE);
 
     // Clear VRAM, Tileset and raw pixel store
     memset(vram, 0x00, 0x2000 * sizeof(u8));
     memset(oam, 0x00, 0x9F * sizeof(u8));
     memset(Tileset, 0x00, (384 * 8 * 8) * sizeof(u8));
-    memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(u32));
+    //memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(u32));
 
-
-    SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
-    Update();
+	//SDL_SetTextureBlendMode(screen, SDL_BLENDMODE_MOD);
+    //SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
+    //Update();
 
     activeMode = OAM;
     LY = 0;
@@ -82,19 +90,28 @@ void Display::RenderScanline()
     {
         u16 tilemapbase = (LCDC & BG_TILE_MAP_SELECT_OFFSET) ? 0x1C00 : 0x1800;
         u16 offsetbase = tilemapbase + ((((LY + scrollY) & 255) >> 3) << 5);
-        u8 x, y, tindex;
+        u16 x, y, tileIndex;
 
         y = (LY + scrollY) & 7;
 
+
+		pixel colour;
+
         for (x = 0; x < 160; x++)
         {
-            tindex = vram[offsetbase + (x / 8)];
-            scanrow[x] = Tileset[tindex][y][x % 8];
+            tileIndex = vram[offsetbase + (x / 8)];
+			scanrow[x] = Tileset[tileIndex][y][x % 8];
 
-            pixels[DISPLAY_WIDTH * LY + x].r = bgPalette[Tileset[tindex][y][x % 8]].r;
-            pixels[DISPLAY_WIDTH * LY + x].g = bgPalette[Tileset[tindex][y][x % 8]].g;
-            pixels[DISPLAY_WIDTH * LY + x].b = bgPalette[Tileset[tindex][y][x % 8]].b;
-            pixels[DISPLAY_WIDTH * LY + x].a = bgPalette[Tileset[tindex][y][x % 8]].a;
+
+			if ((LCDC & BG_TILE_SET_SELECT_OFFSET) == 0x00 && tileIndex < 128)
+				tileIndex += 256; // if tile map #1 selected, the indexes are signed (-128 to 127 instead of 0 to 255)
+
+			colour = bgPalette[Tileset[tileIndex][y][x % 8]];
+
+            pixels[DISPLAY_WIDTH * LY + x].r = colour.r;
+            pixels[DISPLAY_WIDTH * LY + x].g = colour.g;
+            pixels[DISPLAY_WIDTH * LY + x].b = colour.b;
+            pixels[DISPLAY_WIDTH * LY + x].a = colour.a;
         }
     }
 
@@ -108,12 +125,6 @@ void Display::RenderScanline()
             // Check if this sprite falls on this scanline
             if (sprite.y <= LY && (sprite.y + 8) > LY)
             {
-                // Palette to use for this sprite
-                //u16 pal = sprite.palette ? GPU._pal.sprite1 : GPU._pal.sprite0;
-
-                // Where to render on the canvas
-                u16 canvasoffs = (DISPLAY_WIDTH * LY   + sprite.x);
-
                 // Data for this line of the sprite
                 u8 tilerow[8];
 
@@ -136,17 +147,22 @@ void Display::RenderScanline()
                     // if it's not colour 0 (transparent), AND
                     // if this sprite has priority OR shows under the bg
                     // then render the pixel
-                    if ((sprite.x + x) >= 0 && (sprite.x + x) < 160 && tilerow[x] && (~sprite.priority || !scanrow[sprite.x + x])) // ~sprite.priority or sprite.prority??
-                    {
-                        // If the sprite is X-flipped,
-                        // write pixels in reverse order
-                        u8 test = tilerow[sprite.xflip ? (7 - x) : x];
-                        colour = obPalette[tilerow[sprite.xflip ? (7 - x) : x]];
 
-                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].a = colour.r;
-                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].r = colour.g;
-                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].g = colour.b;
-                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].b = colour.a;
+					// If the sprite is X-flipped write pixels in reverse order
+					int index = sprite.xflip ? (7 - x) : x;
+
+                    if ((sprite.x + x) >= 0 && (sprite.x + x) < 160 && tilerow[index] && (!sprite.priority || !scanrow[sprite.x + x])) // !sprite.priority or sprite.prority??
+                    {
+						if (sprite.palette)
+							colour = ob1Palette[tilerow[index]];
+						else
+							colour = ob0Palette[tilerow[index]];
+
+
+						pixels[DISPLAY_WIDTH * LY + sprite.x + x].r = colour.r; 
+                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].g = colour.g;	  
+                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].b = colour.b;	  
+                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].a = colour.a;	  
                    }
                 }
             }
@@ -154,7 +170,7 @@ void Display::RenderScanline()
     }        
     
    
-    SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
+    //SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
 }
 
 void Display::clear()
@@ -206,13 +222,19 @@ void Display::UpdateSprite(u16 oamAddr, u8 byte)
         switch ((oamAddr - OAM_START) & 3)
         {
             // Y-coordinate
-        case 0: spriteStore[sprite].y = val - 16; break;
+        case 0: 
+			spriteStore[sprite].y = val - 16;
+			break;
 
             // X-coordinate
-        case 1:  spriteStore[sprite].x = val - 8; break;
+        case 1:  
+			spriteStore[sprite].x = val - 8; 
+			break;
 
             // Data tile
-        case 2:  spriteStore[sprite].tileNum = val; break;
+        case 2:  
+			spriteStore[sprite].tileNum = val; 
+			break;
 
             // Options
         case 3:
@@ -240,7 +262,7 @@ void Display::DrawTiles()
             }
         }
     }
-    SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(Uint32));
+    //SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(Uint32));
 
     
 }
@@ -386,7 +408,7 @@ void Display::Step(u32 clock)
                 Update();
 
                 u8 byte = mmu->ReadByte(0xFF0F);
-                mmu->WriteByte(0xFF0F, byte |= 0x01);
+                mmu->WriteByte(0xFF0F, byte |= 0x01); // Write for V-Blank
             }
             else
             {
@@ -441,6 +463,8 @@ void Display::Update()
 {
     //SDL_RenderClear(renderer);
 
+	SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
+
     SDL_RenderCopy(renderer, screen, NULL, NULL); // Puts the texture onto the screen
     SDL_RenderPresent(renderer);
 }
@@ -452,4 +476,49 @@ void Display::StartDMA(u16 source)
     {
         WriteOAM(OAM_START + i, mmu->ReadByte(source + i));
     }
+}
+
+
+void Display::UpdateBGPalette(u8 value)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		switch ((value >> (i * 2)) & 3) {
+		case 0:
+			bgPalette[i] = { 0xFF, 0xFF, 0xFF, 0xFF };
+			break;
+		case 1:
+			bgPalette[i] = { 0xC0, 0xC0, 0xC0, 0xFF };
+			break;
+		case 2:
+			bgPalette[i] = { 0x60, 0x60, 0x60, 0xFF };
+			break;
+		case 3:
+			bgPalette[i] = { 0x00, 0x00, 0x00, 0xFF };
+			break;
+		}
+			
+	}
+}
+
+void Display::UpdateOBPalette(bool pal1, u8 value)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		switch ((value >> (i * 2)) & 3) {
+		case 0:
+			pal1 ? ob1Palette[i] = { 0xFF, 0xFF, 0xFF, 0xFF } : ob0Palette[i] = { 0xFF, 0xFF, 0xFF, 0xFF };
+			break;
+		case 1:
+			pal1 ? ob1Palette[i] = { 0xC0, 0xC0, 0xC0, 0xFF } : ob0Palette[i] = { 0xC0, 0xC0, 0xC0, 0xFF };
+			break;
+		case 2:
+			pal1 ? ob1Palette[i] = { 0x60, 0x60, 0x60, 0xFF } : ob0Palette[i] = { 0x60, 0x60, 0x60, 0xFF };
+			break;
+		case 3:
+			pal1 ? ob1Palette[i] = { 0x00, 0x00, 0x00, 0xFF } : ob0Palette[i] = { 0x00, 0x00, 0x00, 0xFF };
+			break;
+		}
+
+	}
 }

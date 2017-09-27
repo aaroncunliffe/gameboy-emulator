@@ -22,7 +22,6 @@ const u16 romVersionOffset =        0x14C;      //
 // Also have complement check and checksum.
 
 
-
 class Cartridge
 {
 private:

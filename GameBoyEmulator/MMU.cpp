@@ -197,7 +197,7 @@ u8 MMU::ReadByte(u16 addr)
                     break;
 
                 case 0xFF04:
-                    return (u8)rand(); // good enough for now?
+					return (u8)rand(); // good enough for now?
                     break;
                 case 0xFF05:  // Timer Counter
                     return 0x00;
@@ -222,6 +222,13 @@ u8 MMU::ReadByte(u16 addr)
                 case 0xFF45:
                     return display->GetLYC();
                     break;
+
+				case 0xFF47: // BG palette
+					break;
+				case 0xFF48: // OB palette 0
+					break;
+				case 0xFF49: // OB palette 1
+					break;
                 }
 
             default:
@@ -353,11 +360,20 @@ void MMU::WriteByte(u16 addr, u8 byte)
                 case 0xFF44: // LY - Read only.
                     break;
                 case 0xFF45:
-                    //display->SetLYC(byte);
+                    display->SetLYC(byte);
                     break;
                 case 0xFF46:
                     display->StartDMA(byte << 8);
                     break;
+				case 0xFF47: // BG palette
+					display->UpdateBGPalette(byte);
+					break;
+				case 0xFF48: // OB palette 0
+					display->UpdateOBPalette(false, byte);
+					break;
+				case 0xFF49: // OB palette 1
+					display->UpdateOBPalette(true, byte);
+					break;
                 case 0xFF50:
                     if (byte == 0x01) 
                         SetBiosComplete(true); // BIOS lockout

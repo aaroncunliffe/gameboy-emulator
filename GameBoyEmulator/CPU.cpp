@@ -5,7 +5,8 @@
 
 CPU::CPU()
 {
-    bios = false;
+    biosLoaded = false;
+	RomLoaded = false;
 
     regs.pc = 0x0000;
     regs.ime = 0x00;
@@ -23,6 +24,14 @@ CPU::CPU()
 
     memset(instructionProfiling, (u32)0, 0x100 * sizeof(u32));
     memset(instructionProfilingCB, (u32)0, 0x100 * sizeof(u32));
+
+	regs.AF.high = 0x01;
+	regs.AF.low = 0xB0;
+	regs.BC.word = 0x0013;
+	regs.DE.word = 0x00D8;
+	regs.HL.word = 0x014D;
+
+
 }
 
 CPU::CPU(char* romPath) : CPU()
@@ -49,26 +58,33 @@ void CPU::SetBios(char* path)
     }
     else
     {
-        bios = true;
+        biosLoaded = true;
     }
 }
 
 void CPU::SetRom(char* path)
 {
-    if (!mmu->LoadRom(path))
-        assert(false); // Error loading the ROM file
+	if (!mmu->LoadRom(path))
+		assert(false); // Error loading the ROM file
+	else
+		RomLoaded = true;
 }
 
 void CPU::Start()
 {
+	lastCycleTime = SDL_GetTicks();
     display->clear();
-    if (bios == false)
+    if (!biosLoaded)
     {
         std::cout << "Bios file not loaded" << std::endl;
         std::cout << std::endl;
         DefaultValues();
         mmu->SetBiosComplete(true);
     }
+	if (!RomLoaded)
+	{
+		assert(false); // No rom loaded
+	}
     running = true;
 }
 
@@ -80,13 +96,14 @@ void CPU::Stop()
 void CPU::Reset()
 {
     //display->clear();
+	mmu->WriteByte(0xFF40, 0x00); // Disable LCD before resetting to stop a graphic bug where tile at position 0 is written accross the entire screen
     lastCycleTime = SDL_GetTicks();
 
     counter = 0;
 
     regs.ime = 0x00;
 
-    if (bios)
+    if (biosLoaded)
     {
         regs.pc = 0x00;// PROGRAM_START;
         mmu->SetBiosComplete(false);
@@ -222,14 +239,14 @@ void CPU::Loop()
         counter--;
     }
 
-    //u32 msForCycle = SDL_GetTicks() - this->lastCycleTime;
-    //int delayTimeMs = (17 - msForCycle);
+    u32 msForCycle = SDL_GetTicks() - this->lastCycleTime;
+    int delayTimeMs = (17 - msForCycle);
 
-    //// Only if it is above 1 do we delay
-    //if (delayTimeMs > 0)
-    //{
-    //    //SDL_Delay( 100 * delayTimeMs);
-    //}
+    // Only if it is above 1 do we delay
+    if (delayTimeMs > 0)
+    {
+        //SDL_Delay(delayTimeMs);
+    }
     
     
 }
@@ -250,7 +267,11 @@ void CPU::ProcessEvents()
             else if (e.key.keysym.sym == SDLK_F1)
             {
                 //mmu->WriteSaveFile();
-                DumpToFile();
+                //DumpToFile();
+				// Tetris score writing
+				mmu->WriteByte(0xC0A0, 0xFF);
+				mmu->WriteByte(0xC0A1, 0xFF);
+				mmu->WriteByte(0xC0A2, 0xFF);
             }
             else if (e.key.keysym.sym == SDLK_F5)
             {
@@ -284,16 +305,14 @@ void CPU::ProcessInstruction()
 
 //#define _LOG
 #ifdef _LOG
-    if (regs.pc < 0x0064 || regs.pc > 0x0070)
-    {
-
+    
     
     //std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (u16)mmu->ReadByte(0xFFC6) << " - " << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
     if (opcodeByte != 0xCB)
         std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
     else
         std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << CBOpcodeTable[nextByte].name << std::endl;
-    }
+    
 
 #endif 
 
@@ -306,6 +325,15 @@ void CPU::ProcessInstruction()
      }*/
      //log = true;
 
+	if (regs.pc == 0x00EF)
+	{
+		int stop = 0;
+	}
+
+	if (regs.pc == 0x0000)
+	{
+		int stop = 0;
+	}
 
    (this->*opcodeFunction[opcodeByte])();
     //totalInstructions++;
