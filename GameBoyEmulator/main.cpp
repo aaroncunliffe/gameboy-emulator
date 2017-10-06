@@ -9,6 +9,8 @@ int main(int argc, char* args[])
     //CPU* processor = new CPU("Pokemon - Red Version.gb");
     CPU* processor = new CPU;
 
+    processor->SetBios("bios.bin");
+
     // MBC1
     //processor->SetRom("Tamagotchi.gb"); // Lots of scrolling backgrounds, fails.
     //processor->SetRom("Garfield Labyrinth.gb"); // Halts and doesnt recover
@@ -32,7 +34,6 @@ int main(int argc, char* args[])
     //processor->SetRom("Test//10.gb"); // 10-bit ops.gb
     //processor->SetRom("Test//11.gb"); // 11-op a,(hl).gb
 
-	processor->SetBios("bios.bin");
     
     processor->Start();
 

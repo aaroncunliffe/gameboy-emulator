@@ -155,7 +155,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Cartridge.cpp" />
-    <ClCompile Include="CPUOLD.cpp" />
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="Joypad.cpp" />
@@ -166,7 +165,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cartridge.h" />
-    <ClInclude Include="CPUOLD.h" />
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="Display.h" />

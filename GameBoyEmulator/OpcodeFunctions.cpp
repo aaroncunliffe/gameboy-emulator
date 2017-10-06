@@ -135,7 +135,7 @@ void CPU::opcode0x0F() // RRCA - Rotate A right, old bit 0 to carry
     regs.AF.high = regs.AF.high >> 1;    // Rotate right by 1
     regs.AF.high |= (lsb << 7);          // Replace the msb into the lsb position
 
-                                         // Set the flag with the msb
+    // Set the flag with the lsb
     if (lsb)
         regs.AF.low |= CARRY_FLAG;   // Set to 1
     else

@@ -5,6 +5,7 @@ MMU::MMU()
 
 }
 
+
 MMU::MMU(Display* d, Joypad* j)
 {
     srand(time(NULL));
@@ -16,11 +17,10 @@ MMU::MMU(Display* d, Joypad* j)
     activeExternalRamBank = 0;
     biosComplete = false;
 
-    memset(externalRam, 0x00, EIGHT_KB * sizeof(u8));
-    memset(internalRam, 0x00, SIXTEEN_KB * sizeof(u8));
-    
-    memset(IORegs, 0x00, 0x7F *sizeof(u8));
-    memset(hram, 0x00, 0x7F *sizeof(u8));
+    //memset(externalRam, 0x00, EIGHT_KB * sizeof(u8));
+    //memset(internalRam, 0x00, SIXTEEN_KB * sizeof(u8));
+    //memset(IORegs, 0x00, 0x7F *sizeof(u8));
+    //memset(hram, 0x00, 0x7F *sizeof(u8));
 
 }
 
@@ -30,7 +30,7 @@ MMU::~MMU()
         delete cart;
 }
 
-// Loads Rom from path that is passed in the constructor of MMU
+
 bool MMU::LoadRom(char* path)
 {
     romPath = path;
@@ -75,6 +75,7 @@ bool MMU::LoadRom(char* path)
     return false;
 }
 
+
 bool MMU::LoadBios(char* path)
 {
     std::ifstream file;
@@ -112,11 +113,11 @@ bool MMU::LoadBios(char* path)
     return false;
 }
 
-// Reads byte from the correct location in the memory map
+
 u8 MMU::ReadByte(u16 addr)
 {
     // Switch is faster than if/else if > 5 paths, uses lookup table
-    switch ((addr & 0xF000) >> 12)
+    switch ((addr & 0xF000) >> 12) // compare just the most significant nibble, the shift is to clean up the case statement
     {
         
     case 0x0: case 0x1: case 0x2: case 0x3:
@@ -126,7 +127,7 @@ u8 MMU::ReadByte(u16 addr)
             if (addr < 0x100)
                 return bios[addr];
             else
-                return rom[0][addr];
+                return rom[0][addr]; // BIOS still needs to access rom data
 
         break;
 
@@ -163,10 +164,10 @@ u8 MMU::ReadByte(u16 addr)
 
     case 0xF: // Rest of RAM shadow, sprite table, I/O registers, HRAM, Interupts
 
-        switch ((addr & 0x0F00) >> 8)   //0x0F00
+        switch ((addr & 0x0F00) >> 8)   //0x0F00 -  lower nibble of the 2nd byte
         {
         case 0x1: case 0x2: case 0x3: case 0x4: case 0x5: case 0x6: case 0x7: case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD:
-            // RAM shadow
+            // RAM shadow - 0xE000 to 0xFDFF
             break;
 
         case 0xE: // OAM Table
@@ -180,16 +181,15 @@ u8 MMU::ReadByte(u16 addr)
 
         case 0xF:
 
-            switch ((addr & 0x00F0) >> 4)
+            switch ((addr & 0x00F0) >> 4) // Most significant nibble of the first byte
             {
             case 0x0: case 0x1: case 0x2: case 0x3: case 0x4: case 0x5: case 0x6: case 0x7: // I/O registers
 
-                switch (addr)
+                switch (addr) // Whole address for single byte registers
                 {
                 case 0xFF00:
                     if ((IORegs[addr - IOREG_START] & 0x10) == 0x10)
                         return IORegs[addr - IOREG_START] | 0xC0 | joypad->GetRow1(); // joypad reg
-                        //return 0xFF;
                     else if ((IORegs[addr - IOREG_START] & 0x20) == 0x20)
                         return IORegs[addr - IOREG_START] | 0xC0 | joypad->GetRow2(); // joypad reg
                     else
@@ -217,13 +217,13 @@ u8 MMU::ReadByte(u16 addr)
                     display->GetScrollX();
                     break;
                 case 0xFF44: // LY
-                    return display->GetLY(); //0x94 - tetris
+                    return display->GetLY();
                     break;
                 case 0xFF45:
                     return display->GetLYC();
                     break;
 
-				case 0xFF47: // BG palette
+                case 0xFF47: // BG palette
 					break;
 				case 0xFF48: // OB palette 0
 					break;
@@ -231,25 +231,18 @@ u8 MMU::ReadByte(u16 addr)
 					break;
                 }
 
-            default:
+            default: // Still writes to the IORegs array even it hits a case in the above nested switch statement
                 return IORegs[addr - IOREG_START];
                 break;
             
 
-            case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF:// HRAM
-                //if (addr == 0xFFFF)
-                //{
-                //    // Interupt enable registers
-                //    return IME;
-                //    break;
-                //}
-                // STACK
-                if (addr == 0xFF80 || addr == 0xFF81)
+            case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF: // HRAM
+                if (addr == 0xFFFF)
                 {
-                    int stop = 0;
+                    return IEReg;
                 }
-                return hram[addr - HRAM_START];
 
+                return hram[addr - HRAM_START];
                 break;
             }
         }
@@ -265,22 +258,12 @@ return 0xFF;
 
 }
 
-u16 MMU::ReadTwoBytes(u16 addr)
-{
-    return (ReadByte(addr)) | (ReadByte(addr + 1) << 8);
-}
 
-// Writes byte to the correct location in the memory map.
+
 void MMU::WriteByte(u16 addr, u8 byte)
-{   
-    // Blargg's CPU test
-    if (addr == 0xFF02 && byte == 0x81) {
-        std::cout << (char)ReadByte(0xFF01) << std::endl;
-    }
-
-
+{
     // Switch is faster than if/else if - >5 items, uses lookup table, need to check if this gets optimised out anyway...
-    switch ((addr & 0xF000) >> 12)
+    switch ((addr & 0xF000) >> 12) // compare just the most significant nibble, the shift is to clean up the case statement
     {
 
     case 0x0: case 0x1: case 0x2: case 0x3: // ROM FIXED
@@ -315,10 +298,10 @@ void MMU::WriteByte(u16 addr, u8 byte)
 
     case 0xF: // Rest of RAM shadow, sprite table, I/O registers, HRAM, Interupts
 
-        switch ((addr & 0x0F00) >> 8)   //0x0F00
+        switch ((addr & 0x0F00) >> 8)   //0x0F00 -  lower nibble of the 2nd byte
         {
         case 0x1: case 0x2: case 0x3: case 0x4: case 0x5: case 0x6: case 0x7: case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD:
-            // RAM shadow
+            // RAM shadow - 0xE000 to 0xFDFF
             break;
 
         case 0xE: // OAM Table
@@ -332,22 +315,19 @@ void MMU::WriteByte(u16 addr, u8 byte)
 
         case 0xF:
 
-            switch ((addr & 0x00F0) >> 4)
+            switch ((addr & 0x00F0) >> 4) // Most significant nibble of the first byte
             {
             case 0x0: case 0x1: case 0x2: case 0x3: case 0x4: case 0x5: case 0x6: case 0x7: // I/O registers
-                switch (addr)
+                switch (addr) // Whole address for single byte registers
                 {
                 case 0xFF00:
                     // Joypad regs
-                    IORegs[addr - IOREG_START] = byte; // ??????
+                    IORegs[addr - IOREG_START] = byte; // This needs to be written so when it is read, we can return the correct joypad data.
                 break;
                    
                 case 0xFF40:
-                {
                     display->SetLCDC(byte);
                     break;
-                } 
-                   
                 case 0xFF41:
                     display->SetStat(byte);
                     break;
@@ -376,36 +356,27 @@ void MMU::WriteByte(u16 addr, u8 byte)
 					break;
                 case 0xFF50:
                     if (byte == 0x01) 
-                        SetBiosComplete(true); // BIOS lockout
+                        SetBiosComplete(true); // BIOS lockout to allow rom to access 0x0000 - 0x0100
                     break;
                 
                 }
-            default:
-                IORegs[addr - IOREG_START] = byte; // ??????
+            default: // Still writes to the IORegs array even if it sets a value in the above nested switch statement
+                IORegs[addr - IOREG_START] = byte;
                 break;
-            // Could put default statement here too
 
-            case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF:// HRAM
-                //if (addr == 0xFFFF)
-                //{
-                //    // Interupt enable registers
-                //    IME = byte;
-                //    hram[addr - HRAM_START] = byte;
-                //    break;
-                //}
-                
-                
-                // STACK
+            case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF: // HRAM
+                if (addr == 0xFFFF)
+                {
+                    IEReg = byte;
+                }
+
                 hram[addr - HRAM_START] = byte;
-
                 break;
             }
             
             break; // case 0xF:
         }
-
         break;
-
     default:
         std::cout << "ERROR - attempt to write to invalid address: " << std::hex << addr << std::endl;
         break;
@@ -415,10 +386,19 @@ void MMU::WriteByte(u16 addr, u8 byte)
    
 }
 
+
 void MMU::WriteTwoBytes(u16 addr, u16 data)
 {
-    WriteByte(addr, data & 0xFF);
-    WriteByte(addr + 1, data >> 8);
+    WriteByte(addr, data & 0xFF); // Write lower byte first
+    WriteByte(addr + 1, data >> 8); // Write higher byte.
+}
+
+
+u16 MMU::ReadTwoBytes(u16 addr)
+{
+    u8 lowByte = ReadByte(addr);
+    u16 highByte = ReadByte(addr + 1) << 8;
+    return highByte | lowByte;
 }
 
 void MMU::PushTwoBytes(u16 &sp, u16 data)
@@ -426,6 +406,7 @@ void MMU::PushTwoBytes(u16 &sp, u16 data)
     sp -= 2;
     WriteTwoBytes(sp, data);
 }
+
 
 u16 MMU::PopTwoBytes(u16 &sp)
 {

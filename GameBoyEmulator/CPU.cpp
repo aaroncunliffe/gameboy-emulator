@@ -25,11 +25,11 @@ CPU::CPU()
     memset(instructionProfiling, (u32)0, 0x100 * sizeof(u32));
     memset(instructionProfilingCB, (u32)0, 0x100 * sizeof(u32));
 
-	regs.AF.high = 0x01;
-	regs.AF.low = 0xB0;
-	regs.BC.word = 0x0013;
-	regs.DE.word = 0x00D8;
-	regs.HL.word = 0x014D;
+	//regs.AF.high = 0x01;
+	//regs.AF.low = 0xB0;
+	//regs.BC.word = 0x0013;
+	//regs.DE.word = 0x00D8;
+	//regs.HL.word = 0x014D;
 
 
 }

@@ -66,9 +66,11 @@ void Display::init(int multiplier)
 	//SDL_SetWindowGrab(window, SDL_TRUE);
 
     // Clear VRAM, Tileset and raw pixel store
-    memset(vram, 0x00, 0x2000 * sizeof(u8));
-    memset(oam, 0x00, 0x9F * sizeof(u8));
-    memset(Tileset, 0x00, (384 * 8 * 8) * sizeof(u8));
+    //memset(vram, 0x00, 0x2000 * sizeof(u8));
+    //memset(oam, 0x00, 0x9F * sizeof(u8));
+    //memset(Tileset, 0x00, (384 * 8 * 8) * sizeof(u8));
+    
+    
     //memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(u32));
 
 	//SDL_SetTextureBlendMode(screen, SDL_BLENDMODE_MOD);
