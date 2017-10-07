@@ -80,7 +80,7 @@ private:
     u8 vram[0x2000];
     u8 oam[0x100];
 
-
+	pixel fixedPalette[4];
     pixel bgPalette[4];
 	pixel ob0Palette[4];
 	pixel ob1Palette[4];
