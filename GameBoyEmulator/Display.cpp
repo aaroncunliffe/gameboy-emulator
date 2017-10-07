@@ -21,7 +21,14 @@ Display::Display()
 
     onlyTiles = false; // To show only tiles, if false, scanlines are rendered as normal
 	
-    // 4 shades of gray, default palette
+
+	// 4 shades of gray, default palette
+
+	fixedPalette[0] = { 0xFF, 0xFF, 0xFF, 0xFF };
+	fixedPalette[1] = { 0xC0, 0xC0, 0xC0, 0xFF };
+	fixedPalette[2] = { 0x60, 0x60, 0x60, 0xFF };
+	fixedPalette[3] = { 0x00, 0x00, 0x00, 0xFF };
+
     bgPalette[0]  = { 0xFF, 0xFF, 0xFF, 0xFF };
     bgPalette[1]  = { 0xC0, 0xC0, 0xC0, 0xFF };
     bgPalette[2]  = { 0x60, 0x60, 0x60, 0xFF };
@@ -55,10 +62,8 @@ Display::~Display()
 void Display::init(int multiplier)
 {
     sizeMultiplier = multiplier;
-    w = DISPLAY_WIDTH;
-    h = DISPLAY_HEIGHT;
-
-    window = SDL_CreateWindow("Gameboy - Aaron Cunliffe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN);
+    
+    window = SDL_CreateWindow("Gameboy - Aaron Cunliffe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DISPLAY_WIDTH, DISPLAY_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); // Accelerated or software
     screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, DISPLAY_WIDTH, DISPLAY_HEIGHT); // STATIC or STREAMING - Also pixel format is ABGR
 
@@ -85,24 +90,27 @@ void Display::init(int multiplier)
 
 void Display::RenderScanline()
 {
-    u8 scanrow[160]; // 1 complete row of pixels
+    u8 scanrow[DISPLAY_WIDTH]; // Store 1 complete row of pixels - for sprite drawing
 
     // Background render
     if (LCDC & BG_ENABLE_OFFSET)
     {
         u16 tilemapbase = (LCDC & BG_TILE_MAP_SELECT_OFFSET) ? 0x1C00 : 0x1800;
-        u16 offsetbase = tilemapbase + ((((LY + scrollY) & 255) >> 3) << 5);
+        u16 offsetbase = tilemapbase + ((((LY + scrollY) & 0xFF) >> 0x03) << 0x05); // http://cturt.github.io/cinoop.html Maps section
+		//															x / 8	 x * 2^5
+
         u16 x, y, tileIndex;
 
-        y = (LY + scrollY) & 7;
+        y = (LY + scrollY) & 0x07;
 
 
 		pixel colour;
 
-        for (x = 0; x < 160; x++)
+        // For each pixel in the current row
+        for (x = 0; x < DISPLAY_WIDTH; x++)
         {
             tileIndex = vram[offsetbase + (x / 8)];
-			scanrow[x] = Tileset[tileIndex][y][x % 8];
+			scanrow[x] = Tileset[tileIndex][y][x / 8]; // Store this for the sprites
 
 
 			if ((LCDC & BG_TILE_SET_SELECT_OFFSET) == 0x00 && tileIndex < 128)
@@ -134,11 +142,15 @@ void Display::RenderScanline()
                 // use the opposite side of the tile
                 if (sprite.yflip)
                 {
-                    for (int i = 0; i < 8; i++) { tilerow[i] = Tileset[sprite.tileNum][7 - (LY - sprite.y)][i]; }
+                    for (int i = 0; i < 8; i++) { 
+                        tilerow[i] = Tileset[sprite.tileNum][7 - (LY - sprite.y)][i]; 
+                    }
                 }
                 else
                 {
-                    for (int i = 0; i < 8; i++) { tilerow[i] = Tileset[sprite.tileNum][(LY - sprite.y)][i]; }
+                    for (int i = 0; i < 8; i++) { 
+                        tilerow[i] = Tileset[sprite.tileNum][(LY - sprite.y)][i]; 
+                    }
                 }
 
                 pixel colour;
@@ -151,10 +163,11 @@ void Display::RenderScanline()
                     // then render the pixel
 
 					// If the sprite is X-flipped write pixels in reverse order
-					int index = sprite.xflip ? (7 - x) : x;
+					u16 index = sprite.xflip ? (7 - x) : x;
 
                     if ((sprite.x + x) >= 0 && (sprite.x + x) < 160 && tilerow[index] && (!sprite.priority || !scanrow[sprite.x + x])) // !sprite.priority or sprite.prority??
                     {
+						// Depending on sprite palette
 						if (sprite.palette)
 							colour = ob1Palette[tilerow[index]];
 						else
@@ -217,20 +230,20 @@ void Display::UpdateTileset(u16 addr)
 void Display::UpdateSprite(u16 oamAddr, u8 byte)
 {
     u8 val = byte;
-    u8 sprite = (oamAddr - OAM_START) >> 2;
+    u8 sprite = (oamAddr - OAM_START) >> 0x02;
 
     if (sprite < 40)
     {
-        switch ((oamAddr - OAM_START) & 3)
+        switch ((oamAddr - OAM_START) & 0x03)
         {
             // Y-coordinate
         case 0: 
-			spriteStore[sprite].y = val - 16;
+			spriteStore[sprite].y = val - 0x10;
 			break;
 
             // X-coordinate
         case 1:  
-			spriteStore[sprite].x = val - 8; 
+			spriteStore[sprite].x = val - 0x08; 
 			break;
 
             // Data tile
@@ -249,18 +262,20 @@ void Display::UpdateSprite(u16 oamAddr, u8 byte)
     }
 }
 
+// Fit as many tiles to the screen as possible
 void Display::DrawTiles()
 {
     
     int i;
-    for (i = 0; i < (144 / 8) * (160 / 8); i++) {
+    for (i = 0; i < (DISPLAY_HEIGHT / 8) * (DISPLAY_WIDTH / 8); i++) {
         int x;
         for (x = 0; x < 8; x++) {
             int y;
             for (y = 0; y < 8; y++) {
-                pixels[(i * 8 % 160) + y + (x + i * 8 / 160 * 8) * 160].r = bgPalette[Tileset[i][x][y]].r;
-                pixels[(i * 8 % 160) + y + (x + i * 8 / 160 * 8) * 160].g = bgPalette[Tileset[i][x][y]].g;
-                pixels[(i * 8 % 160) + y + (x + i * 8 / 160 * 8) * 160].b = bgPalette[Tileset[i][x][y]].b;
+                pixels[(i * 8 % DISPLAY_WIDTH) + y + (x + i * 8 / DISPLAY_WIDTH * 8) * DISPLAY_WIDTH].r = bgPalette[Tileset[i][x][y]].r;
+                pixels[(i * 8 % DISPLAY_WIDTH) + y + (x + i * 8 / DISPLAY_WIDTH * 8) * DISPLAY_WIDTH].g = bgPalette[Tileset[i][x][y]].g;
+                pixels[(i * 8 % DISPLAY_WIDTH) + y + (x + i * 8 / DISPLAY_WIDTH * 8) * DISPLAY_WIDTH].b = bgPalette[Tileset[i][x][y]].b;
+				pixels[(i * 8 % DISPLAY_WIDTH) + y + (x + i * 8 / DISPLAY_WIDTH * 8) * DISPLAY_WIDTH].a = bgPalette[Tileset[i][x][y]].a;
             }
         }
     }
@@ -274,7 +289,7 @@ void Display::WriteVram(u16 addr, u8 byte)
     //if (activeMode != VRAM)
     //{
         vram[addr - VRAM_OFFSET] = byte;
-        if( addr < 0x9800)
+        if( addr < 0x9800) // Make sure write to VRAM is definitely writing to tiles and not the tilemap
             UpdateTileset(addr);
     //}
     //else
@@ -481,24 +496,20 @@ void Display::StartDMA(u16 source)
 }
 
 
+// Palette values
+// Bit 7 - 6 - Shade for Color Number 3
+// Bit 5 - 4 - Shade for Color Number 2
+// Bit 3 - 2 - Shade for Color Number 1
+// Bit 1 - 0 - Shade for Color Number 0
+
 void Display::UpdateBGPalette(u8 value)
 {
 	for (int i = 0; i < 4; i++)
 	{
-		switch ((value >> (i * 2)) & 3) {
-		case 0:
-			bgPalette[i] = { 0xFF, 0xFF, 0xFF, 0xFF };
-			break;
-		case 1:
-			bgPalette[i] = { 0xC0, 0xC0, 0xC0, 0xFF };
-			break;
-		case 2:
-			bgPalette[i] = { 0x60, 0x60, 0x60, 0xFF };
-			break;
-		case 3:
-			bgPalette[i] = { 0x00, 0x00, 0x00, 0xFF };
-			break;
-		}
+		u8 halfNibble = value >> i * 2; // Shift to get 2 bits at a time
+		u8 index = halfNibble & 0x03;	// Select only the first 2 bits.
+
+		bgPalette[i] = fixedPalette[index];
 			
 	}
 }
@@ -507,20 +518,10 @@ void Display::UpdateOBPalette(bool pal1, u8 value)
 {
 	for (int i = 0; i < 4; i++)
 	{
-		switch ((value >> (i * 2)) & 3) {
-		case 0:
-			pal1 ? ob1Palette[i] = { 0xFF, 0xFF, 0xFF, 0xFF } : ob0Palette[i] = { 0xFF, 0xFF, 0xFF, 0xFF };
-			break;
-		case 1:
-			pal1 ? ob1Palette[i] = { 0xC0, 0xC0, 0xC0, 0xFF } : ob0Palette[i] = { 0xC0, 0xC0, 0xC0, 0xFF };
-			break;
-		case 2:
-			pal1 ? ob1Palette[i] = { 0x60, 0x60, 0x60, 0xFF } : ob0Palette[i] = { 0x60, 0x60, 0x60, 0xFF };
-			break;
-		case 3:
-			pal1 ? ob1Palette[i] = { 0x00, 0x00, 0x00, 0xFF } : ob0Palette[i] = { 0x00, 0x00, 0x00, 0xFF };
-			break;
-		}
+		u8 halfNibble = value >> i * 2; // Shift to get 2 bits at a time
+		u8 index = halfNibble & 0x03;	// Select only the first 2 bits.
+		
+		pal1 ? ob1Palette[i] = fixedPalette[index] : ob0Palette[i] = fixedPalette[index];
 
 	}
 }
