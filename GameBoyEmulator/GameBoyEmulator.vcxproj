@@ -162,6 +162,7 @@
     <ClCompile Include="MMU.cpp" />
     <ClCompile Include="OpcodeFunctions.cpp" />
     <ClCompile Include="OpcodeFunctionsCB.cpp" />
+    <ClCompile Include="ROM.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cartridge.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Joypad.h" />
     <ClInclude Include="MMU.h" />
     <ClInclude Include="Opcodes.h" />
+    <ClInclude Include="ROM.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="testrom.txt" />

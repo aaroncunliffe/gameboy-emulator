@@ -112,7 +112,7 @@ void Display::RenderScanline()
             tileIndex = vram[offsetbase + (x / 8)];
 			scanrow[x] = Tileset[tileIndex][y][x / 8]; // Store this for the sprites
 
-
+			
 			if ((LCDC & BG_TILE_SET_SELECT_OFFSET) == 0x00 && tileIndex < 128)
 				tileIndex += 256; // if tile map #1 selected, the indexes are signed (-128 to 127 instead of 0 to 255)
 

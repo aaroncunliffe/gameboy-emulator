@@ -21,3 +21,5 @@ typedef signed int s32;
 #define Key_B		SDLK_a
 #define Key_Select	SDLK_LSHIFT
 #define Key_Start	SDLK_RETURN
+
+#define CARTRIDGE_TYPE_OFFSET = 0x147

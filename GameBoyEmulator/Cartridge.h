@@ -5,8 +5,18 @@
 
 #include "Definitions.h"
 
-// Each cartridge has a header of information at offset 0100-014F
 
+const u32 MAX_ROM_SIZE =			0x7A1200;	// 8 MB
+const u16 ONE_BANK_SIZE =			0x4000;
+const u16 NUM_ROM_BANKS =			0x300;
+const u16 EIGHT_KB =				0x2000;
+const u16 SIXTEEN_KB =				0x4000;
+
+const u16 EXTERNAL_RAM_START =		0xA000;
+
+
+
+// Each cartridge has a header of information at offset 0100-014F
 const u16 romGraphicOffset =        0x104;      // 0104 - 0133 - Length of 30
 const u16 gameTitleOffset =         0x134;      // 0134 - 0142 - length of F, padded with 0's
 const u16 gameboyByteOffset =       0x143;      // 0x00 GB, 0x80 Supports GBC functions but works on old GB, 0xC0 GBC only
@@ -48,11 +58,28 @@ private:
 
 public:
 
-    Cartridge();
-    Cartridge(u8* data);
-    ~Cartridge();
+	Cartridge();
+	Cartridge(u8* data);
+	~Cartridge();
 
     void PrintFormattedData();
+
+
+	virtual u8 ReadROMByte(u16 addr) = 0;
+	virtual void WriteROMByte(u16 addr, u8 byte) = 0;
+
+
+	virtual u8 ReadRAMByte(u16 addr) = 0;
+	virtual void WriteRAMByte(u16 addr, u8 byte) = 0;
+
+
+	u8 activeRomBank;
+	u16 numberOfRomBanks;
+
+	u8 activeExternalRamBank;
+	u16 numberOfExternalRamBanks;
+	u32 romSize;
+
 
 private:
 
