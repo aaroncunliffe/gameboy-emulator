@@ -53,9 +53,10 @@ void Display::SetMMU(MMU* mem)
 
 Display::~Display()
 {
-    SDL_DestroyTexture(screen);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+     SDL_DestroyTexture(screen);
+     SDL_DestroyRenderer(renderer);
+     SDL_DestroyWindow(window);
+	 SDL_Quit();
     
 }
 
@@ -110,7 +111,7 @@ void Display::RenderScanline()
         for (x = 0; x < DISPLAY_WIDTH; x++)
         {
             tileIndex = vram[offsetbase + (x / 8)];
-			scanrow[x] = Tileset[tileIndex][y][x / 8]; // Store this for the sprites
+			scanrow[x] = Tileset[tileIndex][y][x % 8]; // Store this for the sprites
 
 			
 			if ((LCDC & BG_TILE_SET_SELECT_OFFSET) == 0x00 && tileIndex < 128)
@@ -154,7 +155,7 @@ void Display::RenderScanline()
                 }
 
                 pixel colour;
-                
+
                 for (int x = 0; x < 8; x++)
                 {
                     // If this pixel is still on-screen, AND
@@ -165,7 +166,7 @@ void Display::RenderScanline()
 					// If the sprite is X-flipped write pixels in reverse order
 					u16 index = sprite.xflip ? (7 - x) : x;
 
-                    if ((sprite.x + x) >= 0 && (sprite.x + x) < 160 && tilerow[index] && (!sprite.priority || !scanrow[sprite.x + x])) // !sprite.priority or sprite.prority??
+                    if ((sprite.x + x) >= 0 && (sprite.x + x) < DISPLAY_WIDTH && tilerow[index] && (!sprite.priority || !scanrow[sprite.x + x])) // !sprite.priority or sprite.prority??
                     {
 						// Depending on sprite palette
 						if (sprite.palette)
@@ -173,17 +174,16 @@ void Display::RenderScanline()
 						else
 							colour = ob0Palette[tilerow[index]];
 
-
+						
 						pixels[DISPLAY_WIDTH * LY + sprite.x + x].r = colour.r; 
                         pixels[DISPLAY_WIDTH * LY + sprite.x + x].g = colour.g;	  
                         pixels[DISPLAY_WIDTH * LY + sprite.x + x].b = colour.b;	  
                         pixels[DISPLAY_WIDTH * LY + sprite.x + x].a = colour.a;	  
                    }
-                }
+                } // end for ach pixel in the sprite
             }
-        }
-    }        
-    
+        } // end for all 40 sprites 
+    } 
    
     //SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
 }
@@ -213,15 +213,15 @@ void Display::UpdateTileset(u16 addr)
     u16 tile = (addrtrans >> 4) & 511; // Divide by 16, 16 bytes in a tile
     u16 y = (addrtrans >> 1) & 0x07; // Get the row, Divide by 2, only need the first byte
 
-    u8 rowIndex;
     for (u8 x = 0; x < 8; x++)
     {
         // Find bit index for this pixel
-        rowIndex = 0x01 << (0x07 - x);
+		u8 rowIndex = 0x80 >> x;
+		// 80, 40, 20, 10, 08, 04, 02, 01
         
-        // Update tile data by combining 2 consecutive rows in VRAM, stores the index of the colour stored in the background pallete array
-        u8 row1 = (vram[addrtrans] & rowIndex);
-        u8 row2 = (vram[addrtrans + 1] & rowIndex);
+        // Update tile data by combining 2 consecutive rows in VRAM, stores the index to retreieve the colour from the palette array
+        u8 row1 = vram[addrtrans] & rowIndex;
+        u8 row2 = vram[addrtrans + 1] & rowIndex;
         Tileset[tile][y][x] = (row1 ? 1 : 0) + (row2 ? 2 : 0);
     }
     
@@ -236,23 +236,20 @@ void Display::UpdateSprite(u16 oamAddr, u8 byte)
     {
         switch ((oamAddr - OAM_START) & 0x03)
         {
-            // Y-coordinate
-        case 0: 
+        case 0: // Y-coordinate
 			spriteStore[sprite].y = val - 0x10;
 			break;
 
-            // X-coordinate
-        case 1:  
+        case 1: // X-coordinate  
 			spriteStore[sprite].x = val - 0x08; 
 			break;
 
-            // Data tile
-        case 2:  
+        case 2: // Data tile  
 			spriteStore[sprite].tileNum = val; 
 			break;
 
-            // Options
-        case 3:
+            
+        case 3: // Options
             spriteStore[sprite].palette = (val & 0x10) ?  true : false;
             spriteStore[sprite].xflip = (val & 0x20) ?    true : false;
             spriteStore[sprite].yflip = (val & 0x40) ?    true : false;
@@ -265,13 +262,11 @@ void Display::UpdateSprite(u16 oamAddr, u8 byte)
 // Fit as many tiles to the screen as possible
 void Display::DrawTiles()
 {
-    
-    int i;
-    for (i = 0; i < (DISPLAY_HEIGHT / 8) * (DISPLAY_WIDTH / 8); i++) {
-        int x;
-        for (x = 0; x < 8; x++) {
-            int y;
-            for (y = 0; y < 8; y++) {
+    for (int i = 0; i < (DISPLAY_HEIGHT / 8) * (DISPLAY_WIDTH / 8); i++) {
+ 
+        for (int x = 0; x < 8; x++) {
+            
+            for (int y = 0; y < 8; y++) {
                 pixels[(i * 8 % DISPLAY_WIDTH) + y + (x + i * 8 / DISPLAY_WIDTH * 8) * DISPLAY_WIDTH].r = bgPalette[Tileset[i][x][y]].r;
                 pixels[(i * 8 % DISPLAY_WIDTH) + y + (x + i * 8 / DISPLAY_WIDTH * 8) * DISPLAY_WIDTH].g = bgPalette[Tileset[i][x][y]].g;
                 pixels[(i * 8 % DISPLAY_WIDTH) + y + (x + i * 8 / DISPLAY_WIDTH * 8) * DISPLAY_WIDTH].b = bgPalette[Tileset[i][x][y]].b;
@@ -332,39 +327,6 @@ u8 Display::ReadOAM(u16 addr)
     return 0xFF;
 }
 
-void Display::ProcessSprites()
-{
-    //for (int i = 0; i < 160; i++)
-    //{
-    //    u8 val = ReadOAM(OAM_START + i);
-    //    u8 sprite = (OAM_START + i) >> 2;
-
-
-    //    if (sprite < 40)
-    //    {
-    //        switch ((OAM_START + i) & 3)
-    //        {
-    //            // Y-coordinate
-    //        case 0: spriteStore[sprite].y = val - 16; break;
-
-    //            // X-coordinate
-    //        case 1:  spriteStore[sprite].x = val - 8; break;
-
-    //            // Data tile
-    //        case 2:  spriteStore[sprite].tileNum = val; break;
-
-    //            // Options
-    //        case 3:
-    //            spriteStore[sprite].palette = (val & 0x10) ? true : false;
-    //            spriteStore[sprite].xflip = (val & 0x20) ? true : false;
-    //            spriteStore[sprite].yflip = (val & 0x40) ? true : false;
-    //            spriteStore[sprite].priority = (val & 0x80) ? true : false;
-    //            break;
-    //        }
-    //    }
-    //}
-    
-}
 
 // At the end of every display->Step() process any changes to the display registers
 void Display::UpdateRegisters()

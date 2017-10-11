@@ -7,7 +7,7 @@
 #include "Definitions.h"
 
 const int DISPLAY_WIDTH  = 160;
-const int DISPLAY_HEIGHT = 144;
+const int DISPLAY_HEIGHT = 144; 
 
 
 const u16 VRAM_OFFSET = 0x8000;
@@ -25,9 +25,6 @@ const u8 BG_TILE_SET_SELECT_OFFSET       = 0x10;
 const u8 WINDOW_ENABLE_OFFSET            = 0x20;
 const u8 WINDOW_TILE_MAP_SELECT_OFFSET   = 0x40;
 const u8 LCD_ENABLE_OFFSET               = 0x80;
-
-
-//const u8 BG_TILE_MAP_SELECT_BIT = 0x03;
 
 enum GPU_MODE { HBLANK = 0, VBLANK = 1, OAM = 2, VRAM = 3 };
 
@@ -121,7 +118,6 @@ public:
     void StartDMA(u16 source);
 
     // Get display registers
-
     u8 GetLCDC() { return LCDC; }
     void SetLCDC(u8 val) { LCDC = val; }
 
@@ -144,10 +140,11 @@ public:
     void Step(u32 clock);
     void Update();
 
+	void ToggleTileView() { onlyTiles = !onlyTiles; }
+
 private:
     void DrawTiles();
     void RenderScanline();
-    void ProcessSprites();
 
     void UpdateRegisters();
     void UpdateTileset(u16 addr);
