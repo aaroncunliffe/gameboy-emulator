@@ -43,8 +43,9 @@ CPU::CPU(char* romPath) : CPU()
 CPU::~CPU()
 {
     delete mmu;
-    delete display;
-    delete keyboard;
+	delete keyboard;
+	delete display;
+
 }
 
 void CPU::SetBios(char* path)
@@ -273,6 +274,10 @@ void CPU::ProcessEvents()
 				mmu->WriteByte(0xC0A1, 0xFF);
 				mmu->WriteByte(0xC0A2, 0xFF);
             }
+			else if (e.key.keysym.sym == SDLK_F2)
+			{
+				display->ToggleTileView();
+			}
             else if (e.key.keysym.sym == SDLK_F5)
             {
                 Reset();
