@@ -3,10 +3,13 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <assert.h> // For unused instructions
 
 #include "Definitions.h"
 #include "Cartridge.h"
 #include "ROM.h"
+#include "MBC1.h"
+
 #include "Display.h"
 #include "Joypad.h"
 

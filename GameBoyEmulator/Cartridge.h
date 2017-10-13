@@ -2,6 +2,7 @@
 
 
 #include <iostream>
+#include <assert.h>
 
 #include "Definitions.h"
 
@@ -56,6 +57,20 @@ private:
     u8 destinationCode;
 
 
+protected: // To be accessed by all lower classes in the hierarchy
+	u8* ROMArray;
+	u32 romSize;
+
+	u8* RAMArray;
+	u32 ramSize;
+
+	u16 activeRomBank;
+	u16 numberOfRomBanks;
+
+	u16 activeRamBank;
+	u16 numberOfRamBanks;
+	u32 ramBanksize;
+
 public:
 
 	Cartridge();
@@ -73,15 +88,8 @@ public:
 	virtual void WriteRAMByte(u16 addr, u8 byte) = 0;
 
 
-	u8 activeRomBank;
-	u16 numberOfRomBanks;
 
-	u8 activeExternalRamBank;
-	u16 numberOfExternalRamBanks;
-	u32 romSize;
-
-
-private:
+private: // Functions Cartridge uses
 
     void ReadTitle();
     void CompareGraphics();

@@ -12,6 +12,7 @@ MMU::MMU(Display* d, Joypad* j)
 
     display = d;
 	joypad = j;
+	cart = nullptr;
 
     biosComplete = false;
 
@@ -52,18 +53,31 @@ bool MMU::LoadRom(char* path)
 
 		switch (buffer[0x147])
 		{
-			case 0x00: //rom
+			case 0x00: // ROM
 				cart = new ROM(buffer, romSize);
 				break;
-				
+			case 0x08: // ROM + RAM
+				break;
+			case 0x09: // ROM + RAM + BATTERY
+				break;
+			case 0x01: // MBC1
+				cart = new MBC1(buffer, romSize);
+				break;
+			case 0x02: // MBC1 + RAM
+				//cart = new MBC1(buffer, romsize);
+				break;
+			case 0x03: // MBC1 + RAM + BATTERY
+				//cart = new MBC1(buffer, romsize);
+				break;
 
 		}
 
+		assert(cart != nullptr); // Assert if the cart hasn't been made correctly
+
         std::cout << "Rom loaded successfully" << std::endl;
         file.close();
-
-
-        delete buffer;
+		
+        //delete buffer;
         return true;
     }
     return false;
@@ -110,7 +124,7 @@ bool MMU::LoadBios(char* path)
 
 u8 MMU::ReadByte(u16 addr)
 {
-    // Switch is faster than if/else if > 5 paths, uses lookup table
+    // Switch is faster than if/else if > 5 paths, uses jump table
     switch ((addr & 0xF000) >> 12) // compare just the most significant nibble, the shift is to clean up the case statement
     {
         
