@@ -97,8 +97,9 @@ void Display::RenderScanline()
     if (LCDC & BG_ENABLE_OFFSET)
     {
         u16 tilemapbase = (LCDC & BG_TILE_MAP_SELECT_OFFSET) ? 0x1C00 : 0x1800;
-        u16 offsetbase = tilemapbase + ((((LY + scrollY) & 0xFF) >> 0x03) << 0x05); // http://cturt.github.io/cinoop.html Maps section
-		//															x / 8	 x * 2^5
+		u16 offsetbase = tilemapbase + (((LY + scrollY) & 0xF8) << 2); // http://cturt.github.io/cinoop.html Maps section // removed bottom 3 bits 
+		//												& 0xFF) >> 3) << 5); 
+		//											0000 1000	x / 8	 x * 2^5
 
         u16 x, y, tileIndex;
 
