@@ -96,10 +96,12 @@ void Display::RenderScanline()
     // Background render
     if (LCDC & BG_ENABLE_OFFSET)
     {
+		u16 mapBaseAddress = (LCDC & BG_TILE_MAP_SELECT_OFFSET) ? 0x9C00 - VRAM_OFFSET : 0x9800 - VRAM_OFFSET; // Base address of the selected map
 		u16 offsetBase = mapBaseAddress + (((LY + scrollY) & 0xFF) / 8 ) * 0x20;
 		// Above line declares the total offset from the base of VRAM, There are 0x20 bytes per line in the map.
 		// Given any line, need to work out which block of 0x20 bytes we need from the map.
 
+		u16 lineOffset = scrollX / 8;
 		u16 tileIndex;
 
         u16 y = (LY + scrollY) & 0x07;
