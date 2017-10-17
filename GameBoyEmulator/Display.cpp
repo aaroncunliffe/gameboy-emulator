@@ -65,7 +65,7 @@ void Display::init(int multiplier)
     sizeMultiplier = multiplier;
     
     window = SDL_CreateWindow("Gameboy - Aaron Cunliffe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DISPLAY_WIDTH, DISPLAY_HEIGHT, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); // Accelerated or software
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE); // Accelerated or software | Accelerated fails with Tamagotchi.gb?
     screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, DISPLAY_WIDTH, DISPLAY_HEIGHT); // STATIC or STREAMING - Also pixel format is ABGR
 
 
@@ -96,34 +96,36 @@ void Display::RenderScanline()
     // Background render
     if (LCDC & BG_ENABLE_OFFSET)
     {
-        u16 tilemapbase = (LCDC & BG_TILE_MAP_SELECT_OFFSET) ? 0x1C00 : 0x1800;
-		u16 offsetbase = tilemapbase + (((LY + scrollY) & 0xF8) << 2); // http://cturt.github.io/cinoop.html Maps section // removed bottom 3 bits 
-		//												& 0xFF) >> 3) << 5); 
-		//											0000 1000	x / 8	 x * 2^5
+		u16 offsetBase = mapBaseAddress + (((LY + scrollY) & 0xFF) / 8 ) * 0x20;
+		// Above line declares the total offset from the base of VRAM, There are 0x20 bytes per line in the map.
+		// Given any line, need to work out which block of 0x20 bytes we need from the map.
 
-        u16 x, y, tileIndex;
+		u16 tileIndex;
 
-        y = (LY + scrollY) & 0x07;
-
+        u16 y = (LY + scrollY) & 0x07;
+		u16 x = scrollX & 0x07;
 
 		pixel colour;
 
         // For each pixel in the current row
-        for (x = 0; x < DISPLAY_WIDTH; x++)
+        for (u16 i = 0; i < DISPLAY_WIDTH; i++)
         {
-            tileIndex = vram[offsetbase + (x / 8)];
-			scanrow[x] = Tileset[tileIndex][y][x % 8]; // Store this for the sprites
-
+            tileIndex = vram[offsetBase + lineOffset + (i / 8)];
+			
 			
 			if ((LCDC & BG_TILE_SET_SELECT_OFFSET) == 0x00 && tileIndex < 128)
 				tileIndex += 256; // if tile map #1 selected, the indexes are signed (-128 to 127 instead of 0 to 255)
 
-			colour = bgPalette[Tileset[tileIndex][y][x % 8]];
+			scanrow[i] = Tileset[tileIndex][y][i % 8]; // Store this for the sprites
+			colour = bgPalette[Tileset[tileIndex][y][i % 8]];
 
-            pixels[DISPLAY_WIDTH * LY + x].r = colour.r;
-            pixels[DISPLAY_WIDTH * LY + x].g = colour.g;
-            pixels[DISPLAY_WIDTH * LY + x].b = colour.b;
-            pixels[DISPLAY_WIDTH * LY + x].a = colour.a;
+            pixels[DISPLAY_WIDTH * LY + i].r = colour.r;
+            pixels[DISPLAY_WIDTH * LY + i].g = colour.g;
+            pixels[DISPLAY_WIDTH * LY + i].b = colour.b;
+            pixels[DISPLAY_WIDTH * LY + i].a = colour.a;
+			
+
+
         }
     }
 
@@ -132,7 +134,7 @@ void Display::RenderScanline()
 
         for (int i = 0; i < 40; i++)
         {
-            sprite sprite = spriteStore[i];
+            sprite sprite = spriteStore[i]; // current sprite to be worked on
 
             // Check if this sprite falls on this scanline
             if (sprite.y <= LY && (sprite.y + 8) > LY)
@@ -293,11 +295,6 @@ void Display::WriteVram(u16 addr, u8 byte)
     //    int stop = 0;
     //}
 
-
-        if (vram[0x99A4 - VRAM_OFFSET] == 0x60 && vram[0x99E4 - VRAM_OFFSET] == 0x60)
-        {
-            int stop = 0;
-        }
 }
 
 u8 Display::ReadVram(u16 addr)
@@ -336,6 +333,8 @@ void Display::UpdateRegisters()
     
 
     // STAT
+
+	// Bits 0-1
     switch (activeMode)
     {
     case HBLANK:
@@ -354,6 +353,23 @@ void Display::UpdateRegisters()
         STAT |= 0x03;
         break;
     }
+	
+	// Bit 2
+	if (LY == LYC)
+	{
+		//STAT &= ~0xFF;
+		STAT |= 0x40;
+
+		u8 byte = mmu->ReadByte(0xFF0F);
+		mmu->WriteByte(0xFF0F, byte |= 0x02); // Write for V-Blank
+	}
+
+
+
+	// Bit 4
+
+
+
 
 
 
@@ -381,6 +397,11 @@ void Display::Step(u32 clock)
                 // Enter vblank
                 activeMode = VBLANK;
                 
+				STAT |= 0x10;
+
+				//u8 byte = mmu->ReadByte(0xFF0F);
+				//mmu->WriteByte(0xFF0F, byte |= 0x02); // Write for V-Blank
+
                 // Put image on screen here
                 if(onlyTiles)
                     DrawTiles();
@@ -408,6 +429,11 @@ void Display::Step(u32 clock)
                 // Restart scanning modes
                 activeMode = OAM;
                 LY = 0;
+
+				//STAT |= 0x02;
+				//
+				//u8 byte = mmu->ReadByte(0xFF0F);
+				//mmu->WriteByte(0xFF0F, byte |= 0x02); // Write for V-Blank
             }
         }
         break;
@@ -427,6 +453,10 @@ void Display::Step(u32 clock)
             // Enter hblank
             modeClock = 0;
             activeMode = HBLANK;
+
+			//STAT |= 0x08;
+			//u8 byte = mmu->ReadByte(0xFF0F);
+			//mmu->WriteByte(0xFF0F, byte |= 0x02); // Write for V-Blank
 
             // Write a scanline to the framebuffer
             if (!onlyTiles)

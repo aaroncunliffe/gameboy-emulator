@@ -177,6 +177,7 @@
     <ClInclude Include="ROM.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="notes.txt" />
     <Text Include="testrom.txt" />
     <Text Include="Tetris-todo.txt" />
   </ItemGroup>

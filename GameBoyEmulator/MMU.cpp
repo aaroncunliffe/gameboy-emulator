@@ -64,10 +64,10 @@ bool MMU::LoadRom(char* path)
 				cart = new MBC1(buffer, romSize);
 				break;
 			case 0x02: // MBC1 + RAM
-				//cart = new MBC1(buffer, romsize);
+				cart = new MBC1(buffer, romSize);
 				break;
 			case 0x03: // MBC1 + RAM + BATTERY
-				//cart = new MBC1(buffer, romsize);
+				cart = new MBC1(buffer, romSize);
 				break;
 
 		}
@@ -345,6 +345,7 @@ void MMU::WriteByte(u16 addr, u8 byte)
                     display->SetScrollY(byte);
                     break;
                 case 0xFF43:
+					
                     display->SetScrollX(byte);
                     break;
                 case 0xFF44: // LY - Read only.

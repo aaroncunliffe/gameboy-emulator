@@ -1,0 +1,9 @@
+
+
+17/10/17
+
+fixed CB 0xD3 - now passes test 10
+
+Due to fixes in the ADD16 function (to pass instruction 0x39 from the test 03) test 05 now passes.
+
+Fixed POP AF, function F1 (See test 08 entry). Now failing DAA instruction. This one will be difficult to implement. test 01 now gets to test #6

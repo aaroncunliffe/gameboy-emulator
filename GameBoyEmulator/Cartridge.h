@@ -9,9 +9,10 @@
 
 const u32 MAX_ROM_SIZE =			0x7A1200;	// 8 MB
 const u16 ONE_BANK_SIZE =			0x4000;
-const u16 NUM_ROM_BANKS =			0x300;
+const u16 TWO_KB =					0x500;
 const u16 EIGHT_KB =				0x2000;
 const u16 SIXTEEN_KB =				0x4000;
+const u16 THIRTYTWO_KB =			0x8000;
 
 const u16 EXTERNAL_RAM_START =		0xA000;
 
@@ -69,7 +70,7 @@ protected: // To be accessed by all lower classes in the hierarchy
 
 	u16 activeRamBank;
 	u16 numberOfRamBanks;
-	u32 ramBanksize;
+	u32 ramBankSize;
 
 public:
 

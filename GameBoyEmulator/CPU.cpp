@@ -278,6 +278,15 @@ void CPU::ProcessEvents()
 			{
 				display->ToggleTileView();
 			}
+			else if (e.key.keysym.sym == SDLK_F3)
+			{
+				u8 byte = mmu->ReadByte(0xFF40);
+				if(byte & 0x80)
+					mmu->WriteByte(0xFF40, byte &= ~0x80);
+			
+				else
+					mmu->WriteByte(0xFF40, byte |= 0x80);
+			}
             else if (e.key.keysym.sym == SDLK_F5)
             {
                 Reset();
@@ -304,6 +313,9 @@ void CPU::JoypadInterrupt()
 
 void CPU::ProcessInstruction()
 {
+
+
+
     u8 opcodeByte = mmu->ReadByte(regs.pc);
 
     u8 nextByte = mmu->ReadByte(regs.pc + 1);
@@ -330,16 +342,16 @@ void CPU::ProcessInstruction()
      }*/
      //log = true;
 
-	if (regs.pc == 0x00EF)
+	if (regs.pc == 0x00A0)
+	{
+		int stop = 0;
+	}
+	if (regs.pc == 0x0097)
 	{
 		int stop = 0;
 	}
 
-	if (regs.pc == 0x0000)
-	{
-		int stop = 0;
-	}
-
+	
    (this->*opcodeFunction[opcodeByte])();
     //totalInstructions++;
 }
