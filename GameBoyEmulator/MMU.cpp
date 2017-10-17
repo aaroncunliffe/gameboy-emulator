@@ -12,9 +12,8 @@ MMU::MMU(Display* d, Joypad* j)
 
     display = d;
 	joypad = j;
+	cart = nullptr;
 
-    activeRomBank = 1;
-    activeExternalRamBank = 0;
     biosComplete = false;
 
     //memset(externalRam, 0x00, EIGHT_KB * sizeof(u8));
@@ -52,24 +51,33 @@ bool MMU::LoadRom(char* path)
         u8* buffer = new u8[romSize];
         file.read((char*)buffer, romSize);
 
+		switch (buffer[0x147])
+		{
+			case 0x00: // ROM
+				cart = new ROM(buffer, romSize);
+				break;
+			case 0x08: // ROM + RAM
+				break;
+			case 0x09: // ROM + RAM + BATTERY
+				break;
+			case 0x01: // MBC1
+				cart = new MBC1(buffer, romSize);
+				break;
+			case 0x02: // MBC1 + RAM
+				cart = new MBC1(buffer, romSize);
+				break;
+			case 0x03: // MBC1 + RAM + BATTERY
+				cart = new MBC1(buffer, romSize);
+				break;
+
+		}
+
+		assert(cart != nullptr); // Assert if the cart hasn't been made correctly
+
         std::cout << "Rom loaded successfully" << std::endl;
         file.close();
-
-        numberOfRomBanks = romSize / ONE_BANK_SIZE;
-
-        // Splits the rom into the appropriate banks
-        for (int bank = 0; bank < numberOfRomBanks; ++bank)
-        {
-            for (int byte = 0; byte < ONE_BANK_SIZE; ++byte)
-            {
-                rom[bank][byte] = buffer[(bank * ONE_BANK_SIZE) + byte];
-            }
-        }
-
-        cart = new Cartridge(rom[0]); // Cartridge class only requires the header data 0x100 - 0x14F
-        cart->PrintFormattedData();
-
-        delete buffer;
+		
+        //delete buffer;
         return true;
     }
     return false;
@@ -116,23 +124,23 @@ bool MMU::LoadBios(char* path)
 
 u8 MMU::ReadByte(u16 addr)
 {
-    // Switch is faster than if/else if > 5 paths, uses lookup table
+    // Switch is faster than if/else if > 5 paths, uses jump table
     switch ((addr & 0xF000) >> 12) // compare just the most significant nibble, the shift is to clean up the case statement
     {
         
     case 0x0: case 0x1: case 0x2: case 0x3:
-        if (biosComplete)
-            return rom[0][addr];
+		if (biosComplete)
+			return cart->ReadROMByte(addr);
         else
             if (addr < 0x100)
                 return bios[addr];
             else
-                return rom[0][addr]; // BIOS still needs to access rom data
+                return cart->ReadROMByte(addr); // BIOS still needs to access rom data
 
         break;
 
     case 0x4: case 0x5: case 0x6: case 0x7:
-        return rom[activeRomBank][addr - ONE_BANK_SIZE];
+        return cart->ReadROMByte(addr);
         break;
 
     case 0x8: case 0x9:
@@ -144,7 +152,7 @@ u8 MMU::ReadByte(u16 addr)
     case 0xA: case 0xB:
         // 8kB external ram
         // Switchable
-        return externalRam[activeExternalRamBank][addr - EXTERNAL_RAM_START];
+		return cart->ReadRAMByte(addr);
         break;
         
     case 0xC: case 0xD:
@@ -267,10 +275,12 @@ void MMU::WriteByte(u16 addr, u8 byte)
     {
 
     case 0x0: case 0x1: case 0x2: case 0x3: // ROM FIXED
+		cart->WriteROMByte(addr, byte);
         break;
 
     case 0x4: case 0x5: case 0x6: case 0x7: // ROM SWIITCHABLE
-        break;
+		cart->WriteROMByte(addr, byte);
+		break;
 
     case 0x8: case 0x9:
         // 8kB vram
@@ -281,7 +291,7 @@ void MMU::WriteByte(u16 addr, u8 byte)
     case 0xA: case 0xB:
         // 8kB external ram
         // Switchable
-        externalRam[activeExternalRamBank][addr - EXTERNAL_RAM_START] = byte;
+		cart->WriteRAMByte(addr, byte);
         break;
 
     case 0xC: case 0xD:
@@ -335,6 +345,7 @@ void MMU::WriteByte(u16 addr, u8 byte)
                     display->SetScrollY(byte);
                     break;
                 case 0xFF43:
+					
                     display->SetScrollX(byte);
                     break;
                 case 0xFF44: // LY - Read only.
@@ -425,7 +436,7 @@ void MMU::DumpToFile()
     // write first rom bank
     for (int i = 0; i < SIXTEEN_KB; ++i)
     {
-        outputFile << rom[0][i];
+        //outputFile << rom[0][i];
     }
 
     outputFile << std::endl << std::endl;
@@ -435,7 +446,7 @@ void MMU::DumpToFile()
     // write selected rom bank
     for (int i = 0; i < SIXTEEN_KB; ++i)
     {
-        outputFile << rom[activeRomBank][i];
+        //outputFile << rom[activeRomBank][i];
     }
 
     //outputFile << std::endl << std::endl;

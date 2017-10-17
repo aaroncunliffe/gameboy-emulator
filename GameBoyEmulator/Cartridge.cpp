@@ -14,6 +14,13 @@ Cartridge::Cartridge(u8* data)
 {
     romHeader = data;
     ParseHeader();
+
+
+	PrintFormattedData();
+
+	activeRomBank = 1; // Switched rom bank segment starts at bank 1
+	activeRamBank = 0;
+
 }
 
 

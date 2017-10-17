@@ -159,9 +159,11 @@
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="Joypad.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MBC1.cpp" />
     <ClCompile Include="MMU.cpp" />
     <ClCompile Include="OpcodeFunctions.cpp" />
     <ClCompile Include="OpcodeFunctionsCB.cpp" />
+    <ClCompile Include="ROM.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cartridge.h" />
@@ -169,10 +171,13 @@
     <ClInclude Include="CPU.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="Joypad.h" />
+    <ClInclude Include="MBC1.h" />
     <ClInclude Include="MMU.h" />
     <ClInclude Include="Opcodes.h" />
+    <ClInclude Include="ROM.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="notes.txt" />
     <Text Include="testrom.txt" />
     <Text Include="Tetris-todo.txt" />
   </ItemGroup>

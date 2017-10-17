@@ -8,7 +8,6 @@
 
 #include "Definitions.h"
 #include "MMU.h"
-#include "Cartridge.h"
 #include "Display.h"
 #include "Joypad.h"
 #include "Opcodes.h"

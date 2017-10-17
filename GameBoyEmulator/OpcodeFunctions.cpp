@@ -1868,21 +1868,25 @@ void CPU::opcode0xE7() // RST 20h
 
 void CPU::opcode0xE8() // ADD SP, r8 Flags: 0 0 H C
 {
-    s8 operand = mmu->ReadByte(regs.pc + 1);
-    regs.AF.low &= ~ZERO_FLAG;
-    regs.AF.low &= ~SUBTRACT_FLAG; // reset subtract flag
+    u8 operand = mmu->ReadByte(regs.pc + 1);
+	
+	int result = regs.sp + (s8)operand;
+	regs.AF.low &= ~ZERO_FLAG;
+    regs.AF.low &= ~SUBTRACT_FLAG; // reset zero and subtract flag
+	
+	if (((regs.sp & 0xFF) + (operand & 0xFF) > 0xFF))
+		regs.AF.low |= CARRY_FLAG;
+	else
+		regs.AF.low &= ~CARRY_FLAG;
 
-    if ((((regs.AF.high & 0xF) - (operand & 0xF)) & 0x10) == 0x10) // Carry from 3rd bit
+	
+	if ((((regs.sp & 0x0F) + (operand & 0x0F)) & 0x10) == 0x10) 
         regs.AF.low |= HALF_CARRY_FLAG;
     else
-        regs.AF.low &= HALF_CARRY_FLAG;
+        regs.AF.low &= ~HALF_CARRY_FLAG;
 
-    if ((regs.AF.high + operand) > 0xFF)
-        regs.AF.low |= CARRY_FLAG;
-    else
-        regs.AF.low &= CARRY_FLAG;
-
-    regs.sp += (s8)operand;
+    
+	regs.sp = (s16)result;
     counter += opcodeTable[0xE8].duration.firstCondition;
     regs.pc += opcodeTable[0xE8].length;
 }
@@ -1933,7 +1937,9 @@ void CPU::opcode0xF0() // LDH A, (a8)
 
 void CPU::opcode0xF1() // POP AF
 {
-    regs.AF.word = mmu->PopTwoBytes(regs.sp);
+
+    regs.AF.word = mmu->PopTwoBytes(regs.sp) & 0xFFF0; // Can't access the flags part of the F register
+
     counter += opcodeTable[0xF1].duration.firstCondition;
     regs.pc += opcodeTable[0xF1].length;
 }
@@ -1981,21 +1987,24 @@ void CPU::opcode0xF7() // RST 30h
 
 void CPU::opcode0xF8() // LD HL,SP+r8 Flags: 0 0 H C
 {
-    s8 operand = mmu->ReadByte(regs.pc + 1);
+    u8 operand = mmu->ReadByte(regs.pc + 1);
+	int result = regs.sp + (s8)operand;
+
     regs.AF.low &= ~ZERO_FLAG;
     regs.AF.low &= ~SUBTRACT_FLAG; // reset subtract flag
 
-    if ((((regs.sp & 0xF) - (operand & 0xF)) & 0x10) == 0x10) // Carry from 3rd bit
-        regs.AF.low |= HALF_CARRY_FLAG;
-    else
-        regs.AF.low &= HALF_CARRY_FLAG;
+	if (((regs.sp & 0xFF) + (operand & 0xFF) > 0xFF))
+		regs.AF.low |= CARRY_FLAG;
+	else
+		regs.AF.low &= ~CARRY_FLAG;
 
-    if ((regs.sp + operand) > 0xFF)
-        regs.AF.low |= CARRY_FLAG;
-    else
-        regs.AF.low &= ~CARRY_FLAG;
 
-    regs.HL.word = regs.sp + (s8)operand;
+	if ((((regs.sp & 0x0F) + (operand & 0x0F)) & 0x10) == 0x10)
+		regs.AF.low |= HALF_CARRY_FLAG;
+	else
+		regs.AF.low &= ~HALF_CARRY_FLAG;
+
+    regs.HL.word = result & 0xFFFF;
     counter += opcodeTable[0xF8].duration.firstCondition;
     regs.pc += opcodeTable[0xF8].length;
 }
@@ -2069,18 +2078,19 @@ inline void CPU::INC(u8 &reg) // Flags: Z 0 H -
 
 inline void CPU::DEC(u8 &reg) // Flags: Z 1 H -
 {
+
     reg--;
 
-    if (reg == 0x00)
-        regs.AF.low |= ZERO_FLAG;
-    else
-        regs.AF.low &= ~ZERO_FLAG;
-
+	if (reg == 0x00)
+		regs.AF.low |= ZERO_FLAG;
+	else
+		regs.AF.low &= ~ZERO_FLAG;
+    
     regs.AF.low |= SUBTRACT_FLAG; // Set flag
 
-    if ((reg & 0x01) == 0x01) // Wrap around and borrow TODO: ((reg & 0x0F) == 0x0F) ?? why does this work
-        regs.AF.low |= HALF_CARRY_FLAG;
-    else
+	if ((reg & 0x0F) == 0x0F) // Set if no borrow from bit 4
+		regs.AF.low |= HALF_CARRY_FLAG;
+	else
         regs.AF.low &= ~HALF_CARRY_FLAG;
 }
 
@@ -2089,14 +2099,14 @@ inline void CPU::ADD16(u16 &reg1, u16 &reg2) // Flags: - 0 H C
 {
     regs.AF.low &= ~SUBTRACT_FLAG; // Reset flag
 
-    if ((((reg1 & 0xFF) + (reg2 & 0xFF)) & 0x1000) == 0x1000) // Carry from 11th bit
-        regs.AF.low |= HALF_CARRY_FLAG;
-    else
+	if ((((reg1 & 0xFFF) + (reg2 & 0xFFF)) & 0x1000) == 0x1000) // Carry from 11th bit
+		regs.AF.low |= HALF_CARRY_FLAG;
+	else
         regs.AF.low &= ~HALF_CARRY_FLAG;
 
-    if ((reg1 + reg2) > 0xFFFF)
-        regs.AF.low |= CARRY_FLAG;
-    else
+	if ((reg1 + reg2) > 0xFFFF) // Carry from 15th bit
+		regs.AF.low |= CARRY_FLAG;
+	else
         regs.AF.low &= ~CARRY_FLAG;
 
     reg1 += reg2;
@@ -2126,11 +2136,34 @@ inline void CPU::ADD(u8 operand) // Flags: Z 0 H C
         regs.AF.low &= ~HALF_CARRY_FLAG;
 }
 
+inline void CPU::SUB(u8 operand) // Flags: Z 1 H C
+{
+	if ((regs.AF.high - operand) == 0x00) // Check for Zero flag
+		regs.AF.low |= ZERO_FLAG;
+	else
+		regs.AF.low &= ~ZERO_FLAG;
+
+	regs.AF.low |= SUBTRACT_FLAG; // Set subtract flag
+
+	if ((operand & 0x0F) > (regs.AF.high & 0x0F))
+		regs.AF.low |= HALF_CARRY_FLAG;
+	else
+		regs.AF.low &= ~HALF_CARRY_FLAG;
+
+	if (operand > regs.AF.high)
+		regs.AF.low |= CARRY_FLAG;
+	else
+		regs.AF.low &= ~CARRY_FLAG;
+
+	regs.AF.high -= operand;
+}
+
 inline void CPU::ADC(u8 operand) // FLAGS: Z 0 H C
 {
-    operand += (regs.AF.low & CARRY_FLAG) ? 1 : 0;
+    u8 carry = (regs.AF.low & CARRY_FLAG) ? 1 : 0;
 
-     s32 result = regs.AF.high + operand;
+
+    int result = regs.AF.high + operand + carry;
 
     if ((u8)result == 0x00) // Check for Zero flag
         regs.AF.low |= ZERO_FLAG;
@@ -2138,65 +2171,45 @@ inline void CPU::ADC(u8 operand) // FLAGS: Z 0 H C
         regs.AF.low &= ~ZERO_FLAG;
 
     regs.AF.low &= ~SUBTRACT_FLAG; // reset subtract flag
-
-
-    if (result & 0xFF00)
+	
+    if (result > 0xFF) // Set if carry from bit 7
         regs.AF.low |= CARRY_FLAG;
     else
         regs.AF.low &= ~CARRY_FLAG;
 
-    if ((((regs.AF.high & 0xF) + (operand & 0xF)) & 0x10) >= 0x10) // Carry from 3rd bit
+    if (((regs.AF.high & 0x0F) + (operand & 0x0F) + carry) > 0x0F) // Set if carry from bit 3
         regs.AF.low |= HALF_CARRY_FLAG;
     else
         regs.AF.low &= ~HALF_CARRY_FLAG;
 
-    regs.AF.high = (u8)(result & 0xFF);
-}
-
-inline void CPU::SUB(u8 operand) // Flags: Z 1 H C
-{
-    if ((regs.AF.high - operand) == 0x00) // Check for Zero flag
-        regs.AF.low |= ZERO_FLAG;
-    else
-        regs.AF.low &= ~ZERO_FLAG;
-
-    regs.AF.low |= SUBTRACT_FLAG; // Set subtract flag
-
-    if ((operand & 0x0F) > (regs.AF.high & 0x0F))
-        regs.AF.low |= HALF_CARRY_FLAG;
-    else
-        regs.AF.low &= ~HALF_CARRY_FLAG;
-
-    if (operand > regs.AF.high)
-        regs.AF.low |= CARRY_FLAG;
-    else
-        regs.AF.low &= ~CARRY_FLAG;
-
-    regs.AF.high -= operand;
+    regs.AF.high = (u8)(result);
 }
 
 inline void CPU::SBC(u8 operand) // Flags: Z 1 H C - Subtract n + Carry flag from A
 {
-    operand += (regs.AF.low & CARRY_FLAG);
+    u8 carry = (regs.AF.low & CARRY_FLAG) ? 1 : 0;
+	int result = regs.AF.high - operand - carry;
 
-    if ((regs.AF.high - operand) == 0x00) // Check for Zero flag
+    if ((u8)result == 0x00) // Check for Zero flag
         regs.AF.low |= ZERO_FLAG;
     else
         regs.AF.low &= ~ZERO_FLAG;
 
     regs.AF.low |= SUBTRACT_FLAG; // Set subtract flag
 
-    if ((operand & 0x0F) > (regs.AF.high & 0x0F))
+	if (result < 0) // Set if no borrow
+		regs.AF.low |= CARRY_FLAG;
+	else
+		regs.AF.low &= ~CARRY_FLAG;
+
+
+    if (((regs.AF.high & 0x0F) - (operand & 0x0F) - carry) < 0) // Borrow from bit 3
         regs.AF.low |= HALF_CARRY_FLAG;
     else
         regs.AF.low &= ~HALF_CARRY_FLAG;
 
-    if (operand > regs.AF.high)
-        regs.AF.low |= CARRY_FLAG;
-    else
-        regs.AF.low &= ~CARRY_FLAG;
-
-    regs.AF.high -= operand;
+    
+    regs.AF.high = (u8)result;
 
 }
 

@@ -176,7 +176,7 @@ void CPU::CBopcode0x17() // RL A
 
 void CPU::CBopcode0x18() // RRC B
 {
-    RRC(regs.BC.high);
+    RR(regs.BC.high);
     counter += CBOpcodeTable[0x18].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x18].length;
 }
@@ -328,7 +328,7 @@ void CPU::CBopcode0x2C() // SRA H
 
 void CPU::CBopcode0x2D() // SRA L
 {
-    SRA(regs.HL.high);
+    SRA(regs.HL.low);
     counter += CBOpcodeTable[0x2D].duration.firstCondition;
     regs.pc += CBOpcodeTable[0x2D].length;
 }
@@ -1546,9 +1546,9 @@ void CPU::CBopcode0xD2() // SET 2,D
     regs.pc += CBOpcodeTable[0xD2].length;
 }
 
-void CPU::CBopcode0xD3() // SET 2,D
+void CPU::CBopcode0xD3() // SET 2,E
 {
-    SET(0x04, regs.DE.high); 
+    SET(0x04, regs.DE.low); 
     counter += CBOpcodeTable[0xD3].duration.firstCondition;
     regs.pc += CBOpcodeTable[0xD3].length;
 }
@@ -1891,12 +1891,15 @@ inline void CPU::RLC(u8& n) // Flags: Z 0 0 C    Rotate n left. Old bit 7 to Car
 
     n = n << 1;
 
-    if (oldbit7)
-        regs.AF.low |= CARRY_FLAG;
+	if (oldbit7) // Set to the data from old bit 7
+	{
+		regs.AF.low |= CARRY_FLAG;
+		n |= 0x01; // Circular rotate - Need to place old bit 7's data back in bit 0's position
+	}
     else
         regs.AF.low &= ~CARRY_FLAG;
 
-    if (n == 0x00)
+    if (n == 0x00) // set if result is 0
         regs.AF.low |= ZERO_FLAG;
     else
         regs.AF.low &= ~ZERO_FLAG;
@@ -1911,8 +1914,11 @@ inline void CPU::RRC(u8& n) // Flags: Z 0 0 C    Rotate n right. Old bit 0 to Ca
 
     n = n >> 1;
 
-    if(oldbit0)
-        regs.AF.low |= CARRY_FLAG;
+	if (oldbit0)
+	{
+		regs.AF.low |= CARRY_FLAG;
+		n |= 0x80; // Circular rotate - Need to place old bit 0's datas back in bit 7's position
+	}
     else
         regs.AF.low &= ~CARRY_FLAG;
 

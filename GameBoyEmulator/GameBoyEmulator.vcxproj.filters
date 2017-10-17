@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Cartridge.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CPU.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,11 +36,17 @@
     <ClCompile Include="Joypad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cartridge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ROM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MBC1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Cartridge.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -62,12 +65,24 @@
     <ClInclude Include="Joypad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Cartridge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ROM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MBC1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Tetris-todo.txt">
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="testrom.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="notes.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

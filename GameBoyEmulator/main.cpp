@@ -9,19 +9,22 @@ int main(int argc, char* args[])
     //CPU* processor = new CPU("Pokemon - Red Version.gb");
     CPU* processor = new CPU;
 
-    processor->SetBios("bios.bin");
+    //processor->SetBios("bios.bin");
 
     // MBC1
-    //processor->SetRom("Tamagotchi.gb"); // Lots of scrolling backgrounds, fails.
-    //processor->SetRom("Garfield Labyrinth.gb"); // Halts and doesnt recover
-    //processor->SetRom("Duck Tales.gb");
-	//processor->SetRom("Super Mario Land.gb");
+	//processor->SetRom("Mercenary Force.gb"); // Lots of scrolling backgrounds, fails.
+	//processor->SetRom("Tamagotchi.gb"); // Need to implement window support.
+    //processor->SetRom("Garfield Labyrinth.gb"); // Seems relatively playable apart from scroll juttering and no window support
+    processor->SetRom("Duck Tales.gb"); // Needs other LCD interrupt conditions to be implemented
+	//processor->SetRom("Super Mario Land.gb"); // Playable apart from scroll juttering
 
 
 	// ROM only
-	processor->SetRom("tetris.gb");
+	//processor->SetRom("tetris.gb");
 	//processor->SetRom("Dr. Mario.gb");
 	
+
+	//processor->SetRom("Test//all.gb");  // All instructions requires MBC1 Support
     //processor->SetRom("Test//01.gb"); // 01-special.gb
     //processor->SetRom("Test//02.gb"); // 02-interupts.gb
     //processor->SetRom("Test//03.gb"); // 03-op sp,hl.gb

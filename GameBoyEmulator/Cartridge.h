@@ -2,11 +2,23 @@
 
 
 #include <iostream>
+#include <assert.h>
 
 #include "Definitions.h"
 
-// Each cartridge has a header of information at offset 0100-014F
 
+const u32 MAX_ROM_SIZE =			0x7A1200;	// 8 MB
+const u16 ONE_BANK_SIZE =			0x4000;
+const u16 TWO_KB =					0x500;
+const u16 EIGHT_KB =				0x2000;
+const u16 SIXTEEN_KB =				0x4000;
+const u16 THIRTYTWO_KB =			0x8000;
+
+const u16 EXTERNAL_RAM_START =		0xA000;
+
+
+
+// Each cartridge has a header of information at offset 0100-014F
 const u16 romGraphicOffset =        0x104;      // 0104 - 0133 - Length of 30
 const u16 gameTitleOffset =         0x134;      // 0134 - 0142 - length of F, padded with 0's
 const u16 gameboyByteOffset =       0x143;      // 0x00 GB, 0x80 Supports GBC functions but works on old GB, 0xC0 GBC only
@@ -46,15 +58,39 @@ private:
     u8 destinationCode;
 
 
+protected: // To be accessed by all lower classes in the hierarchy
+	u8* ROMArray;
+	u32 romSize;
+
+	u8* RAMArray;
+	u32 ramSize;
+
+	u16 activeRomBank;
+	u16 numberOfRomBanks;
+
+	u16 activeRamBank;
+	u16 numberOfRamBanks;
+	u32 ramBankSize;
+
 public:
 
-    Cartridge();
-    Cartridge(u8* data);
-    ~Cartridge();
+	Cartridge();
+	Cartridge(u8* data);
+	~Cartridge();
 
     void PrintFormattedData();
 
-private:
+
+	virtual u8 ReadROMByte(u16 addr) = 0;
+	virtual void WriteROMByte(u16 addr, u8 byte) = 0;
+
+
+	virtual u8 ReadRAMByte(u16 addr) = 0;
+	virtual void WriteRAMByte(u16 addr, u8 byte) = 0;
+
+
+
+private: // Functions Cartridge uses
 
     void ReadTitle();
     void CompareGraphics();
