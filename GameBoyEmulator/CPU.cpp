@@ -3,6 +3,11 @@
 #include "CPU.h"
 #include <iomanip>
 
+
+// Definitions
+//#define _LOG
+#define _PROFILE
+
 CPU::CPU()
 {
     biosLoaded = false;
@@ -92,6 +97,12 @@ void CPU::Start()
 void CPU::Stop()
 {
     running = false;
+
+#ifdef _PROFILE
+    PrintProfilingInfo();
+#endif 
+
+
 }
 
 void CPU::Reset()
@@ -168,48 +179,49 @@ void CPU::Loop()
         // Handle interrupts
         if (regs.ime)
         {
-            u8 interuptFired = mmu->ReadByte(0xFFFF) & mmu->ReadByte(0xFF0F);
-            if (interuptFired & VBLANK_INTERUPT_BIT)
+            u8 interruptFired = mmu->ReadByte(0xFFFF) & mmu->ReadByte(0xFF0F);
+            
+            if (interruptFired & VBLANK_INTERRUPT_BIT)
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
-                mmu->WriteByte(0xFF0F, byte &= ~VBLANK_INTERUPT_BIT);
+                mmu->WriteByte(0xFF0F, byte &= ~VBLANK_INTERRUPT_BIT);
                 
                 RST40();
                 halt = false;
             }
-            else if (interuptFired & LCDSTAT_INTERUPT_BIT)
+            else if (interruptFired & LCDSTAT_INTERRUPT_BIT)
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
-                mmu->WriteByte(0xFF0F, byte &= ~LCDSTAT_INTERUPT_BIT);
+                mmu->WriteByte(0xFF0F, byte &= ~LCDSTAT_INTERRUPT_BIT);
 
                 RST48();
                 halt = false;
             }
-            else if (interuptFired & TIMER_INTERUPT_BIT)
+            else if (interruptFired & TIMER_INTERRUPT_BIT)
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
-                mmu->WriteByte(0xFF0F, byte &= ~TIMER_INTERUPT_BIT);
+                mmu->WriteByte(0xFF0F, byte &= ~TIMER_INTERRUPT_BIT);
 
                 RST50();
                 halt = false;
             }
-            else if (interuptFired & SERIAL_INTERUPT_BIT)
+            else if (interruptFired & SERIAL_INTERRUPT_BIT)
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
-                mmu->WriteByte(0xFF0F, byte &= ~SERIAL_INTERUPT_BIT);
+                mmu->WriteByte(0xFF0F, byte &= ~SERIAL_INTERRUPT_BIT);
 
                 RST58();
                 halt = false;
             }
-            else if (interuptFired & JOYPAD_INTERUPT_BIT)
+            else if (interruptFired & JOYPAD_INTERRUPT_BIT)
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
-                mmu->WriteByte(0xFF0F, byte &= ~JOYPAD_INTERUPT_BIT);
+                mmu->WriteByte(0xFF0F, byte &= ~JOYPAD_INTERRUPT_BIT);
 
                 RST60();
                 halt = false;
@@ -308,7 +320,7 @@ void CPU::ProcessEvents()
 void CPU::JoypadInterrupt()
 {
 	u8 byte = mmu->ReadByte(0xFF0F);
-	mmu->WriteByte(0xFF0F, byte |= JOYPAD_INTERUPT_BIT);
+	mmu->WriteByte(0xFF0F, byte |= JOYPAD_INTERRUPT_BIT);
 }
 
 void CPU::ProcessInstruction()
@@ -320,11 +332,8 @@ void CPU::ProcessInstruction()
 
     u8 nextByte = mmu->ReadByte(regs.pc + 1);
 
-//#define _LOG
 #ifdef _LOG
     
-    
-    //std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << (u16)mmu->ReadByte(0xFFC6) << " - " << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
     if (opcodeByte != 0xCB)
         std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
     else
@@ -332,15 +341,16 @@ void CPU::ProcessInstruction()
     
 
 #endif 
-
-    /* if (opcodeByte != 0xCB)
+    
+#ifdef _PROFILE
+     if (opcodeByte != 0xCB) //  Profiling: can see what instructions are called and what are not used.
          instructionProfiling[opcodeByte]++;
      else
      {
          instructionProfiling[opcodeByte]++;
-         instructionProfiling[nextByte]++;
-     }*/
-     //log = true;
+         instructionProfilingCB[nextByte]++;
+     }
+#endif
 
 	if (regs.pc == 0x00A0)
 	{
@@ -382,4 +392,53 @@ void CPU::DumpToFile()
 void CPU::DumpToScreen()
 {
 
+}
+
+void CPU::PrintProfilingInfo()
+{
+
+    u8 mostUsedInstruction;
+    const u8 totalNormalInstructions = 0xF4; // Normal table instructions that don't exist are 0xD3, 0xDB, 0xDD, 0xE3, 0xE4, 0xEB, 0xEC, 0xED, 0xF4, 0xFC, 0xFD expect these to be zero.
+    const u8 totalCBInstructions = 0xFF;
+
+    u8 totalUnusedInstructions = 0x00;
+    u8 totalUnusedCBInstructions = 0x00;
+
+    std::cout << " Unused Instructions normal table:" << std::endl;
+    for (u16 opcode = 0x00; opcode <= 0xFF; opcode++)
+    {
+        if (instructionProfiling[(u8)opcode] == 0x00)
+        {
+            if (opcodeFunction[(u8)opcode] != nullptr)
+            {
+                std::cout << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << opcode << ", ";
+                totalUnusedInstructions++;
+            }
+            
+        }
+    }
+    float result = ((float)totalUnusedInstructions / (float)totalNormalInstructions) * 100.0f;
+    std::cout << std::endl;
+    std::cout << std::dec << "Total Unused instructions = " << (int)totalUnusedInstructions << " (" << (int)result << "%)" << std::endl;
+
+    totalInstructions;
+
+    std::cout << std::endl;
+    std::cout << "Unused Instructions CB table:" << std::endl;
+    for (u16 opcode = 0x00; opcode <= 0xFF; opcode++)
+    {
+        if (instructionProfilingCB[(u8)opcode] == 0x00)
+        {
+            std::cout << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << opcode << ", ";
+            totalUnusedCBInstructions++;
+
+        }
+    }
+    float CBResult = ((float)totalUnusedCBInstructions / (float)totalCBInstructions) * 100.0f;
+    std::cout << std::endl;
+    std::cout << std::dec << "Total Unused CB instructions = " << (int)totalUnusedCBInstructions << " (" << (int)CBResult  << "%)" << std::endl;
+
+    std::cout << std::endl;
+    system("pause");    // Not sure if there is a more elagent way to stop the shutdown here. 
+                        // I think this is a windows only feature, need to look into it
 }

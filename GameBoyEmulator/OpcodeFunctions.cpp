@@ -1951,7 +1951,7 @@ void CPU::opcode0xF2() // LD A, (c)
 void CPU::opcode0xF3() // DI
 {
     regs.ime = 0x00;
-    // Disable interupts AFTER the next instruction is executed
+    // Disable interrupts AFTER the next instruction is executed
     counter += opcodeTable[0xF3].duration.firstCondition;
     regs.pc += opcodeTable[0xF3].length;
    
@@ -2021,7 +2021,7 @@ void CPU::opcode0xFA() // LD A, (a16)
 
 void CPU::opcode0xFB() // EI
 {
-    // Enable interupts AFTER the next instruction is executed
+    // Enable interrupts AFTER the next instruction is executed
     regs.ime = 0x01;
     counter += opcodeTable[0xFB].duration.firstCondition;
     regs.pc += opcodeTable[0xFB].length;
@@ -2534,6 +2534,7 @@ void CPU::InitOpcodeFunctions()
     opcodeFunction[0xD0] = &CPU::opcode0xD0;
     opcodeFunction[0xD1] = &CPU::opcode0xD1;
     opcodeFunction[0xD2] = &CPU::opcode0xD2;
+    opcodeFunction[0xD3] = nullptr;
     opcodeFunction[0xD4] = &CPU::opcode0xD4;
     opcodeFunction[0xD5] = &CPU::opcode0xD5;
     opcodeFunction[0xD6] = &CPU::opcode0xD6;
@@ -2541,24 +2542,32 @@ void CPU::InitOpcodeFunctions()
     opcodeFunction[0xD8] = &CPU::opcode0xD8;
     opcodeFunction[0xD9] = &CPU::opcode0xD9;
     opcodeFunction[0xDA] = &CPU::opcode0xDA;
+    opcodeFunction[0xDB] = nullptr;
     opcodeFunction[0xDC] = &CPU::opcode0xDC;
+    opcodeFunction[0xDD] = nullptr;
     opcodeFunction[0xDE] = &CPU::opcode0xDE;
     opcodeFunction[0xDF] = &CPU::opcode0xDF;
     opcodeFunction[0xE0] = &CPU::opcode0xE0;
     opcodeFunction[0xE1] = &CPU::opcode0xE1;
     opcodeFunction[0xE2] = &CPU::opcode0xE2;
+    opcodeFunction[0xE3] = nullptr;
+    opcodeFunction[0xE4] = nullptr;
     opcodeFunction[0xE5] = &CPU::opcode0xE5;
     opcodeFunction[0xE6] = &CPU::opcode0xE6;
     opcodeFunction[0xE7] = &CPU::opcode0xE7;
     opcodeFunction[0xE8] = &CPU::opcode0xE8;
     opcodeFunction[0xE9] = &CPU::opcode0xE9;
     opcodeFunction[0xEA] = &CPU::opcode0xEA;
+    opcodeFunction[0xEB] = nullptr;
+    opcodeFunction[0xEC] = nullptr;
+    opcodeFunction[0xED] = nullptr;
     opcodeFunction[0xEE] = &CPU::opcode0xEE;
     opcodeFunction[0xEF] = &CPU::opcode0xEF;
     opcodeFunction[0xF0] = &CPU::opcode0xF0;
     opcodeFunction[0xF1] = &CPU::opcode0xF1;
     opcodeFunction[0xF2] = &CPU::opcode0xF2;
     opcodeFunction[0xF3] = &CPU::opcode0xF3;
+    opcodeFunction[0xF4] = nullptr;
     opcodeFunction[0xF5] = &CPU::opcode0xF5;
     opcodeFunction[0xF6] = &CPU::opcode0xF6;
     opcodeFunction[0xF7] = &CPU::opcode0xF7;
@@ -2566,6 +2575,8 @@ void CPU::InitOpcodeFunctions()
     opcodeFunction[0xF9] = &CPU::opcode0xF9;
     opcodeFunction[0xFA] = &CPU::opcode0xFA;
     opcodeFunction[0xFB] = &CPU::opcode0xFB;
+    opcodeFunction[0xFC] = nullptr;
+    opcodeFunction[0xFD] = nullptr;
     opcodeFunction[0xFE] = &CPU::opcode0xFE;
     opcodeFunction[0xFF] = &CPU::opcode0xFF;
 }

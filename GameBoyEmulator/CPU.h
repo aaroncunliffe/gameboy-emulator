@@ -26,11 +26,11 @@ const u8 ZERO_BIT = 7;
 const u8 CARRY_BIT = 4;
 
 // Interupt bits
-const u8 VBLANK_INTERUPT_BIT = 0x01;
-const u8 LCDSTAT_INTERUPT_BIT = 0x02;
-const u8 TIMER_INTERUPT_BIT = 0x04;
-const u8 SERIAL_INTERUPT_BIT = 0x08;
-const u8 JOYPAD_INTERUPT_BIT = 0x010;
+const u8 VBLANK_INTERRUPT_BIT = 0x01;
+const u8 LCDSTAT_INTERRUPT_BIT = 0x02;
+const u8 TIMER_INTERRUPT_BIT = 0x04;
+const u8 SERIAL_INTERRUPT_BIT = 0x08;
+const u8 JOYPAD_INTERRUPT_BIT = 0x010;
 
 
 
@@ -51,7 +51,6 @@ struct registers
     reg BC;
     reg DE;
     reg HL;
-    //u8 flags; // Zero, Subtract, Half-carry, Carry, 0, 0, 0, 0,
 
     u16 sp;
     u16 pc;
@@ -103,7 +102,7 @@ public:
     void Stop();
     void SetRom(char* path);
     void SetBios(char* path);
-	void JoypadInterrupt();
+	void JoypadInterrupt(); // Needs to be public to be called by the joypad class when an interrupt occurs
 
 private:
 
@@ -113,6 +112,7 @@ private:
 
     void DumpToFile();
     void DumpToScreen();
+    void PrintProfilingInfo();
 
     void InitOpcodeFunctions();
     void InitOpcodeFunctionsCB();
