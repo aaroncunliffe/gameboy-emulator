@@ -52,9 +52,9 @@ void CPU::opcode0x06() // LD B, d8
 void CPU::opcode0x07() // RLCA - Rotate A left. Old bit 7 to Carry flag.
 {
     // Clear first 3 flags
-    regs.AF.low &= ~ZERO_FLAG; // TODO: whether this should be set or reset
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(ZERO_FLAG); // TODO: whether this should be set or reset
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     u8 msb = (regs.AF.high & 0x80) >> 7; // Store the msb before the shift
 
@@ -63,9 +63,9 @@ void CPU::opcode0x07() // RLCA - Rotate A left. Old bit 7 to Carry flag.
 
                                          // Set the flag with the msb
     if (msb)
-        regs.AF.low |= CARRY_FLAG;   // Set to 1
+        SetFlag(CARRY_FLAG);   // Set to 1
     else
-        regs.AF.low &= ~CARRY_FLAG;  // set to 0
+        UnsetFlag(CARRY_FLAG);  // set to 0
 
 
     counter += opcodeTable[0x07].duration.firstCondition;
@@ -126,9 +126,9 @@ void CPU::opcode0x0E() // LD C, d8
 void CPU::opcode0x0F() // RRCA - Rotate A right, old bit 0 to carry
 {
     // Clear first 3 flags
-    regs.AF.low &= ~ZERO_FLAG;    // TODO: whether this should be set or reset
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(ZERO_FLAG);    // TODO: whether this should be set or reset
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     u8 lsb = regs.AF.high & 0x01; // Store the msb before the shift
 
@@ -137,9 +137,9 @@ void CPU::opcode0x0F() // RRCA - Rotate A right, old bit 0 to carry
 
     // Set the flag with the lsb
     if (lsb)
-        regs.AF.low |= CARRY_FLAG;   // Set to 1
+        SetFlag(CARRY_FLAG);   // Set to 1
     else
-        regs.AF.low &= ~CARRY_FLAG;  // set to 0
+        UnsetFlag(CARRY_FLAG);  // set to 0
 
     counter += opcodeTable[0x0F].duration.firstCondition;
     regs.pc += opcodeTable[0x0F].length;
@@ -203,9 +203,9 @@ void CPU::opcode0x16() // LD D, d8
 void CPU::opcode0x17() // RLA - Flags: 0 0 0 C    Rotate A left through Carry flag
 {
     // Clear first 3 flags
-    regs.AF.low &= ~ZERO_FLAG; 
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(ZERO_FLAG); 
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     u8 msb = (regs.AF.high & 0x80) ? 1 : 0; // Store the msb before the shift
     u8 carryValue = (regs.AF.low & CARRY_FLAG) ? 1 : 0;
@@ -219,9 +219,9 @@ void CPU::opcode0x17() // RLA - Flags: 0 0 0 C    Rotate A left through Carry fl
 
     // Set the flag with the msb
     if (msb)
-        regs.AF.low |= CARRY_FLAG;   // Set to 1
+        SetFlag(CARRY_FLAG);   // Set to 1
     else
-        regs.AF.low &= ~CARRY_FLAG;  // set to 0
+        UnsetFlag(CARRY_FLAG);  // set to 0
 
 
     counter += opcodeTable[0x17].duration.firstCondition;
@@ -280,9 +280,9 @@ void CPU::opcode0x1E() // LD E, d8
 void CPU::opcode0x1F() //  RRA - Flags: 0 0 0 C - Rotate A right through Carry flag
 {
     // Clear first 3 flags
-    regs.AF.low &= ~ZERO_FLAG; // TODO: whether this should be set or reset
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(ZERO_FLAG); // TODO: whether this should be set or reset
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     u8 lsb = regs.AF.high & 0x01; // Store the lsb before the shift
     u8 carryValue = (regs.AF.low & CARRY_FLAG) ? 1 : 0;
@@ -296,9 +296,9 @@ void CPU::opcode0x1F() //  RRA - Flags: 0 0 0 C - Rotate A right through Carry f
 
     // Set the flag with the msb
     if (lsb)
-        regs.AF.low |= CARRY_FLAG;   // Set to 1
+        SetFlag(CARRY_FLAG);   // Set to 1
     else
-        regs.AF.low &= ~CARRY_FLAG;  // set to 0
+        UnsetFlag(CARRY_FLAG);  // set to 0
 
     counter += opcodeTable[0x1F].duration.firstCondition;
     regs.pc += opcodeTable[0x1F].length;
@@ -454,8 +454,8 @@ void CPU::opcode0x2E() // LD L, d8
 void CPU::opcode0x2F() // CPL - Complement A register. (Flip all bits.) -, 1, 1, -
 {
     regs.AF.high = ~regs.AF.high;
-    regs.AF.low |= SUBTRACT_FLAG;
-    regs.AF.low |= HALF_CARRY_FLAG;
+    SetFlag(SUBTRACT_FLAG);
+    SetFlag(HALF_CARRY_FLAG);
     counter += opcodeTable[0x2F].duration.firstCondition;
     regs.pc += opcodeTable[0x2F].length;
 }
@@ -525,9 +525,9 @@ void CPU::opcode0x36() // LD (HL), d8
 
 void CPU::opcode0x37() // SCF - Set Carry Flag Flags: - 0 0 1
 {
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
-    regs.AF.low |= CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
+    SetFlag(CARRY_FLAG);
     counter += opcodeTable[0x37].duration.firstCondition;
     regs.pc += opcodeTable[0x37].length;
 }
@@ -593,15 +593,15 @@ void CPU::opcode0x3E() // LD A, d8
 
 void CPU::opcode0x3F() // CCF - Flags: - 0 0 C    Complement carry flag.
 {
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     u8 flag = (regs.AF.low & CARRY_FLAG) ? 1 : 0;
 
     if (flag)
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
     else
-        regs.AF.low |= CARRY_FLAG;
+        SetFlag(CARRY_FLAG);
        
 
     counter += opcodeTable[0x3F].duration.firstCondition;
@@ -1620,15 +1620,11 @@ void CPU::opcode0xCA() // JP Z, a16
 void CPU::opcode0xCB() // prefix CB
 {
     u8 opcodeByte = mmu->ReadByte(regs.pc + 1);
-    // Process instruction from other table
-    if (opcodeFunctionCB[opcodeByte] != nullptr)
-    {
-        (this->*opcodeFunctionCB[opcodeByte])();
-    }
-    else
-    {
-        assert(false); // Unknown CB operation
-    }
+    
+	assert(opcodeFunctionCB[opcodeByte] != nullptr); // Unknown CB operation
+
+    (this->*opcodeFunctionCB[opcodeByte])(); // Process instruction from other table
+   
 
 }
 
@@ -1871,19 +1867,19 @@ void CPU::opcode0xE8() // ADD SP, r8 Flags: 0 0 H C
     u8 operand = mmu->ReadByte(regs.pc + 1);
 	
 	int result = regs.sp + (s8)operand;
-	regs.AF.low &= ~ZERO_FLAG;
-    regs.AF.low &= ~SUBTRACT_FLAG; // reset zero and subtract flag
+	UnsetFlag(ZERO_FLAG);
+    UnsetFlag(SUBTRACT_FLAG); // reset zero and subtract flag
 	
 	if (((regs.sp & 0xFF) + (operand & 0xFF) > 0xFF))
-		regs.AF.low |= CARRY_FLAG;
+		SetFlag(CARRY_FLAG);
 	else
-		regs.AF.low &= ~CARRY_FLAG;
+		UnsetFlag(CARRY_FLAG);
 
 	
 	if ((((regs.sp & 0x0F) + (operand & 0x0F)) & 0x10) == 0x10) 
-        regs.AF.low |= HALF_CARRY_FLAG;
+        SetFlag(HALF_CARRY_FLAG);
     else
-        regs.AF.low &= ~HALF_CARRY_FLAG;
+        UnsetFlag(HALF_CARRY_FLAG);
 
     
 	regs.sp = (s16)result;
@@ -1990,19 +1986,19 @@ void CPU::opcode0xF8() // LD HL,SP+r8 Flags: 0 0 H C
     u8 operand = mmu->ReadByte(regs.pc + 1);
 	int result = regs.sp + (s8)operand;
 
-    regs.AF.low &= ~ZERO_FLAG;
-    regs.AF.low &= ~SUBTRACT_FLAG; // reset subtract flag
+    UnsetFlag(ZERO_FLAG);
+    UnsetFlag(SUBTRACT_FLAG); // reset subtract flag
 
 	if (((regs.sp & 0xFF) + (operand & 0xFF) > 0xFF))
-		regs.AF.low |= CARRY_FLAG;
+		SetFlag(CARRY_FLAG);
 	else
-		regs.AF.low &= ~CARRY_FLAG;
+		UnsetFlag(CARRY_FLAG);
 
 
 	if ((((regs.sp & 0x0F) + (operand & 0x0F)) & 0x10) == 0x10)
-		regs.AF.low |= HALF_CARRY_FLAG;
+		SetFlag(HALF_CARRY_FLAG);
 	else
-		regs.AF.low &= ~HALF_CARRY_FLAG;
+		UnsetFlag(HALF_CARRY_FLAG);
 
     regs.HL.word = result & 0xFFFF;
     counter += opcodeTable[0xF8].duration.firstCondition;
@@ -2064,16 +2060,16 @@ inline void CPU::INC(u8 &reg) // Flags: Z 0 H -
 
     // Set flags
     if (reg == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 
-    regs.AF.low &= ~SUBTRACT_FLAG; // Reset flag
+    UnsetFlag(SUBTRACT_FLAG); // Reset flag
 
     if (((((reg - 0x01) & 0xF) + (0x1 & 0xF)) & 0x10) == 0x10) // Carry from 3rd bit
-        regs.AF.low |= HALF_CARRY_FLAG;
+        SetFlag(HALF_CARRY_FLAG);
     else
-        regs.AF.low &= ~HALF_CARRY_FLAG;
+        UnsetFlag(HALF_CARRY_FLAG);
 }
 
 inline void CPU::DEC(u8 &reg) // Flags: Z 1 H -
@@ -2082,32 +2078,32 @@ inline void CPU::DEC(u8 &reg) // Flags: Z 1 H -
     reg--;
 
 	if (reg == 0x00)
-		regs.AF.low |= ZERO_FLAG;
+		SetFlag(ZERO_FLAG);
 	else
-		regs.AF.low &= ~ZERO_FLAG;
+		UnsetFlag(ZERO_FLAG);
     
-    regs.AF.low |= SUBTRACT_FLAG; // Set flag
+    SetFlag(SUBTRACT_FLAG); // Set flag
 
 	if ((reg & 0x0F) == 0x0F) // Set if no borrow from bit 4
-		regs.AF.low |= HALF_CARRY_FLAG;
+		SetFlag(HALF_CARRY_FLAG);
 	else
-        regs.AF.low &= ~HALF_CARRY_FLAG;
+        UnsetFlag(HALF_CARRY_FLAG);
 }
 
 // TODO: Ordering of flags or addition
 inline void CPU::ADD16(u16 &reg1, u16 &reg2) // Flags: - 0 H C
 {
-    regs.AF.low &= ~SUBTRACT_FLAG; // Reset flag
+    UnsetFlag(SUBTRACT_FLAG); // Reset flag
 
 	if ((((reg1 & 0xFFF) + (reg2 & 0xFFF)) & 0x1000) == 0x1000) // Carry from 11th bit
-		regs.AF.low |= HALF_CARRY_FLAG;
+		SetFlag(HALF_CARRY_FLAG);
 	else
-        regs.AF.low &= ~HALF_CARRY_FLAG;
+        UnsetFlag(HALF_CARRY_FLAG);
 
 	if ((reg1 + reg2) > 0xFFFF) // Carry from 15th bit
-		regs.AF.low |= CARRY_FLAG;
+		SetFlag(CARRY_FLAG);
 	else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     reg1 += reg2;
 }
@@ -2117,43 +2113,43 @@ inline void CPU::ADD(u8 operand) // Flags: Z 0 H C
     s32 result = (regs.AF.high + operand);
 
     if (result & 0xFF00)
-        regs.AF.low |= CARRY_FLAG;
+        SetFlag(CARRY_FLAG);
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     regs.AF.high = (u8)(result & 0xFF);
 
     if (regs.AF.high == 0x00) // Check for Zero flag
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 
-    regs.AF.low &= ~SUBTRACT_FLAG; // reset subtract flag
+    UnsetFlag(SUBTRACT_FLAG); // reset subtract flag
 
     if ((((regs.AF.high & 0xF) - (operand & 0xF)) & 0x10) == 0x10) // Carry from 3rd bit
-        regs.AF.low |= HALF_CARRY_FLAG;
+        SetFlag(HALF_CARRY_FLAG);
     else
-        regs.AF.low &= ~HALF_CARRY_FLAG;
+        UnsetFlag(HALF_CARRY_FLAG);
 }
 
 inline void CPU::SUB(u8 operand) // Flags: Z 1 H C
 {
 	if ((regs.AF.high - operand) == 0x00) // Check for Zero flag
-		regs.AF.low |= ZERO_FLAG;
+		SetFlag(ZERO_FLAG);
 	else
-		regs.AF.low &= ~ZERO_FLAG;
+		UnsetFlag(ZERO_FLAG);
 
-	regs.AF.low |= SUBTRACT_FLAG; // Set subtract flag
+	SetFlag(SUBTRACT_FLAG); // Set subtract flag
 
 	if ((operand & 0x0F) > (regs.AF.high & 0x0F))
-		regs.AF.low |= HALF_CARRY_FLAG;
+		SetFlag(HALF_CARRY_FLAG);
 	else
-		regs.AF.low &= ~HALF_CARRY_FLAG;
+		UnsetFlag(HALF_CARRY_FLAG);
 
 	if (operand > regs.AF.high)
-		regs.AF.low |= CARRY_FLAG;
+		SetFlag(CARRY_FLAG);
 	else
-		regs.AF.low &= ~CARRY_FLAG;
+		UnsetFlag(CARRY_FLAG);
 
 	regs.AF.high -= operand;
 }
@@ -2166,21 +2162,21 @@ inline void CPU::ADC(u8 operand) // FLAGS: Z 0 H C
     int result = regs.AF.high + operand + carry;
 
     if ((u8)result == 0x00) // Check for Zero flag
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 
-    regs.AF.low &= ~SUBTRACT_FLAG; // reset subtract flag
+    UnsetFlag(SUBTRACT_FLAG); // reset subtract flag
 	
     if (result > 0xFF) // Set if carry from bit 7
-        regs.AF.low |= CARRY_FLAG;
+        SetFlag(CARRY_FLAG);
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     if (((regs.AF.high & 0x0F) + (operand & 0x0F) + carry) > 0x0F) // Set if carry from bit 3
-        regs.AF.low |= HALF_CARRY_FLAG;
+        SetFlag(HALF_CARRY_FLAG);
     else
-        regs.AF.low &= ~HALF_CARRY_FLAG;
+        UnsetFlag(HALF_CARRY_FLAG);
 
     regs.AF.high = (u8)(result);
 }
@@ -2191,22 +2187,22 @@ inline void CPU::SBC(u8 operand) // Flags: Z 1 H C - Subtract n + Carry flag fro
 	int result = regs.AF.high - operand - carry;
 
     if ((u8)result == 0x00) // Check for Zero flag
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 
-    regs.AF.low |= SUBTRACT_FLAG; // Set subtract flag
+    SetFlag(SUBTRACT_FLAG); // Set subtract flag
 
 	if (result < 0) // Set if no borrow
-		regs.AF.low |= CARRY_FLAG;
+		SetFlag(CARRY_FLAG);
 	else
-		regs.AF.low &= ~CARRY_FLAG;
+		UnsetFlag(CARRY_FLAG);
 
 
     if (((regs.AF.high & 0x0F) - (operand & 0x0F) - carry) < 0) // Borrow from bit 3
-        regs.AF.low |= HALF_CARRY_FLAG;
+        SetFlag(HALF_CARRY_FLAG);
     else
-        regs.AF.low &= ~HALF_CARRY_FLAG;
+        UnsetFlag(HALF_CARRY_FLAG);
 
     
     regs.AF.high = (u8)result;
@@ -2215,67 +2211,67 @@ inline void CPU::SBC(u8 operand) // Flags: Z 1 H C - Subtract n + Carry flag fro
 
 inline void CPU::AND(u8 operand) // Flags: Z 0 1 0
 {
-    regs.AF.low &= ~SUBTRACT_FLAG;  // Reset
-    regs.AF.low |= HALF_CARRY_FLAG; // Set
-    regs.AF.low &= ~CARRY_FLAG;     // Reset
+    UnsetFlag(SUBTRACT_FLAG);  // Reset
+    SetFlag(HALF_CARRY_FLAG); // Set
+    UnsetFlag(CARRY_FLAG);     // Reset
 
     regs.AF.high &= operand;
     
     if (regs.AF.high == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 
 }
 
 inline void CPU::XOR(u8 operand) // Flags: Z 0 0 0 
 {
     // reset flags
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
-    regs.AF.low &= ~CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
+    UnsetFlag(CARRY_FLAG);
 
     regs.AF.high ^= operand;
 
     if (regs.AF.high == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 }
 
 inline void CPU::OR(u8 operand) // Flags: Z 0 0 0
 {
     // reset flags
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
-    regs.AF.low &= ~CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
+    UnsetFlag(CARRY_FLAG);
 
     regs.AF.high |= operand;
 
     if (regs.AF.high == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 }
 
 inline void CPU::CP(u8 operand) // Flags: Z 1 H C
 {
     if (regs.AF.high == operand)
-        regs.AF.low |= ZERO_FLAG;   // 1
+        SetFlag(ZERO_FLAG);   // 1
     else
-        regs.AF.low &= ~ZERO_FLAG;  // 0
+        UnsetFlag(ZERO_FLAG);  // 0
 
-    regs.AF.low |= SUBTRACT_FLAG; // Set
+    SetFlag(SUBTRACT_FLAG); // Set
 
     if((operand & 0x0F) > (regs.AF.high & 0x0F))
-        regs.AF.low |= HALF_CARRY_FLAG;
+        SetFlag(HALF_CARRY_FLAG);
     else
-        regs.AF.low &= ~HALF_CARRY_FLAG;
+        UnsetFlag(HALF_CARRY_FLAG);
 
     if(operand > regs.AF.high)
-        regs.AF.low |= CARRY_FLAG;
+        SetFlag(CARRY_FLAG);
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 }
 
 // Interrupt jumps

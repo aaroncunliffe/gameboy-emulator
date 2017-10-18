@@ -122,6 +122,10 @@ private:
 	//	Instruction and helper functions
 	//----------------------
 
+	inline void SetFlag(u8 flag) { regs.AF.low |= flag; }
+	inline void UnsetFlag(u8 flag) { regs.AF.low &= ~flag; };
+
+
     // Helper Functions
     inline void INC(u8 &reg);
     inline void DEC(u8 &reg);

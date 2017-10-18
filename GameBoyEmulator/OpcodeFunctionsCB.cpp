@@ -1884,8 +1884,8 @@ void CPU::CBopcode0xFF() // SET 7,A
 
 inline void CPU::RLC(u8& n) // Flags: Z 0 0 C    Rotate n left. Old bit 7 to Carry flag
 {
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
     
     u8 oldbit7 = (n & 0x80) ? 1 : 0;
 
@@ -1893,22 +1893,22 @@ inline void CPU::RLC(u8& n) // Flags: Z 0 0 C    Rotate n left. Old bit 7 to Car
 
 	if (oldbit7) // Set to the data from old bit 7
 	{
-		regs.AF.low |= CARRY_FLAG;
+		SetFlag(CARRY_FLAG);
 		n |= 0x01; // Circular rotate - Need to place old bit 7's data back in bit 0's position
 	}
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     if (n == 0x00) // set if result is 0
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 }
 
 inline void CPU::RRC(u8& n) // Flags: Z 0 0 C    Rotate n right. Old bit 0 to Carry flag
 {
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     u8 oldbit0 = (n & 0x01) ? 1 : 0;
 
@@ -1916,24 +1916,24 @@ inline void CPU::RRC(u8& n) // Flags: Z 0 0 C    Rotate n right. Old bit 0 to Ca
 
 	if (oldbit0)
 	{
-		regs.AF.low |= CARRY_FLAG;
+		SetFlag(CARRY_FLAG);
 		n |= 0x80; // Circular rotate - Need to place old bit 0's datas back in bit 7's position
 	}
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     if (n == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 
 }
 
 
 inline void CPU::RL(u8& n) // Flags: Z 0 0 C    Rotate n left through Carry flag.
 {
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     u8 oldVal = n;
 
@@ -1942,21 +1942,21 @@ inline void CPU::RL(u8& n) // Flags: Z 0 0 C    Rotate n left through Carry flag
         n |= 0x01;
 
     if (oldVal & 0x80) // Contains old bit 7 data
-        regs.AF.low |= CARRY_FLAG;
+        SetFlag(CARRY_FLAG);
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     if (n == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 
 }
 
 inline void CPU::RR(u8& n) // Flags: Z 0 0 C    Rotate n right through Carry flag.
 {
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
     
     u8 oldVal = n;
 
@@ -1965,14 +1965,14 @@ inline void CPU::RR(u8& n) // Flags: Z 0 0 C    Rotate n right through Carry fla
         n |= 0x80;
 
     if (oldVal & 0x01) // Contains old bit 0 data
-        regs.AF.low |= CARRY_FLAG;
+        SetFlag(CARRY_FLAG);
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     if(n == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 
 }
 
@@ -1982,20 +1982,20 @@ inline void CPU::SLA(u8& n) // Flags: Z 0 0 C   Shift n left into Carry. LSB of 
 {
     u8 msb = (n & 0x80); // Store the msb before the shift
 
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     if (msb)
-        regs.AF.low |= CARRY_FLAG;
+        SetFlag(CARRY_FLAG);
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     n = n << 1;
 
     if (n == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 }
 
 
@@ -2004,69 +2004,69 @@ inline void CPU::SRA(u8& n) // Flags: Z 0 0 C   Shift n right into Carry. MSB do
     u8 msb = n & 0x80; // Store the msb before the shift
     u8 lsb = n & 0x01;
 
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     if (lsb)
-        regs.AF.low |= CARRY_FLAG;
+        SetFlag(CARRY_FLAG);
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     n = n >> 1;
     n = n | msb; // maintain the MSB's old value
 
     if (n == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 
 }
 
 inline void CPU::SWAP(u8& n) // Flags: Z 0 0 0  Swap upper & lower nibles of n.
 {
     // reset flags
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
-    regs.AF.low &= ~CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
+    UnsetFlag(CARRY_FLAG);
 
     u8 lower = n & 0x0F;
     n = (n >> 4) | (lower << 4);
 
     if (n == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 }
 
 inline void CPU::SRL(u8& n) // Flags: Z 0 0 C   Shift n right into Carry. MSB set to 0
 {
     u8 lsb = (n & 0x01); // Store the msb before the shift
 
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low &= ~HALF_CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    UnsetFlag(HALF_CARRY_FLAG);
 
     if (lsb)
-        regs.AF.low |= CARRY_FLAG;
+        SetFlag(CARRY_FLAG);
     else
-        regs.AF.low &= ~CARRY_FLAG;
+        UnsetFlag(CARRY_FLAG);
 
     n = n >> 1;
 
     if (n == 0x00)
-        regs.AF.low |= ZERO_FLAG;
+        SetFlag(ZERO_FLAG);
     else
-        regs.AF.low &= ~ZERO_FLAG;
+        UnsetFlag(ZERO_FLAG);
 }
 
 inline void CPU::BIT(u8 bit, u8 n) // FLAGS: Z 0 1 -    Test bit in register, 
 {
     if (n & bit)
-        regs.AF.low &= ~ZERO_FLAG; 
+        UnsetFlag(ZERO_FLAG); 
     else
-        regs.AF.low |= ZERO_FLAG; // Set to 1, if result is 0 (false)
+        SetFlag(ZERO_FLAG); // Set to 1, if result is 0 (false)
 
-    regs.AF.low &= ~SUBTRACT_FLAG;
-    regs.AF.low |= HALF_CARRY_FLAG;
+    UnsetFlag(SUBTRACT_FLAG);
+    SetFlag(HALF_CARRY_FLAG);
 
 }
 
