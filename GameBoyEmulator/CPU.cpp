@@ -6,7 +6,7 @@
 
 // Definitions
 //#define _LOG
-#define _PROFILE
+//#define _PROFILE
 
 CPU::CPU()
 {
@@ -292,12 +292,7 @@ void CPU::ProcessEvents()
 			}
 			else if (e.key.keysym.sym == SDLK_F3)
 			{
-				u8 byte = mmu->ReadByte(0xFF40);
-				if(byte & 0x80)
-					mmu->WriteByte(0xFF40, byte &= ~0x80);
-			
-				else
-					mmu->WriteByte(0xFF40, byte |= 0x80);
+
 			}
             else if (e.key.keysym.sym == SDLK_F5)
             {
@@ -394,6 +389,8 @@ void CPU::DumpToScreen()
 
 }
 
+
+// Prints info about the instructions that have been used since the start of the current session
 void CPU::PrintProfilingInfo()
 {
 
