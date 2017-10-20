@@ -16,7 +16,7 @@ private:
 public:
 
 	ROM();
-	ROM(u8* buffer, u32 size);
+	ROM(char* path, u8* buffer, u32 size);
 	~ROM();
 
 

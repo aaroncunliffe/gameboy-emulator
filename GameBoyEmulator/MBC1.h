@@ -11,7 +11,7 @@ private:
 
 public:
 	MBC1();
-	MBC1(u8* buffer, u32 size);
+	MBC1(char* path, u8* buffer, u32 size);
 	~MBC1();
 
 

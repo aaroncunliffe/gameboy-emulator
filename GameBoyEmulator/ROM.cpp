@@ -6,7 +6,7 @@ ROM::ROM()
 
 }
 
-ROM::ROM(u8* buffer, u32 size) : Cartridge(buffer)
+ROM::ROM(char* path, u8* buffer, u32 size) : Cartridge(path, buffer)
 {
 	romSize = size;
 

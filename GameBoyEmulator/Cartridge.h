@@ -46,6 +46,7 @@ private:
         0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E
     };
 
+    char* romPath;
     u8* romHeader;
     
     bool graphicMatch;
@@ -75,7 +76,7 @@ protected: // To be accessed by all lower classes in the hierarchy
 public:
 
 	Cartridge();
-	Cartridge(u8* data);
+	Cartridge(char* path, u8* data);
 	~Cartridge();
 
     void PrintFormattedData();

@@ -4,7 +4,7 @@ MBC1::MBC1()
 {
 }
 
-MBC1::MBC1(u8* buffer, u32 size) : Cartridge(buffer)
+MBC1::MBC1(char* path, u8* buffer, u32 size) : Cartridge(path, buffer)
 {
 	romSize = size;
 
@@ -49,6 +49,14 @@ MBC1::MBC1(u8* buffer, u32 size) : Cartridge(buffer)
 		numberOfRamBanks = 8;
 		break;
 	}
+    
+    // Need to attempt to read a file with the same name as the rom, but with the .sav extension, 
+    // if it doesn't exist, create it, memset ram all 0's and write it to file.
+	if(RAMArray != nullptr)
+		memset(RAMArray, 0x00, numberOfRamBanks * EIGHT_KB); // All 0's
+
+    // should I write to the file every time ram is set to be disabled?
+
 	ramBankSize = EIGHT_KB;
 
 }
@@ -72,7 +80,11 @@ u8 MBC1::ReadROMByte(u16 addr)
 	u32 bankOffset = (fixedBank ? 0 : activeRomBank) * ONE_BANK_SIZE;
 	u16 addrOffset = fixedBank ? addr : addr - ONE_BANK_SIZE;
 	
-	assert((bankOffset + addrOffset) < romSize);
+	if((bankOffset + addrOffset) > romSize)
+	{
+		int stop = 0;
+	}
+	//assert((bankOffset + addrOffset) < romSize);
 	
 
 	return ROMArray[bankOffset + addrOffset]; 
@@ -93,6 +105,10 @@ void MBC1::WriteROMByte(u16 addr, u8 byte)
 	else if (addr >= 0x2000 && addr <= 0x3FFF)
 	{
 		u8 intendedBank = byte & 0x1F;
+		if (intendedBank > 0x08)
+		{
+			int stop = 0;
+		}
 		if(intendedBank != 0x00 || intendedBank != 0x20 || intendedBank != 0x40 || intendedBank != 0x60)
 			activeRomBank = intendedBank;
 	}

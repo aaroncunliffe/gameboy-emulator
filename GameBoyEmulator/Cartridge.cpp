@@ -10,8 +10,9 @@ Cartridge::Cartridge()
 }
 
 
-Cartridge::Cartridge(u8* data)
+Cartridge::Cartridge(char* path, u8* data)
 {
+    romPath = path;
     romHeader = data;
     ParseHeader();
 

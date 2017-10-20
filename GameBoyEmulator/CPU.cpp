@@ -347,15 +347,26 @@ void CPU::ProcessInstruction()
      }
 #endif
 
-	if (regs.pc == 0x00A0)
-	{
-		int stop = 0;
-	}
-	if (regs.pc == 0x0097)
+	if (regs.pc == 0x0248)
 	{
 		int stop = 0;
 	}
 
+    if (regs.pc == 0x023D)
+    {
+        int stop = 0;
+    }
+
+
+    if (mmu->ReadByte(0xC633) == 0x80)
+    {
+        int stop = 0;
+    }
+
+	if (opcodeTable[opcodeByte].name == "NOP" && regs.pc > 0x4000)
+	{
+		int stop = 0;
+	}
 	
    (this->*opcodeFunction[opcodeByte])();
     //totalInstructions++;

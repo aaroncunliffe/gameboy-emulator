@@ -54,20 +54,16 @@ bool MMU::LoadRom(char* path)
 		switch (buffer[0x147])
 		{
 			case 0x00: // ROM
-				cart = new ROM(buffer, romSize);
-				break;
 			case 0x08: // ROM + RAM
-				break;
 			case 0x09: // ROM + RAM + BATTERY
+				cart = new ROM(romPath, buffer, romSize);
 				break;
+
+
 			case 0x01: // MBC1
-				cart = new MBC1(buffer, romSize);
-				break;
 			case 0x02: // MBC1 + RAM
-				cart = new MBC1(buffer, romSize);
-				break;
 			case 0x03: // MBC1 + RAM + BATTERY
-				cart = new MBC1(buffer, romSize);
+				cart = new MBC1(romPath, buffer, romSize);
 				break;
 
 		}
@@ -414,6 +410,10 @@ u16 MMU::ReadTwoBytes(u16 addr)
 
 void MMU::PushTwoBytes(u16 &sp, u16 data)
 {
+	if (data == 0x9003)
+	{
+		int stop = 0;
+	}
     sp -= 2;
     WriteTwoBytes(sp, data);
 }

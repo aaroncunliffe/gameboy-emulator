@@ -7,3 +7,29 @@ fixed CB 0xD3 - now passes test 10
 Due to fixes in the ADD16 function (to pass instruction 0x39 from the test 03) test 05 now passes.
 
 Fixed POP AF, function F1 (See test 08 entry). Now failing DAA instruction. This one will be difficult to implement. test 01 now gets to test #6
+
+
+
+Game and watch:
+
+ball game, incorrectly sets active rom bank to 0x0D or 0x0A, 0x08 is the maximum it should be. 
+after some inspection it seems it pops 0x9003 from the stack into the program counter and starts executing on VRAM.
+0x9003 is a PUSH DE instruction executed at 0x0155.
+
+0x0153 is actually the Vblank interrupt handler...
+
+It happens when you catch the 10th ball, so it could be a DAA instruction issue, 
+I'm going to leave this alone until that is implemented. the game seems quite playable though.
+
+
+Duck Tales:
+Each time LCD interrupt is called, the SCY register jumps from the score at the top, (Value 0x00) to the map at the bottom, (value 0x70). Interrupt occurs during mode 2.
+Also toggles BG map bit on and off. 
+
+Loads 0xC635 as the value to move into SCY
+
+pc == 0x0248 is the instruction that writes the 0x70 to the SCY register
+It never passes the jump at 0x023B
+STAT LY=LYC is never active at this point
+
+Fixed, was an error with my code to flag a LY=LYC interrupt

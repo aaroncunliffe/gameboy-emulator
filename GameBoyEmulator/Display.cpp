@@ -98,6 +98,7 @@ void Display::RenderScanline()
     {
 		u16 mapBaseAddress = (LCDC & BG_TILE_MAP_SELECT_OFFSET) ? 0x9C00 - VRAM_OFFSET : 0x9800 - VRAM_OFFSET; // Base address of the selected map
 		u16 offsetBase = mapBaseAddress + (((LY + scrollY) & 0xFF) / 8 ) * 0x20;
+
 		// Above line declares the total offset from the base of VRAM, There are 0x20 bytes per line in the map.
 		// Given any line, need to work out which block of 0x20 bytes we need from the map.
 
@@ -118,8 +119,8 @@ void Display::RenderScanline()
 			if ((LCDC & BG_TILE_SET_SELECT_OFFSET) == 0x00 && tileIndex < 128)
 				tileIndex += 256; // if tile map #1 selected, the indexes are signed (-128 to 127 instead of 0 to 255)
 
-			scanrow[i] = Tileset[tileIndex][y][i % 8]; // Store this for the sprites
-			colour = bgPalette[Tileset[tileIndex][y][i % 8]];
+			scanrow[i] = Tileset[tileIndex][y][(i % 8)]; // Store this for the sprites
+			colour = bgPalette[Tileset[tileIndex][y][(i % 8)]];
 
             pixels[DISPLAY_WIDTH * LY + i].r = colour.r;
             pixels[DISPLAY_WIDTH * LY + i].g = colour.g;
@@ -331,8 +332,6 @@ u8 Display::ReadOAM(u16 addr)
 // At the end of every display->Step() process any changes to the display registers
 void Display::UpdateRegisters()
 {
-    // LCDC
-    
 
     // STAT
 
@@ -359,12 +358,18 @@ void Display::UpdateRegisters()
 	// Bit 2
 	if (LY == LYC)
 	{
-		//STAT &= ~0xFF;
-		STAT |= 0x40;
-
-		u8 byte = mmu->ReadByte(0xFF0F);
-		mmu->WriteByte(0xFF0F, byte |= 0x02); // Write for V-Blank
+		STAT |= 0x04;
+        if (STAT & 0x40) // Bit 6
+        {
+          u8 byte = mmu->ReadByte(0xFF0F);
+          mmu->WriteByte(0xFF0F, byte |= 0x02); // Write for LY == LYC 
+        }
+		
 	}
+    else
+    {
+        STAT &= ~0x04;
+    }
 
 
 
