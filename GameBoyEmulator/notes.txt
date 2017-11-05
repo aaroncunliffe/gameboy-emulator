@@ -21,6 +21,8 @@ after some inspection it seems it pops 0x9003 from the stack into the program co
 It happens when you catch the 10th ball, so it could be a DAA instruction issue, 
 I'm going to leave this alone until that is implemented. the game seems quite playable though.
 
+Yes this is fixed, it was the DAA instruction causing the wrong value rom bank to be read.
+
 
 Duck Tales:
 Each time LCD interrupt is called, the SCY register jumps from the score at the top, (Value 0x00) to the map at the bottom, (value 0x70). Interrupt occurs during mode 2.
@@ -33,3 +35,25 @@ It never passes the jump at 0x023B
 STAT LY=LYC is never active at this point
 
 Fixed, was an error with my code to flag a LY=LYC interrupt
+
+
+
+
+Garfield: 2/11/25
+
+Enemy sprite on first level isn't visible.
+
+When start is pressed, window should raise while the game is paused and stop at a fixed point,
+the cycle is, retrieve winY -> decrement twice -> set winY to the new value. the set is at 0x4951
+each cycle the value of winY is compared to 0x68, mine just loops there and winY is decremented until it wraps around to 0xFE
+
+winX is 1 pixel off, it should be 7 but instead it is 8
+
+Fixed both problems:
+display->GetWinY() was actually returning winX. which was a typo
+
+
+
+Tamagotchi: 2/11/25
+
+sprites that show the currently selected item (after selecting egg and hatching) don't show correctly. they are 16px sprites, could be an issue with drawing them.

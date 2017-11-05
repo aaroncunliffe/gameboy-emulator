@@ -13,7 +13,6 @@ const int DISPLAY_HEIGHT = 144;
 const u16 VRAM_OFFSET = 0x8000;
 const u16 OAM_START = 0xFE00;
 
-
 const u16  DMA_LENGTH = 160;
 
 // LCDC offsets
@@ -27,6 +26,9 @@ const u8 WINDOW_TILE_MAP_SELECT_OFFSET   = 0x40;
 const u8 LCD_ENABLE_OFFSET               = 0x80;
 
 enum GPU_MODE { HBLANK = 0, VBLANK = 1, OAM = 2, VRAM = 3 };
+
+const u8 SPRITE_Y_OFFSET = 0x10;
+const u8 SPRITE_X_OFFSET = 0x08;
 
 struct sprite
 {
@@ -82,7 +84,7 @@ private:
 	pixel ob0Palette[4];
 	pixel ob1Palette[4];
 
-    u8 Tileset[384][8][8];
+    u8 Tileset[384][8][8]; // 192 in DMG, CGB has 384
     sprite spriteStore[40];
 
     bool onlyTiles;
@@ -95,6 +97,9 @@ private:
     u8 scrollX;     // 0xFF43
     u8 LY;          // 0xFF44
     u8 LYC;         // 0xFF45
+
+    u8 winX;        // 0xFF4A
+    u8 winY;        // 0xFF4B
 
     SDL_Color pixels[DISPLAY_HEIGHT * DISPLAY_WIDTH]; // display or viewport
 
@@ -124,11 +129,17 @@ public:
     u8 GetStat() { return STAT; }
     void SetStat(u8 val) { STAT = val; }
 
-    void SetScrollX(u8 val);
-    void SetScrollY(u8 val);
 
     u8 GetScrollX() { return scrollX; }
     u8 GetScrollY() { return scrollY; }
+    void SetScrollX(u8 val);
+    void SetScrollY(u8 val);
+
+    u8 GetWinX() { return winX; }
+    u8 GetWinY() { return winY; }
+
+    void SetWinX(u8 val);
+    void SetWinY(u8 val);
 
     u8 GetLY() { return LY; }
     u8 GetLYC() { return LYC; }

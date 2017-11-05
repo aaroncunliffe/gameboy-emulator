@@ -26,15 +26,15 @@ int main(int argc, char* args[])
 	    //processor->SetRom("Super Mario Land.gb");     // Playable apart from scroll juttering
         //processor->SetRom("Legend of Zelda, The - Link's Awakening.gb");
 	    //processor->SetRom("Game Boy Gallery.gb");
+		
 
         //MBC3
 	    //CPU* processor = new CPU("Pokemon - Red Version.gb");
 
 	    // ROM only
-	    //processor->SetRom("tetris.gb");
-	    processor->SetRom("Dr. Mario.gb"); // This game uses Timer, sprite issues could be down to that
+	    processor->SetRom("tetris.gb");
+	    //processor->SetRom("Dr. Mario.gb"); // This game uses Timer, sprite issues could be down to that
 
-		
 	    //processor->SetRom("Test//all.gb");  // All instructions requires MBC1 Support
         //processor->SetRom("Test//01.gb"); // 01-special.gb
         //processor->SetRom("Test//02.gb"); // 02-interrupts.gb

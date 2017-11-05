@@ -97,14 +97,13 @@ void Display::RenderScanline()
     if (LCDC & BG_ENABLE_OFFSET)
     {
 		u16 mapBaseAddress = (LCDC & BG_TILE_MAP_SELECT_OFFSET) ? 0x9C00 - VRAM_OFFSET : 0x9800 - VRAM_OFFSET; // Base address of the selected map
-		u16 offsetBase = mapBaseAddress + (((LY + scrollY) & 0xFF) / 8 ) * 0x20;
+		u16 offsetBase = mapBaseAddress + ((((LY + scrollY) & 0xFF) / 8 ) * 32);
 
-		// Above line declares the total offset from the base of VRAM, There are 0x20 bytes per line in the map.
+		// Above line declares the total offset from the base of VRAM, There are 32 bytes per line in the map.
 		// Given any line, need to work out which block of 0x20 bytes we need from the map.
 
 		u16 lineOffset = scrollX / 8;
-		u16 tileIndex;
-
+		
         u16 y = (LY + scrollY) & 0x07;
 		u16 x = scrollX & 0x07;
 
@@ -113,56 +112,119 @@ void Display::RenderScanline()
         // For each pixel in the current row
         for (u16 i = 0; i < DISPLAY_WIDTH; i++)
         {
-            tileIndex = vram[offsetBase + lineOffset + (i / 8)];
-			
+			u16 tileIndex = vram[offsetBase + lineOffset];
 			
 			if ((LCDC & BG_TILE_SET_SELECT_OFFSET) == 0x00 && tileIndex < 128)
 				tileIndex += 256; // if tile map #1 selected, the indexes are signed (-128 to 127 instead of 0 to 255)
 
-			scanrow[i] = Tileset[tileIndex][y][(i % 8)]; // Store this for the sprites
-			colour = bgPalette[Tileset[tileIndex][y][(i % 8)]];
+            
+			scanrow[i] = Tileset[tileIndex][y][x]; // Store this for the sprites
+			colour = bgPalette[Tileset[tileIndex][y][x]];
+            x++;
 
-            pixels[DISPLAY_WIDTH * LY + i].r = colour.r;
-            pixels[DISPLAY_WIDTH * LY + i].g = colour.g;
-            pixels[DISPLAY_WIDTH * LY + i].b = colour.b;
-            pixels[DISPLAY_WIDTH * LY + i].a = colour.a;
-			
+
+            pixels[(DISPLAY_WIDTH * LY) + i].r = colour.r;
+            pixels[(DISPLAY_WIDTH * LY) + i].g = colour.g;
+            pixels[(DISPLAY_WIDTH * LY) + i].b = colour.b;
+            pixels[(DISPLAY_WIDTH * LY) + i].a = colour.a;
+            
+            // If one tile has been completed, reset X, increment the byte offset on the 32 byte line, to load the next tile
+            if (x == 8)
+            {
+                x = 0;
+                lineOffset++;
+                lineOffset &= 0x1F;
+            }
 
 
         }
     }
+    
+
+	// Render window, a static (non-scrolling) background that starts at winX, winY until the bottom right of the screen
+	if (LCDC & WINDOW_ENABLE_OFFSET)
+	{
+		if (LY >= winY && LY <= DISPLAY_HEIGHT)
+		{
+
+			u16 mapBaseAddress = (LCDC & WINDOW_TILE_MAP_SELECT_OFFSET) ? 0x9C00 - VRAM_OFFSET : 0x9800 - VRAM_OFFSET; // Base address of the selected map
+			u16 offsetBase = mapBaseAddress + ((((LY - winY) & 0xFF) / 8) * 32);
+
+			// Above line declares the total offset from the base of VRAM, There are 32 bytes per line in the map.
+			// Given any line, need to work out which block of 0x20 bytes we need from the map.
+
+			u16 lineOffset = 0x00 / 8;
+
+			u16 y = (LY - winY) & 0x07;
+			u16 x = winX & 0x07;
+
+			pixel colour;
+
+			// For each pixel in the current row
+			for (u16 i = winX; i < DISPLAY_WIDTH; i++)
+			{
+				u16 tileIndex = vram[offsetBase + lineOffset];
+
+				if ((LCDC & BG_TILE_SET_SELECT_OFFSET) == 0x00 && tileIndex < 128)
+					tileIndex += 256; // if tile map #1 selected, the indexes are signed (-128 to 127 instead of 0 to 255)
+
+				colour = bgPalette[Tileset[tileIndex][y][x]];
+
+				pixels[(DISPLAY_WIDTH * LY) + i].r = colour.r;
+				pixels[(DISPLAY_WIDTH * LY) + i].g = colour.g;
+				pixels[(DISPLAY_WIDTH * LY) + i].b = colour.b;
+				pixels[(DISPLAY_WIDTH * LY) + i].a = colour.a;
+
+				x++;
+				// If one tile has been completed, reset X, increment the byte offset on the 32 byte line, to load the next tile
+				if (x == 8)
+				{
+					x = 0;
+					lineOffset++;
+					lineOffset &= 0x1F;
+				}
+
+
+			}
+
+		}
+	}
 
     if (LCDC & SPRITE_ENABLE_OFFSET)
     {
-
         for (int i = 0; i < 40; i++)
         {
             sprite sprite = spriteStore[i]; // current sprite to be worked on
 
+
+			u8 sixteenPixelSprite = LCDC & SPRITE_SIZE_OFFSET;
+			u8 spriteYSize = sixteenPixelSprite ? 16 : 8;
+
             // Check if this sprite falls on this scanline
-            if (sprite.y <= LY && (sprite.y + 8) > LY)
+            if ((sprite.y - SPRITE_Y_OFFSET) <= LY && ((sprite.y - SPRITE_Y_OFFSET) + spriteYSize) > LY)
             {
-                // Data for this line of the sprite
+                // Data for this horizontal line of the sprite
                 u8 tilerow[8];
 
                 // If the sprite is Y-flipped,
                 // use the opposite side of the tile
+				u8 screenYOffset = (LY - (sprite.y - SPRITE_Y_OFFSET));
+				u8 tileOffset = screenYOffset >= 8 ? 1 : 0; // Whether the current line being drawn is of tile 1 or tile 2 (16 pixel mode)
                 if (sprite.yflip)
                 {
                     for (int i = 0; i < 8; i++) { 
-                        tilerow[i] = Tileset[sprite.tileNum][7 - (LY - sprite.y)][i]; 
+                        tilerow[i] = Tileset[sprite.tileNum + tileOffset][7 - (screenYOffset % 8)][i]; 
                     }
                 }
                 else
                 {
                     for (int i = 0; i < 8; i++) { 
-                        tilerow[i] = Tileset[sprite.tileNum][(LY - sprite.y)][i]; 
+                        tilerow[i] = Tileset[sprite.tileNum + tileOffset][screenYOffset % 8][i];
                     }
                 }
 
-                pixel colour;
-
-                for (int x = 0; x < 8; x++)
+                
+                for (u8 x = 0; x < 8; x++)
                 {
                     // If this pixel is still on-screen, AND
                     // if it's not colour 0 (transparent), AND
@@ -170,27 +232,33 @@ void Display::RenderScanline()
                     // then render the pixel
 
 					// If the sprite is X-flipped write pixels in reverse order
-					u16 index = sprite.xflip ? (7 - x) : x;
+					u8 index = sprite.xflip ? (7 - x) : x;
 
-                    if ((sprite.x + x) >= 0 && (sprite.x + x) < DISPLAY_WIDTH && tilerow[index] && (!sprite.priority || !scanrow[sprite.x + x])) // !sprite.priority or sprite.prority??
+					int offset = (sprite.x - SPRITE_X_OFFSET) + x; // Need a signed value as tiles are "scrolled" in from off the screen
+
+                    if (offset >= 0 && offset < DISPLAY_WIDTH && tilerow[index] != 0 && (!sprite.priority || scanrow[offset] == 0x00)) // !sprite.priority or sprite.prority??
                     {
-						// Depending on sprite palette
-						if (sprite.palette)
-							colour = ob1Palette[tilerow[index]];
-						else
-							colour = ob0Palette[tilerow[index]];
-
-						
-						pixels[DISPLAY_WIDTH * LY + sprite.x + x].r = colour.r; 
-                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].g = colour.g;	  
-                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].b = colour.b;	  
-                        pixels[DISPLAY_WIDTH * LY + sprite.x + x].a = colour.a;	  
+                        pixel colour;
+                        // Depending on sprite palette
+                        if (sprite.palette)
+                        	colour = ob1Palette[tilerow[index]];
+                        else
+                        	colour = ob0Palette[tilerow[index]];
+                        
+                        pixels[(DISPLAY_WIDTH * LY) + offset].g = colour.g;
+						pixels[(DISPLAY_WIDTH * LY) + offset].r = colour.r;
+						pixels[(DISPLAY_WIDTH * LY) + offset].b = colour.b;
+						pixels[(DISPLAY_WIDTH * LY) + offset].a = colour.a;
+                       
+                        
                    }
-                } // end for ach pixel in the sprite
+                } // end for each pixel in the sprite
             }
         } // end for all 40 sprites 
     } 
-   
+
+	
+
     //SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
 }
 
@@ -202,21 +270,19 @@ void Display::clear()
     Update();
 }
 
-void Display::SetScrollX(u8 val) 
-{ 
-    scrollX = val;
-}
-
-void Display::SetScrollY(u8 val) 
-{ 
-    scrollY = val;
-}
 
 void Display::UpdateTileset(u16 addr)
 {
+
+    // 2 bytes per tile row, 8 tile rows, stored in 1 memory row from 0x0 to 0xF
+    // From Memory Location 0x8000 to 0x9800
+
+
+
+
     // Work out which tile and row was updated
-    u16 addrtrans = addr & 0x1FFE; // Starts at 0x8001
-    u16 tile = (addrtrans >> 4) & 511; // Divide by 16, 16 bytes in a tile
+    u16 addrtrans = addr & 0x1FFE;//- VRAM_OFFSET; // // Starts at 0x8001
+    u16 tile = (addrtrans / 16) & 511; // Divide by 16, 16 bytes in a tile
     u16 y = (addrtrans >> 1) & 0x07; // Get the row, Divide by 2, only need the first byte
 
     for (u8 x = 0; x < 8; x++)
@@ -225,12 +291,13 @@ void Display::UpdateTileset(u16 addr)
 		u8 rowIndex = 0x80 >> x;
 		// 80, 40, 20, 10, 08, 04, 02, 01
         
-        // Update tile data by combining 2 consecutive rows in VRAM, stores the index to retreieve the colour from the palette array
+        // Update tile data by combining 2 consecutive rows in VRAM, stored value is the index of the correct colour in the palette arrays
         u8 row1 = vram[addrtrans] & rowIndex;
         u8 row2 = vram[addrtrans + 1] & rowIndex;
         Tileset[tile][y][x] = (row1 ? 1 : 0) + (row2 ? 2 : 0);
     }
-    
+ 
+
 }
 
 void Display::UpdateSprite(u16 oamAddr, u8 byte)
@@ -243,11 +310,11 @@ void Display::UpdateSprite(u16 oamAddr, u8 byte)
         switch ((oamAddr - OAM_START) & 0x03)
         {
         case 0: // Y-coordinate
-			spriteStore[sprite].y = val - 0x10;
+            spriteStore[sprite].y = val; //- 0x10;
 			break;
 
         case 1: // X-coordinate  
-			spriteStore[sprite].x = val - 0x08; 
+            spriteStore[sprite].x = val; //- 0x08;
 			break;
 
         case 2: // Data tile  
@@ -486,6 +553,31 @@ void Display::Update()
     SDL_RenderPresent(renderer);
 }
 
+void Display::SetScrollX(u8 val)
+{
+    scrollX = val;
+}
+
+void Display::SetScrollY(u8 val)
+{
+    scrollY = val;
+}
+
+void Display::SetWinX(u8 val)
+{
+    winX = val - 7;
+}
+
+void Display::SetWinY(u8 val)
+{
+    if (val < DISPLAY_HEIGHT)
+    {
+      winY = val;
+    }
+    
+}
+
+
 
 void Display::StartDMA(u16 source)
 {
@@ -525,3 +617,4 @@ void Display::UpdateOBPalette(bool pal1, u8 value)
 
 	}
 }
+

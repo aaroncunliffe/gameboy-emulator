@@ -289,19 +289,19 @@ void CPU::opcode0x1F() //  RRA - Flags: 0 0 0 C - Rotate A right through Carry f
 
     regs.AF.high = regs.AF.high >> 1;    // Rotate by 1
 
-    if(carryValue)
-        regs.AF.high |= 0x80;   // Replace the lsb with the carry value
-    else
-        regs.AF.high &= ~0x80;
+if (carryValue)
+regs.AF.high |= 0x80;   // Replace the lsb with the carry value
+else
+regs.AF.high &= ~0x80;
 
-    // Set the flag with the msb
-    if (lsb)
-        SetFlag(CARRY_FLAG);   // Set to 1
-    else
-        UnsetFlag(CARRY_FLAG);  // set to 0
+// Set the flag with the msb
+if (lsb)
+SetFlag(CARRY_FLAG);   // Set to 1
+else
+UnsetFlag(CARRY_FLAG);  // set to 0
 
-    counter += opcodeTable[0x1F].duration.firstCondition;
-    regs.pc += opcodeTable[0x1F].length;
+counter += opcodeTable[0x1F].duration.firstCondition;
+regs.pc += opcodeTable[0x1F].length;
 }
 
 void CPU::opcode0x20() // JR NZ, r8 
@@ -363,30 +363,49 @@ void CPU::opcode0x26() // LD H, d8
     regs.pc += opcodeTable[0x26].length;
 }
 
-void CPU::opcode0x27() // DAA - Setup register A to work with Binary coded decimal (BCD): Z - 0 C
+// Decimal adjust register A.
+// This instruction adjusts register A so that the correct representation of Binary Coded Decimal(BCD) is obtained.
+void CPU::opcode0x27() // Flags: Z - 0 C
 {
-    // TODO: Whole instruction
+    u16 a = regs.AF.high;
 
-    /*u16 s = regs.AF.high;
+    if (regs.AF.low & SUBTRACT_FLAG) // if last instruction was an Subtraction
+    {
+        if (regs.AF.low & HALF_CARRY_FLAG)
+            a -= 0x06;
 
-    if (regs.AF.low & CARRY_FLAG) {
-        if (FLAGS_ISHALFCARRY) s = (s - 0x06) & 0xFF;
-        if (FLAGS_ISCARRY) s -= 0x60;
+        if (regs.AF.low & CARRY_FLAG)
+            a -= 0x60;
+
+        a &= 0xFF;
+
     }
-    else {
-        if (FLAGS_ISHALFCARRY || (s & 0xF) > 9) s += 0x06;
-        if (FLAGS_ISCARRY || s > 0x9F) s += 0x60;
+    else // if last instruction was an Addition
+    {
+        if (regs.AF.low & HALF_CARRY_FLAG || (a & 0xF) > 0x09)
+            a += 0x06;
+
+        if (regs.AF.low & CARRY_FLAG || a > 0x9F)
+            a += 0x60;
     }
 
-    regs.AF.high = s;
-    FLAGS_CLEAR(FLAGS_HALFCARRY);
 
-    if (registers.a) FLAGS_CLEAR(FLAGS_ZERO);
-    else FLAGS_SET(FLAGS_ZERO);
+    if ((a & 0x100) == 0x100)
+        SetFlag(CARRY_FLAG);
+    //else
+    //    UnsetFlag(CARRY_FLAG); // Is not unset if no carry
 
-    if (s >= 0x100) FLAGS_SET(FLAGS_CARRY);
-}*/
 
+    // Adjust flags
+    UnsetFlag(HALF_CARRY_FLAG);
+
+    if ((a & 0xFF) == 0x00)
+        SetFlag(ZERO_FLAG);
+    else
+        UnsetFlag(ZERO_FLAG);
+
+
+    regs.AF.high = a & 0xFF; // Assign result back to A reg
 
     counter += opcodeTable[0x27].duration.firstCondition;
     regs.pc += opcodeTable[0x27].length;

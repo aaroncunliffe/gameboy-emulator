@@ -215,10 +215,10 @@ u8 MMU::ReadByte(u16 addr)
                 case 0xFF41:
                     return display->GetStat();
                 case 0xFF42:
-                    display->GetScrollY();
+                    return display->GetScrollY();
                     break;
                 case 0xFF43:
-                    display->GetScrollX();
+                    return display->GetScrollX();
                     break;
                 case 0xFF44: // LY
                     return display->GetLY();
@@ -233,6 +233,10 @@ u8 MMU::ReadByte(u16 addr)
 					break;
 				case 0xFF49: // OB palette 1
 					break;
+                case 0xFF4A:
+                    return display->GetWinY();
+                case 0xFF4B:
+                    return display->GetWinX();
                 }
 
             default: // Still writes to the IORegs array even it hits a case in the above nested switch statement
@@ -361,6 +365,12 @@ void MMU::WriteByte(u16 addr, u8 byte)
 				case 0xFF49: // OB palette 1
 					display->UpdateOBPalette(true, byte);
 					break;
+                case 0xFF4A:
+                    display->SetWinY(byte);
+                    break;
+                case 0xFF4B: 
+                    display->SetWinX(byte);
+                    break;
                 case 0xFF50:
                     if (byte == 0x01) 
                         SetBiosComplete(true); // BIOS lockout to allow rom to access 0x0000 - 0x0100

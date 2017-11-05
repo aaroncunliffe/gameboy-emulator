@@ -36,7 +36,12 @@ CPU::CPU()
 	//regs.DE.word = 0x00D8;
 	//regs.HL.word = 0x014D;
 
+   /* regs.AF.word = 0x0300;
+    SUB(0x01);
+    opcode0x27();
+    u8 byte = regs.AF.high;
 
+    int stop = 0;*/
 }
 
 CPU::CPU(char* romPath) : CPU()
@@ -87,10 +92,8 @@ void CPU::Start()
         DefaultValues();
         mmu->SetBiosComplete(true);
     }
-	if (!RomLoaded)
-	{
-		assert(false); // No rom loaded
-	}
+	assert(RomLoaded); // No rom loaded
+	
     running = true;
 }
 
@@ -252,15 +255,19 @@ void CPU::Loop()
         counter--;
     }
 
-    u32 msForCycle = SDL_GetTicks() - this->lastCycleTime;
-    int delayTimeMs = (17 - msForCycle);
+    //u32 ticks = SDL_GetTicks();
+    //u32 msForCycle = ticks - this->lastCycleTime;
 
-    // Only if it is above 1 do we delay
-    if (delayTimeMs > 0)
-    {
-        //SDL_Delay(delayTimeMs);
-    }
-    
+    //lastCycleTime = ticks;
+    //int ticksPerFrame = 1000 / 59;
+    //int delayTimeMs = (ticksPerFrame - msForCycle);
+
+    //// Only if it is above 1 do we delay
+    //if (delayTimeMs > 0)
+    //{
+    //    SDL_Delay(delayTimeMs);
+    //};
+    //
     
 }
  
@@ -347,26 +354,6 @@ void CPU::ProcessInstruction()
      }
 #endif
 
-	if (regs.pc == 0x0248)
-	{
-		int stop = 0;
-	}
-
-    if (regs.pc == 0x023D)
-    {
-        int stop = 0;
-    }
-
-
-    if (mmu->ReadByte(0xC633) == 0x80)
-    {
-        int stop = 0;
-    }
-
-	if (opcodeTable[opcodeByte].name == "NOP" && regs.pc > 0x4000)
-	{
-		int stop = 0;
-	}
 	
    (this->*opcodeFunction[opcodeByte])();
     //totalInstructions++;
