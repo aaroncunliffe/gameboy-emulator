@@ -276,14 +276,13 @@ void Display::UpdateTileset(u16 addr)
 
     // 2 bytes per tile row, 8 tile rows, stored in 1 memory row from 0x0 to 0xF
     // From Memory Location 0x8000 to 0x9800
-
-
-
+    
 
     // Work out which tile and row was updated
-    u16 addrtrans = addr & 0x1FFE;//- VRAM_OFFSET; // // Starts at 0x8001
-    u16 tile = (addrtrans / 16) & 511; // Divide by 16, 16 bytes in a tile
-    u16 y = (addrtrans >> 1) & 0x07; // Get the row, Divide by 2, only need the first byte
+    u16 rowAddr = addr - VRAM_OFFSET; // Starts at 0x8000
+    
+    u16 tile = (rowAddr / 16); // Divide by 16, 16 bytes in a tile
+    u16 y = (rowAddr / 2) & 0x07; // Get the row, Divide by 2, only need the first byte
 
     for (u8 x = 0; x < 8; x++)
     {
@@ -292,8 +291,8 @@ void Display::UpdateTileset(u16 addr)
 		// 80, 40, 20, 10, 08, 04, 02, 01
         
         // Update tile data by combining 2 consecutive rows in VRAM, stored value is the index of the correct colour in the palette arrays
-        u8 row1 = vram[addrtrans] & rowIndex;
-        u8 row2 = vram[addrtrans + 1] & rowIndex;
+        u8 row1 = vram[(rowAddr & 0xFFFE)] & rowIndex;
+        u8 row2 = vram[(rowAddr & 0xFFFE) + 1] & rowIndex; // Because it is + 1 we need to & FFFE to make sure it doesnt overflow into the next byte
         Tileset[tile][y][x] = (row1 ? 1 : 0) + (row2 ? 2 : 0);
     }
  
@@ -303,18 +302,18 @@ void Display::UpdateTileset(u16 addr)
 void Display::UpdateSprite(u16 oamAddr, u8 byte)
 {
     u8 val = byte;
-    u8 sprite = (oamAddr - OAM_START) >> 0x02;
+    u8 sprite = (oamAddr - OAM_START) / 4; 
 
     if (sprite < 40)
     {
-        switch ((oamAddr - OAM_START) & 0x03)
+        switch ((oamAddr - OAM_START) & 0x03) // 0-3 4 bytes per sprite data
         {
         case 0: // Y-coordinate
-            spriteStore[sprite].y = val; //- 0x10;
-			break;
-
-        case 1: // X-coordinate  
-            spriteStore[sprite].x = val; //- 0x08;
+            spriteStore[sprite].y = val; // Decrementing comes later
+			break;                         
+                                           
+        case 1: // X-coordinate            
+            spriteStore[sprite].x = val; // Decrementing comes later
 			break;
 
         case 2: // Data tile  

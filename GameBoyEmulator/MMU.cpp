@@ -420,10 +420,6 @@ u16 MMU::ReadTwoBytes(u16 addr)
 
 void MMU::PushTwoBytes(u16 &sp, u16 data)
 {
-	if (data == 0x9003)
-	{
-		int stop = 0;
-	}
     sp -= 2;
     WriteTwoBytes(sp, data);
 }
