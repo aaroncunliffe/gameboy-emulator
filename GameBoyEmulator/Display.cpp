@@ -206,19 +206,22 @@ void Display::RenderScanline()
                 // Data for this horizontal line of the sprite
                 u8 tilerow[8];
 
-                // If the sprite is Y-flipped,
-                // use the opposite side of the tile
-				u8 screenYOffset = (LY - (sprite.y - SPRITE_Y_OFFSET));
-				u8 tileOffset = screenYOffset >= 8 ? 1 : 0; // Whether the current line being drawn is of tile 1 or tile 2 (16 pixel mode)
+                
+                u8 screenYOffset = (LY - (sprite.y - SPRITE_Y_OFFSET)); // Distance from LY that the sprite.y is (range 0-15);
+                u8 tileOffset = screenYOffset >= 8 ? 1 : 0; // Whether the current line being drawn is of tile 1 or tile 2 (16 pixel mode)
+                
+                // if sprite.y flip, read from other end of the tile, 
                 if (sprite.yflip)
                 {
-                    for (int i = 0; i < 8; i++) { 
-                        tilerow[i] = Tileset[sprite.tileNum + tileOffset][7 - (screenYOffset % 8)][i]; 
+                    for (int i = 0; i < 8; i++) 
+                    { 
+                        tilerow[i] = Tileset[sprite.tileNum][(spriteYSize - 1) - (screenYOffset)][i]; 
                     }
                 }
                 else
                 {
-                    for (int i = 0; i < 8; i++) { 
+                    for (int i = 0; i < 8; i++) 
+                    { 
                         tilerow[i] = Tileset[sprite.tileNum + tileOffset][screenYOffset % 8][i];
                     }
                 }
@@ -564,7 +567,20 @@ void Display::SetScrollY(u8 val)
 
 void Display::SetWinX(u8 val)
 {
-    winX = val - 7;
+    // Make sure that winX doesn't get set below 0.
+    // otherwise it will wrap round and be shown off the screen.
+    // This was found in Zelda
+    if (((s16)winX - 7) < 0x00)
+    {
+        winX = 0x00;
+    }
+    else
+    {
+        winX = val - 7;
+
+    }
+
+        
 }
 
 void Display::SetWinY(u8 val)

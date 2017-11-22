@@ -282,6 +282,7 @@ void CPU::ProcessEvents()
             keyboard->KeysDown(e);
             if (e.key.keysym.sym == SDLK_ESCAPE)
             {
+                mmu->WriteSaveFile();
                 Stop();
             }
             else if (e.key.keysym.sym == SDLK_F1)
@@ -299,7 +300,7 @@ void CPU::ProcessEvents()
 			}
 			else if (e.key.keysym.sym == SDLK_F3)
 			{
-
+                mmu->WriteSaveFile();
 			}
             else if (e.key.keysym.sym == SDLK_F5)
             {

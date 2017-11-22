@@ -15,6 +15,7 @@ MBC1::MBC1(char* path, u8* buffer, u32 size) : Cartridge(path, buffer)
 	ramEnabled = false;
 	romMode = true;
 
+    ramBankSize = EIGHT_KB;
 
 	RAMArray = nullptr;
 
@@ -25,39 +26,51 @@ MBC1::MBC1(char* path, u8* buffer, u32 size) : Cartridge(path, buffer)
 		break;
 
 	case 0x01: // 2 KB's
-		RAMArray = new u8[TWO_KB];
+        ramSize = TWO_KB;
 		numberOfRamBanks = 1;
 		break;
 
 	case 0x02: // 8 KB's
-		RAMArray = new u8[EIGHT_KB];
+        ramSize = EIGHT_KB;
 		numberOfRamBanks = 1;
 		break;
 
 	case 0x03: // 32 KB's - 4 * 8 KB banks
-		RAMArray = new u8[4 * EIGHT_KB];
+        ramSize = 4 * EIGHT_KB;
 		numberOfRamBanks = 4;
 		break;
 
 	case 0x04: // 128 KB's - 16 * 8 KB banks
-		RAMArray = new u8[16 * EIGHT_KB];
+        ramSize = 16 * EIGHT_KB;
 		numberOfRamBanks = 16;
 		break;
 
 	case 0x05: // 64 KB's - 8 * 8 KB banks
-		RAMArray = new u8[8 * EIGHT_KB];
+        ramSize = 8 * EIGHT_KB;
 		numberOfRamBanks = 8;
 		break;
 	}
+
+    
     
     // Need to attempt to read a file with the same name as the rom, but with the .sav extension, 
     // if it doesn't exist, create it, memset ram all 0's and write it to file.
-	if(RAMArray != nullptr)
-		memset(RAMArray, 0x00, numberOfRamBanks * EIGHT_KB); // All 0's
+	
+    if (ReadSaveFile())
+    {
+        std::cout << "Save file sucessfully loaded" << std::endl;
+    }
+    else
+    {
+        RAMArray = new u8[ramSize];
+        memset(RAMArray, 0x00, numberOfRamBanks * EIGHT_KB); // All 0's
+        WriteSaveFile();
+
+        std::cout << "Save file sucessfully created" << std::endl;
+    }
 
     // should I write to the file every time ram is set to be disabled?
 
-	ramBankSize = EIGHT_KB;
 
 }
 
@@ -75,7 +88,6 @@ MBC1::~MBC1()
 
 u8 MBC1::ReadROMByte(u16 addr)
 {
-	
 	bool fixedBank = addr < ONE_BANK_SIZE; // if not accessing the fixed bank 0
 	u32 bankOffset = (fixedBank ? 0 : activeRomBank) * ONE_BANK_SIZE;
 	u16 addrOffset = fixedBank ? addr : addr - ONE_BANK_SIZE;
@@ -97,18 +109,24 @@ void MBC1::WriteROMByte(u16 addr, u8 byte)
 	// None
 	if (addr >= 0x0000 && addr <= 0x1FFF) // RAM Enable
 	{
-		if (byte == 0x0A)
-			ramEnabled = true;
-		else
-			ramEnabled = false;
+        if (byte == 0x0A)
+        {
+            ramEnabled = true;
+
+        }
+        else
+        {
+            //WriteSaveFile();
+
+            ramEnabled = false;
+
+        }
+
 	}
 	else if (addr >= 0x2000 && addr <= 0x3FFF)
 	{
 		u8 intendedBank = byte & 0x1F;
-		if (intendedBank > 0x08)
-		{
-			int stop = 0;
-		}
+		
 		if(intendedBank != 0x00 || intendedBank != 0x20 || intendedBank != 0x40 || intendedBank != 0x60)
 			activeRomBank = intendedBank;
 	}
@@ -159,5 +177,6 @@ void MBC1::WriteRAMByte(u16 addr, u8 byte)
 		u16 addrOffset = addr - EXTERNAL_RAM_START;
 
 		RAMArray[bankOffset + addrOffset] = byte;
+
 	}
 }

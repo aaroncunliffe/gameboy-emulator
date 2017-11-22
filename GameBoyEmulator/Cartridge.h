@@ -2,6 +2,8 @@
 
 
 #include <iostream>
+#include <fstream>
+#include <string>
 #include <assert.h>
 
 #include "Definitions.h"
@@ -89,6 +91,9 @@ public:
 	virtual u8 ReadRAMByte(u16 addr) = 0;
 	virtual void WriteRAMByte(u16 addr, u8 byte) = 0;
 
+
+    bool ReadSaveFile();
+    void WriteSaveFile();
 
 
 private: // Functions Cartridge uses

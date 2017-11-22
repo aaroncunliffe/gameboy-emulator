@@ -25,10 +25,72 @@ Cartridge::Cartridge(char* path, u8* data)
 }
 
 
+
 Cartridge::~Cartridge()
 {
 
 }
+
+bool Cartridge::ReadSaveFile()
+{
+    std::string filename = romPath;
+    int lastindex = filename.find_last_of(".");
+    std::string rawname = filename.substr(0, lastindex);
+    rawname += ".sav";
+
+    std::ifstream file;
+
+    file.open(rawname, std::ios::ate | std::ios::binary);
+
+    if (file.is_open())
+    {
+        std::cout << "Save file exists loading..." << std::endl;
+
+        int fileSize = file.tellg();
+        
+        if (fileSize > ramSize)
+            return false;
+
+        file.seekg(0, std::ios::beg); // Move pointer back to the beginning of file
+
+        // Create buffer of the right size and read data to it
+        u8* buffer = new u8[fileSize];
+        file.read((char*)buffer, fileSize);
+
+        RAMArray = buffer;
+
+    }
+    else
+    {
+        std::cout << "Save file does not exist, creating..." << std::endl;
+        return false;
+    }
+
+}
+
+
+void Cartridge::WriteSaveFile()
+{
+    std::string filename = romPath;
+    int lastindex = filename.find_last_of(".");
+    std::string rawname = filename.substr(0, lastindex);
+    rawname += ".sav";
+
+    std::ofstream outputFile;
+    outputFile.open(rawname, std::ios::out | std::ios::binary);
+    
+
+    // write first rom bank
+    for (int i = 0; i < ramSize; ++i)
+    {
+        outputFile << RAMArray[i];
+    }
+    
+    outputFile.close();
+    std::cout << "Memory written to file" << std::endl;
+    
+}
+
 
 // Reads all data from the header
 void Cartridge::ParseHeader()
