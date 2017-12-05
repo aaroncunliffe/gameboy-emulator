@@ -32,6 +32,8 @@ const u8 TIMER_INTERRUPT_BIT = 0x04;
 const u8 SERIAL_INTERRUPT_BIT = 0x08;
 const u8 JOYPAD_INTERRUPT_BIT = 0x010;
 
+const int SCREEN_FPS = 60;
+const int FRAME_DURATION = 1000 / SCREEN_FPS;
 
 
 union reg
@@ -78,7 +80,7 @@ private:
     Joypad* keyboard;
 
     u16 counter;
-    u32 lastCycleTime;
+    Uint64 timerFps;
 
     bool running = false;
     bool halt = false;

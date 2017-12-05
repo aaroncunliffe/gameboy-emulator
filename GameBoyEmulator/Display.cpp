@@ -3,7 +3,7 @@
 
 Display::Display()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) // SDL_INIT_VIDEO
     {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     }
@@ -18,6 +18,8 @@ Display::Display()
 
     scrollX = 0;
     scrollY = 0;
+    winX = 0;
+    winY = 0;
 
     onlyTiles = false; // To show only tiles, if false, scanlines are rendered as normal
 	
@@ -65,19 +67,19 @@ void Display::init(int multiplier)
     sizeMultiplier = multiplier;
     
     window = SDL_CreateWindow("Gameboy - Aaron Cunliffe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DISPLAY_WIDTH, DISPLAY_HEIGHT, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE); // Accelerated or software | Accelerated fails with Tamagotchi.gb?
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); // Accelerated or software | Accelerated fails with Tamagotchi.gb?
     screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, DISPLAY_WIDTH, DISPLAY_HEIGHT); // STATIC or STREAMING - Also pixel format is ABGR
 
 
 	//SDL_SetWindowGrab(window, SDL_TRUE);
 
     // Clear VRAM, Tileset and raw pixel store
-    //memset(vram, 0x00, 0x2000 * sizeof(u8));
-    //memset(oam, 0x00, 0x9F * sizeof(u8));
-    //memset(Tileset, 0x00, (384 * 8 * 8) * sizeof(u8));
+    memset(vram, 0x00, 0x2000 * sizeof(u8));
+    memset(oam, 0x00, 0x9F * sizeof(u8));
+    memset(Tileset, 0x00, (384 * 8 * 8) * sizeof(u8));
     
     
-    //memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(u32));
+    memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(u32));
 
 	//SDL_SetTextureBlendMode(screen, SDL_BLENDMODE_MOD);
     //SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));

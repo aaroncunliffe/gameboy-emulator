@@ -16,10 +16,9 @@ MMU::MMU(Display* d, Joypad* j)
 
     biosComplete = false;
 
-    //memset(externalRam, 0x00, EIGHT_KB * sizeof(u8));
-    //memset(internalRam, 0x00, SIXTEEN_KB * sizeof(u8));
-    //memset(IORegs, 0x00, 0x7F *sizeof(u8));
-    //memset(hram, 0x00, 0x7F *sizeof(u8));
+    memset(internalRam, 0x00, SIXTEEN_KB * sizeof(u8));
+    memset(IORegs, 0x00, 0x7F *sizeof(u8));
+    memset(hram, 0x00, 0x7F *sizeof(u8));
 
 }
 
@@ -207,7 +206,7 @@ u8 MMU::ReadByte(u16 addr)
                     return 0x00;
                     break;
                 case 0xFF06:  // Timer Modulo
-                    return 0x00;
+                    return 0x50;
                     break;
                 case 0xFF40:
                     return display->GetLCDC();

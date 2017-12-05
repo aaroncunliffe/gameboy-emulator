@@ -24,7 +24,7 @@ int main(int argc, char* args[])
         //processor->SetRom("Garfield Labyrinth.gb");   // Seems relatively playable apart from scroll juttering and no window support
 		//processor->SetRom("Duck Tales.gb");           // maybe needs other LCD interrupt conditions to be implemented, ma
 	    //processor->SetRom("Super Mario Land.gb");     // Playable apart from scroll juttering
-        processor->SetRom("Legend of Zelda, The - Link's Awakening.gb");
+        //processor->SetRom("Legend of Zelda, The - Link's Awakening.gb");
 	    //processor->SetRom("Game Boy Gallery.gb");
 		
 
@@ -33,7 +33,7 @@ int main(int argc, char* args[])
 
 	    // ROM only
 	    //processor->SetRom("tetris.gb");
-	    //processor->SetRom("Dr. Mario.gb"); // This game uses Timer, sprite issues could be down to that
+	    processor->SetRom("Dr. Mario.gb"); // This game uses Timer, sprite issues could be down to that
 
 	    //processor->SetRom("Test//all.gb");  // All instructions requires MBC1 Support
         //processor->SetRom("Test//01.gb"); // 01-special.gb

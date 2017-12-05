@@ -13,6 +13,7 @@ ROM::ROM(char* path, u8* buffer, u32 size) : Cartridge(path, buffer)
 	numberOfRomBanks = romSize / ONE_BANK_SIZE;
 	
 	ROMArray = buffer;
+    ramSize = 0x00;
 	
 }
 

@@ -83,8 +83,8 @@ void CPU::SetRom(char* path)
 
 void CPU::Start()
 {
-	lastCycleTime = SDL_GetTicks();
-    display->clear();
+    counter = 0;
+	display->clear();
     if (!biosLoaded)
     {
         std::cout << "Bios file not loaded" << std::endl;
@@ -110,10 +110,10 @@ void CPU::Stop()
 
 void CPU::Reset()
 {
+    counter = 0;
     //display->clear();
 	mmu->WriteByte(0xFF40, 0x00); // Disable LCD before resetting to stop a graphic bug where tile at position 0 is written accross the entire screen
-    lastCycleTime = SDL_GetTicks();
-
+    
     counter = 0;
 
     regs.ime = 0x00;
@@ -177,8 +177,12 @@ void CPU::DefaultValues()
 
 void CPU::Loop()
 {
+    Uint64 frameStart = SDL_GetPerformanceCounter();
+                              
+
     if (counter == 0)
     {
+        
         // Handle interrupts
         if (regs.ime)
         {
@@ -232,22 +236,23 @@ void CPU::Loop()
         }
 
 
+
         if (!halt)
         {
             ProcessInstruction();   // 
         }
 
-        display->Step(counter); // This has to be after the instruction is executed (so that the counter is not 0)
+        ProcessEvents();
 
-                       
+        display->Step(counter); // This has to be after the instruction is executed (so that the counter is not 0)
+        
         //counter = 0;
         //display->Update();
         // else
         //running = false;
 
-        ProcessEvents();
         //std::cout << (mmu->ReadByte(0xFFFF) == 0x00 ? "off" : "on") << std::endl;
-
+        
 
     }
     else
@@ -255,20 +260,19 @@ void CPU::Loop()
         counter--;
     }
 
-    //u32 ticks = SDL_GetTicks();
-    //u32 msForCycle = ticks - this->lastCycleTime;
 
-    //lastCycleTime = ticks;
-    //int ticksPerFrame = 1000 / 59;
-    //int delayTimeMs = (ticksPerFrame - msForCycle);
+    int freq = SDL_GetPerformanceFrequency();
+    timerFps = ((SDL_GetPerformanceCounter() - frameStart));
 
-    //// Only if it is above 1 do we delay
-    //if (delayTimeMs > 0)
-    //{
-    //    SDL_Delay(delayTimeMs);
-    //};
-    //
-    
+    //std::cout << std::dec << timerFps << std::endl;
+
+    while (timerFps / freq * 1000 < (1000 / 59))
+    {
+        timerFps += SDL_GetPerformanceCounter();
+        //std::cout << timerFps << std::endl;
+         
+    }
+
 }
  
 void CPU::ProcessEvents()

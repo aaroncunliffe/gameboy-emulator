@@ -1566,7 +1566,7 @@ void CPU::opcode0xC3() // jp a16
 
 void CPU::opcode0xC4() // CALL NZ, a16
 {
-    if (((regs.AF.low & ZERO_FLAG) >> ZERO_FLAG) == 0x00)
+    if (((regs.AF.low & ZERO_FLAG) >> ZERO_BIT) == 0x00)
     {
         counter += opcodeTable[0xC4].duration.firstCondition;
         mmu->PushTwoBytes(regs.sp, regs.pc + opcodeTable[0xC4].length);
