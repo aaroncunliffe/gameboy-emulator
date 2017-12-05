@@ -22,6 +22,7 @@ MBC1::MBC1(char* path, u8* buffer, u32 size) : Cartridge(path, buffer)
 	switch (buffer[ramSizeOffset])
 	{
 	case 0x00: // None
+        ramSize = 0;
 		RAMArray = nullptr;
 		break;
 
@@ -55,19 +56,22 @@ MBC1::MBC1(char* path, u8* buffer, u32 size) : Cartridge(path, buffer)
     
     // Need to attempt to read a file with the same name as the rom, but with the .sav extension, 
     // if it doesn't exist, create it, memset ram all 0's and write it to file.
-	
-    if (ReadSaveFile())
+    if (ramSize > 0)
     {
-        std::cout << "Save file sucessfully loaded" << std::endl;
-    }
-    else
-    {
-        RAMArray = new u8[ramSize];
-        memset(RAMArray, 0x00, numberOfRamBanks * EIGHT_KB); // All 0's
-        WriteSaveFile();
+        if (ReadSaveFile())
+        {
+            std::cout << "Save file sucessfully loaded" << std::endl;
+        }
+        else
+        {
+            RAMArray = new u8[ramSize];
+            memset(RAMArray, 0x00, numberOfRamBanks * EIGHT_KB); // All 0's
+            WriteSaveFile();
 
-        std::cout << "Save file sucessfully created" << std::endl;
+            std::cout << "Save file sucessfully created" << std::endl;
+        }
     }
+    
 
     // should I write to the file every time ram is set to be disabled?
 

@@ -71,23 +71,27 @@ bool Cartridge::ReadSaveFile()
 
 void Cartridge::WriteSaveFile()
 {
-    std::string filename = romPath;
-    int lastindex = filename.find_last_of(".");
-    std::string rawname = filename.substr(0, lastindex);
-    rawname += ".sav";
-
-    std::ofstream outputFile;
-    outputFile.open(rawname, std::ios::out | std::ios::binary);
-    
-
-    // write first rom bank
-    for (int i = 0; i < ramSize; ++i)
+    if (ramSize > 0x0000)
     {
-        outputFile << RAMArray[i];
+        std::string filename = romPath;
+        int lastindex = filename.find_last_of(".");
+        std::string rawname = filename.substr(0, lastindex);
+        rawname += ".sav";
+
+        std::ofstream outputFile;
+        outputFile.open(rawname, std::ios::out | std::ios::binary);
+
+
+        // write first rom bank
+        for (int i = 0; i < ramSize; ++i)
+        {
+            outputFile << RAMArray[i];
+        }
+
+        outputFile.close();
+        std::cout << "Memory written to file" << std::endl;
+
     }
-    
-    outputFile.close();
-    std::cout << "Memory written to file" << std::endl;
     
 }
 
