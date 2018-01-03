@@ -77,7 +77,7 @@ private:
 
     MMU* mmu;
     Display* display;
-    Joypad* keyboard;
+    Joypad* joypad;
 
     u16 counter;
     Uint64 timerFps;

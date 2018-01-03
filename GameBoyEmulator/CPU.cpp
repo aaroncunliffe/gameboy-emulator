@@ -17,10 +17,10 @@ CPU::CPU()
     regs.ime = 0x00;
 
     display = new Display();
-    keyboard = new Joypad(this);
+    joypad = new Joypad(this);
     display->init(4);
 
-    mmu = new MMU(display, keyboard);
+    mmu = new MMU(display, joypad);
 
     display->SetMMU(mmu);
 
@@ -53,7 +53,7 @@ CPU::CPU(char* romPath) : CPU()
 CPU::~CPU()
 {
     delete mmu;
-	delete keyboard;
+	delete joypad;
 	delete display;
 
 }
@@ -236,16 +236,14 @@ void CPU::Loop()
         }
 
 
-
         if (!halt)
         {
             ProcessInstruction();   // 
         }
 
-        ProcessEvents();
-
         display->Step(counter); // This has to be after the instruction is executed (so that the counter is not 0)
-        
+
+        ProcessEvents();
         //counter = 0;
         //display->Update();
         // else
@@ -261,17 +259,23 @@ void CPU::Loop()
     }
 
 
-    int freq = SDL_GetPerformanceFrequency();
-    timerFps = ((SDL_GetPerformanceCounter() - frameStart));
+
+    //int freq = SDL_GetPerformanceFrequency();
+    //timerFps = ((SDL_GetPerformanceCounter() - frameStart));
 
     //std::cout << std::dec << timerFps << std::endl;
 
-    while (timerFps / freq * 1000 < (1000 / 59))
-    {
-        timerFps += SDL_GetPerformanceCounter();
-        //std::cout << timerFps << std::endl;
-         
-    }
+    //while (timerFps / freq * 1000 < (1000 / 59))
+    //{
+    //    timerFps += SDL_GetPerformanceCounter();
+    //    //std::cout << timerFps << std::endl;
+    //     
+    //}
+
+    //timerFps /= 0xFFFFFFFF;
+    //totalInstructions = timerFps;
+
+    // volatile
 
 }
  
@@ -283,7 +287,7 @@ void CPU::ProcessEvents()
         switch (e.type)
         {
         case SDL_KEYDOWN:
-            keyboard->KeysDown(e);
+            joypad->KeysDown(e);
             if (e.key.keysym.sym == SDLK_ESCAPE)
             {
                 mmu->WriteSaveFile();
@@ -313,10 +317,32 @@ void CPU::ProcessEvents()
 
             break;
         case SDL_KEYUP:
-            keyboard->KeysUp(e);
+            joypad->KeysUp(e);
             break;
         case SDL_QUIT:
             running = false;
+            break;
+        case SDL_CONTROLLERDEVICEADDED:
+            if (SDL_IsGameController(e.cdevice.which)) {
+                SDL_GameController *pad = SDL_GameControllerOpen(e.cdevice.which);
+
+                if (pad) {
+                    SDL_Joystick *joy = SDL_GameControllerGetJoystick(pad);
+                    int instanceID = SDL_JoystickInstanceID(joy);
+
+                    std::cout << "Game Controller Detected" << std::endl;
+                    // You can add to your own map of joystick IDs to controllers here.
+                    //YOUR_FUNCTION_THAT_CREATES_A_MAPPING(id, pad);
+                }
+            }
+
+            break;
+
+        case SDL_CONTROLLERBUTTONDOWN:
+            joypad->GamepadButtonDown(e);
+            break;
+        case SDL_CONTROLLERBUTTONUP:
+            joypad->GamepadButtonUp(e);
             break;
         }
 
@@ -332,9 +358,6 @@ void CPU::JoypadInterrupt()
 
 void CPU::ProcessInstruction()
 {
-
-
-
     u8 opcodeByte = mmu->ReadByte(regs.pc);
 
     u8 nextByte = mmu->ReadByte(regs.pc + 1);

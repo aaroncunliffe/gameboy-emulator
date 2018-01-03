@@ -25,6 +25,8 @@ public:
 	void KeysDown(SDL_Event e);
 	void KeysUp(SDL_Event e);
 
+    void GamepadButtonDown(SDL_Event e);
+    void GamepadButtonUp(SDL_Event e);
 
 };
 
