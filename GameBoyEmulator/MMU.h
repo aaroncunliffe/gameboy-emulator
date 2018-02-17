@@ -36,17 +36,20 @@ private:
     char* romPath;
     u32 romSize;
 
-
-    
     
     u8 internalRam[SIXTEEN_KB];             // 1 bank in GB 1-7 banks in GBC
     u8 IORegs[0x80];
     u8 hram[0x7F];
     u8 IEReg; 
-   
+
+    // Timer regs
+    u8 DIV;     // FF04
+    u16 DivCycleCount;
+    u8 TIMA;    // FF05
+    u8 TMA;     // FF06
+    u8 TAC;     // FF07
 
     u8 bios[0x100];
-    
     bool biosComplete;
 
     Display* display;
@@ -151,6 +154,8 @@ public:
 
     void DumpToFile();
     void WriteSaveFile();
+
+    void StepTimers(u8 count);
 
 private:
 

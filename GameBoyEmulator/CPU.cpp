@@ -236,16 +236,15 @@ void CPU::Loop()
         }
 
 
-
         if (!halt)
         {
             ProcessInstruction();   // 
         }
 
-        ProcessEvents();
-
         display->Step(counter); // This has to be after the instruction is executed (so that the counter is not 0)
-        
+        mmu->StepTimers(counter);
+
+        ProcessEvents();
         //counter = 0;
         //display->Update();
         // else
@@ -261,17 +260,23 @@ void CPU::Loop()
     }
 
 
-    int freq = SDL_GetPerformanceFrequency();
-    timerFps = ((SDL_GetPerformanceCounter() - frameStart));
+
+    //int freq = SDL_GetPerformanceFrequency();
+    //timerFps = ((SDL_GetPerformanceCounter() - frameStart));
 
     //std::cout << std::dec << timerFps << std::endl;
 
-    while (timerFps / freq * 1000 < (1000 / 59))
-    {
-        timerFps += SDL_GetPerformanceCounter();
-        //std::cout << timerFps << std::endl;
-         
-    }
+    //while (timerFps / freq * 1000 < (1000 / 59))
+    //{
+    //    timerFps += SDL_GetPerformanceCounter();
+    //    //std::cout << timerFps << std::endl;
+    //     
+    //}
+
+    //timerFps /= 0xFFFFFFFF;
+    //totalInstructions = timerFps;
+
+    // volatile
 
 }
  
@@ -332,9 +337,6 @@ void CPU::JoypadInterrupt()
 
 void CPU::ProcessInstruction()
 {
-
-
-
     u8 opcodeByte = mmu->ReadByte(regs.pc);
 
     u8 nextByte = mmu->ReadByte(regs.pc + 1);

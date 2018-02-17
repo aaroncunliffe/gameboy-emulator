@@ -116,6 +116,18 @@ bool MMU::LoadBios(char* path)
     return false;
 }
 
+void MMU::StepTimers(u8 count)
+{
+    DivCycleCount += count;
+    if (DivCycleCount >= 0xFF)
+    {
+        DivCycleCount = 0;
+        DIV++; // 8 bit unsigned value, will automatically wrap
+    }
+
+
+}
+
 
 u8 MMU::ReadByte(u16 addr)
 {
@@ -199,14 +211,17 @@ u8 MMU::ReadByte(u16 addr)
                         return 0xFF;
                     break;
 
-                case 0xFF04:
-					return (u8)rand(); // good enough for now?
+                case 0xFF04: // Divider Register (DIV)
+					return DIV; // good enough for now?
                     break;
-                case 0xFF05:  // Timer Counter
-                    return 0x00;
+                case 0xFF05:  // Timer Counter (TIMA)
+                    return TIMA;
                     break;
-                case 0xFF06:  // Timer Modulo
-                    return 0x50;
+                case 0xFF06:  // Timer Modulo (TMA)
+                    return TMA;
+                    break;
+                case 0xFF07:  // Timer Control (TAC)
+                    return TAC;
                     break;
                 case 0xFF40:
                     return display->GetLCDC();
@@ -333,7 +348,19 @@ void MMU::WriteByte(u16 addr, u8 byte)
                     // Joypad regs
                     IORegs[addr - IOREG_START] = byte; // This needs to be written so when it is read, we can return the correct joypad data.
                 break;
-                   
+                case 0xFF04: // Divider Register (DIV)
+                    DIV = 0x00; // Any value written resets it to 0
+                    break;
+                case 0xFF05:  // Timer Counter (TIMA)
+                    TIMA = byte;
+                    break;
+                case 0xFF06:  // Timer Modulo (TMA)
+                    TMA = byte;
+                    break;
+                case 0xFF07:  // Timer Control (TAC)
+                    TAC = byte;
+                    break;
+
                 case 0xFF40:
                     display->SetLCDC(byte);
                     break;
