@@ -13,9 +13,7 @@
 #include "Opcodes.h"
 
 const u32 MEMORY_SIZE = 0x2000; //4096
-const u32 VIDEO_MEMORY_SIZE = 0x2000;
-const u32 PROGRAM_START = 0x0100;
-//const u32 MAX_ROM_SIZE = 0x7A1200; // 8 MB
+const u32 PROGRAM_START = 0x0100; // after execution hand off from bios
 
 const u8 ZERO_FLAG = 0x80;
 const u8 SUBTRACT_FLAG = 0x40;
@@ -60,7 +58,6 @@ struct registers
 };
 
 
-
 class CPU
 {
 private:
@@ -69,6 +66,7 @@ private:
     bool biosLoaded;
 	bool RomLoaded;
 
+    // Function pointer arrays to hold the pointers for the instruction pointers for both tables
     typedef void(CPU::*opcodePtr)(void);
     opcodePtr opcodeFunction[0x100];
     opcodePtr opcodeFunctionCB[0x100];
@@ -86,7 +84,6 @@ private:
     bool halt = false;
     bool log = false;
 
-
     int totalInstructions = 0;
     u32 instructionProfiling[0x100];
     u32 instructionProfilingCB[0x100];
@@ -94,7 +91,7 @@ private:
 public:
     CPU();
     CPU(char* romPath);
-    void DefaultValues();
+    void DefaultValues(); // Loads BIOS default values
 	~CPU();
 
     void Loop();
@@ -108,22 +105,23 @@ public:
 
 private:
 
-    void Reset();
+    void Reset(); // Resets the system to a fresh-booted state
     void ProcessEvents();
     void ProcessInstruction();
 
-    void DumpToFile();
-    void DumpToScreen();
+    /* 
+        Prints statistics of the executed instructions to the screen, percentages of executed instructions
+        Gives an idea of what games are more complex than others.
+    */
     void PrintProfilingInfo();
 
+    // Assigns all function pointers in both arrays
     void InitOpcodeFunctions();
     void InitOpcodeFunctionsCB();
-
 
 	//----------------------
 	//	Instruction and helper functions
 	//----------------------
-
 	inline void SetFlag(u8 flag) { regs.AF.low |= flag; }
 	inline void UnsetFlag(u8 flag) { regs.AF.low &= ~flag; };
 

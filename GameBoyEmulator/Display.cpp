@@ -79,7 +79,7 @@ void Display::init(int multiplier)
     memset(Tileset, 0x00, (384 * 8 * 8) * sizeof(u8));
     
     
-    memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(u32));
+    memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(SDL_Color));
 
 	//SDL_SetTextureBlendMode(screen, SDL_BLENDMODE_MOD);
     //SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
@@ -470,7 +470,7 @@ void Display::Step(u32 clock)
             modeClock = 0;
             LY++;
 
-            if (LY == 143)
+            if (LY == DISPLAY_HEIGHT)
             {
                 // Enter vblank
                 activeMode = VBLANK;
@@ -551,7 +551,7 @@ void Display::Update()
 {
     //SDL_RenderClear(renderer);
 
-	SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
+	SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(SDL_Colour));
 
     SDL_RenderCopy(renderer, screen, NULL, NULL); // Puts the texture onto the screen
     SDL_RenderPresent(renderer);

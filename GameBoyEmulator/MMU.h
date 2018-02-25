@@ -14,12 +14,7 @@
 #include "Joypad.h"
 
 
-
-//const u16 EIGHT_KB = 0x2000;
-//const u16 SIXTEEN_KB = 0x4000;
-
 const u16 INTERNAL_RAM_START = 0xC000;
-//const u16 OAM_START = 0xFE00;
 const u16 IOREG_START = 0xFF00;
 const u16 HRAM_START = 0xFF80;
 
@@ -148,13 +143,19 @@ public:
     u16 PopTwoBytes(u16 &sp);
 
 
-
     void SetBiosComplete(bool val) { biosComplete = val; }
     bool GetBiosComplete() { return biosComplete; }
 
-    void DumpToFile();
+    /*
+        Calls the cartridge write save file method
+    */
     void WriteSaveFile();
+    
+    /*
+        A function that steps the timers by a given cycle count
 
+        @param u8 number of cycles to step the timers
+    */
     void StepTimers(u8 count);
 
 private:

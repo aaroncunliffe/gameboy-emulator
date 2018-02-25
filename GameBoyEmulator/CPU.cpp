@@ -338,11 +338,10 @@ void CPU::JoypadInterrupt()
 void CPU::ProcessInstruction()
 {
     u8 opcodeByte = mmu->ReadByte(regs.pc);
+    u8 nextByte = mmu->ReadByte(regs.pc + 1); // Byte after the currently executing opcode
 
-    u8 nextByte = mmu->ReadByte(regs.pc + 1);
-
+    // Writes the program counter, and opcode / function name to the console
 #ifdef _LOG
-    
     if (opcodeByte != 0xCB)
         std::cout << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << regs.pc << " " << opcodeTable[opcodeByte].name << std::endl;
     else
@@ -351,8 +350,9 @@ void CPU::ProcessInstruction()
 
 #endif 
     
+    //  Stores  what instructions are executed and how many times
 #ifdef _PROFILE
-     if (opcodeByte != 0xCB) //  Profiling: can see what instructions are called and what are not used.
+     if (opcodeByte != 0xCB) 
          instructionProfiling[opcodeByte]++;
      else
      {
@@ -361,44 +361,16 @@ void CPU::ProcessInstruction()
      }
 #endif
 
-	
+	// Calls the function from the function pointer array
    (this->*opcodeFunction[opcodeByte])();
-    //totalInstructions++;
-}
-
-void CPU::DumpToFile()
-{
-    std::ofstream outputFile;
-
-    outputFile.open("Registers.bin");
     
-    std::hex;
-    outputFile << "Registers:";
-    outputFile << "A:" << regs.AF.high << "F:" << regs.AF.low;
-    outputFile << "B:" << regs.BC.high << "C:" << regs.BC.low;
-    outputFile << "D:" << regs.DE.high << "E:" << regs.DE.low;
-    outputFile << "H:" << regs.HL.high << "L:" << regs.HL.low;
-    outputFile << "PC:" << (u8)regs.pc;
-    outputFile << "SP:" << (u8)regs.sp;
-
-
-    outputFile.close();
-
-    std::cout << "Registers written to file" << std::endl;
-
-}
-
-
-void CPU::DumpToScreen()
-{
-
+   //totalInstructions++;
 }
 
 
 // Prints info about the instructions that have been used since the start of the current session
 void CPU::PrintProfilingInfo()
 {
-
     u8 mostUsedInstruction;
     const u8 totalNormalInstructions = 0xF4; // Normal table instructions that don't exist are 0xD3, 0xDB, 0xDD, 0xE3, 0xE4, 0xEB, 0xEC, 0xED, 0xF4, 0xFC, 0xFD expect these to be zero.
     const u8 totalCBInstructions = 0xFF;

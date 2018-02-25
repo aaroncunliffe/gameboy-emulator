@@ -32,6 +32,7 @@ const u8 SPRITE_X_OFFSET = 0x08;
 
 struct sprite
 {
+    // first 3 bytes
     u8 y;
     u8 x;
     u8 tileNum;
@@ -42,7 +43,8 @@ struct sprite
     bool xflip;
     bool palette;
 };
-      
+     
+// Struct for each pixel value including alpha
 struct pixel
 {
     u8 r;
@@ -69,13 +71,14 @@ private:
     GPU_MODE activeMode;
     u32 modeClock;
   
-
-    MMU* mmu;
+   
+    MMU* mmu; // reference for MMU, required for writing interrupt bytes
 
     int w, h;
     int pw, ph;
     int sizeMultiplier;
 
+    // 2 display memory stores
     u8 vram[0x2000];
     u8 oam[0x100];
 

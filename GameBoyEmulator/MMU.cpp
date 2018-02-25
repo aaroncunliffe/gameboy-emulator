@@ -280,8 +280,6 @@ return 0xFF;
 
 }
 
-
-
 void MMU::WriteByte(u16 addr, u8 byte)
 {
     // Switch is faster than if/else if - >5 items, uses lookup table, need to check if this gets optimised out anyway...
@@ -429,13 +427,11 @@ void MMU::WriteByte(u16 addr, u8 byte)
    
 }
 
-
 void MMU::WriteTwoBytes(u16 addr, u16 data)
 {
     WriteByte(addr, data & 0xFF); // Write lower byte first
     WriteByte(addr + 1, data >> 8); // Write higher byte.
 }
-
 
 u16 MMU::ReadTwoBytes(u16 addr)
 {
@@ -450,42 +446,11 @@ void MMU::PushTwoBytes(u16 &sp, u16 data)
     WriteTwoBytes(sp, data);
 }
 
-
 u16 MMU::PopTwoBytes(u16 &sp)
 {
     u16 data = ReadTwoBytes(sp);
     sp += 2;
     return data;
-}
-
-void MMU::DumpToFile()
-{
-    std::ofstream outputFile;
-
-    outputFile.open("Memory.ac", std::ios::out | std::ios::binary);
-
-    outputFile << "FirstRomBank" << std::endl;
-    // write first rom bank
-    for (int i = 0; i < SIXTEEN_KB; ++i)
-    {
-        //outputFile << rom[0][i];
-    }
-
-    outputFile << std::endl << std::endl;
-
-
-    outputFile << "selectedRomBank" << std::endl;
-    // write selected rom bank
-    for (int i = 0; i < SIXTEEN_KB; ++i)
-    {
-        //outputFile << rom[activeRomBank][i];
-    }
-
-    //outputFile << std::endl << std::endl;
-
-
-    outputFile.close();
-    std::cout << "Memory written to file" << std::endl;
 }
 
 void MMU::WriteSaveFile()
