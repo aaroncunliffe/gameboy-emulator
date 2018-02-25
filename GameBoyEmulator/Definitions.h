@@ -22,4 +22,14 @@ typedef signed int s32;
 #define Key_Select	SDLK_LSHIFT
 #define Key_Start	SDLK_RETURN
 
+// Controller keybinds
+#define Button_Right	SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+#define Button_Left	    SDL_CONTROLLER_BUTTON_DPAD_LEFT
+#define Button_Up		SDL_CONTROLLER_BUTTON_DPAD_UP
+#define Button_Down	    SDL_CONTROLLER_BUTTON_DPAD_DOWN
+#define Button_A		SDL_CONTROLLER_BUTTON_B      
+#define Button_B		SDL_CONTROLLER_BUTTON_A
+#define Button_Select	SDL_CONTROLLER_BUTTON_GUIDE
+#define Button_Start	SDL_CONTROLLER_BUTTON_START
+
 #define CARTRIDGE_TYPE_OFFSET = 0x147

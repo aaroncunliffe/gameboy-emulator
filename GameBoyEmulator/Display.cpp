@@ -3,7 +3,7 @@
 
 Display::Display()
 {
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) // SDL_INIT_VIDEO
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) // SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER
     {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     }
@@ -18,8 +18,8 @@ Display::Display()
 
     scrollX = 0;
     scrollY = 0;
-    winX = 0;
-    winY = 0;
+    //winX = 0;
+    //winY = 0;
 
     onlyTiles = false; // To show only tiles, if false, scanlines are rendered as normal
 	

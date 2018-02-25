@@ -97,8 +97,91 @@ void Joypad::KeysUp(SDL_Event e)
 	{
 		row2 |= 0x01;
 	}
+}
 
-	
 
+void Joypad::GamepadButtonDown(SDL_Event e)
+{
+    // Row 1
+    if (e.cbutton.button == Button_Start)
+    {
+        row1 &= ~0x08;
+        cpu->JoypadInterrupt();
+    }
+    if (e.cbutton.button == Button_Select)
+    {
+        row1 &= ~0x04;
+        cpu->JoypadInterrupt();
+    }
+    if (e.cbutton.button == Button_B)
+    {
+        row1 &= ~0x02;
+        cpu->JoypadInterrupt();
+    }
+    if (e.cbutton.button == Button_A)
+    {
+        row1 &= ~0x01;
+        cpu->JoypadInterrupt();
+    }
 
+    // Row 2
+    if (e.cbutton.button == Button_Down)
+    {
+        row2 &= ~0x08;
+        cpu->JoypadInterrupt();
+    }
+    if (e.cbutton.button == Button_Up)
+    {
+        row2 &= ~0x04;
+        cpu->JoypadInterrupt();
+    }
+    if (e.cbutton.button == Button_Left)
+    {
+        row2 &= ~0x02;
+        cpu->JoypadInterrupt();
+    }
+    if (e.cbutton.button == Button_Right)
+    {
+        row2 &= ~0x01;
+        cpu->JoypadInterrupt();
+    }
+}
+
+void Joypad::GamepadButtonUp(SDL_Event e)
+{
+    // Row 1
+    if (e.cbutton.button == Button_Start)
+    {
+        row1 |= 0x08;
+    }
+    if (e.cbutton.button == Button_Select)
+    {
+        row1 |= 0x04;
+    }
+    if (e.cbutton.button == Button_B)
+    {
+        row1 |= 0x02;
+    }
+    if (e.cbutton.button == Button_A)
+    {
+        row1 |= 0x01;
+    }
+
+    // Row 2
+    if (e.cbutton.button == Button_Down)
+    {
+        row2 |= 0x08;
+    }
+    if (e.cbutton.button == Button_Up)
+    {
+        row2 |= 0x04;
+    }
+    if (e.cbutton.button == Button_Left)
+    {
+        row2 |= 0x02;
+    }
+    if (e.cbutton.button == Button_Right)
+    {
+        row2 |= 0x01;
+    }
 }
