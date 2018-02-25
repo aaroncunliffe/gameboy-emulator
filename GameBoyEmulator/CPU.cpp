@@ -242,10 +242,9 @@ void CPU::Loop()
         }
 
         display->Step(counter); // This has to be after the instruction is executed (so that the counter is not 0)
-<<<<<<< HEAD
+
         mmu->StepTimers(counter);
-=======
->>>>>>> origin/master
+
 
         ProcessEvents();
         //counter = 0;
