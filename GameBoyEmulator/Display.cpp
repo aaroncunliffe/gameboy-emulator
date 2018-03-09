@@ -275,7 +275,6 @@ void Display::clear()
     Update();
 }
 
-
 void Display::UpdateTileset(u16 addr)
 {
 
@@ -399,7 +398,6 @@ u8 Display::ReadOAM(u16 addr)
     return 0xFF;
 }
 
-
 // At the end of every display->Step() process any changes to the display registers
 void Display::UpdateRegisters()
 {
@@ -453,7 +451,7 @@ void Display::UpdateRegisters()
 
 }
 
-void Display::Step(u32 clock)
+void Display::Step(int clock)
 {
     modeClock += clock;
 
@@ -499,20 +497,22 @@ void Display::Step(u32 clock)
     case VBLANK: // 1
         if (modeClock >= 456)
         {
-            modeClock = 0;
             LY++;
 
             if (LY > 153)
             {
                 // Restart scanning modes
+				LY = 0;
                 activeMode = OAM;
-                LY = 0;
+                
 
 				//STAT |= 0x02;
 				//
 				//u8 byte = mmu->ReadByte(0xFF0F);
 				//mmu->WriteByte(0xFF0F, byte |= 0x02); // Write for V-Blank
             }
+
+			modeClock = 0;
         }
         break;
 
@@ -594,8 +594,6 @@ void Display::SetWinY(u8 val)
     
 }
 
-
-
 void Display::StartDMA(u16 source)
 {
     for (int i = 0; i < DMA_LENGTH; i++)
@@ -603,13 +601,6 @@ void Display::StartDMA(u16 source)
         WriteOAM(OAM_START + i, mmu->ReadByte(source + i));
     }
 }
-
-
-// Palette values
-// Bit 7 - 6 - Shade for Color Number 3
-// Bit 5 - 4 - Shade for Color Number 2
-// Bit 3 - 2 - Shade for Color Number 1
-// Bit 1 - 0 - Shade for Color Number 0
 
 void Display::UpdateBGPalette(u8 value)
 {
@@ -634,4 +625,3 @@ void Display::UpdateOBPalette(bool pal1, u8 value)
 
 	}
 }
-

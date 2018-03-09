@@ -1,5 +1,3 @@
-
-
 #include "CPU.h"
 #include <iomanip>
 
@@ -30,18 +28,7 @@ CPU::CPU()
     memset(instructionProfiling, (u32)0, 0x100 * sizeof(u32));
     memset(instructionProfilingCB, (u32)0, 0x100 * sizeof(u32));
 
-	//regs.AF.high = 0x01;
-	//regs.AF.low = 0xB0;
-	//regs.BC.word = 0x0013;
-	//regs.DE.word = 0x00D8;
-	//regs.HL.word = 0x014D;
 
-   /* regs.AF.word = 0x0300;
-    SUB(0x01);
-    opcode0x27();
-    u8 byte = regs.AF.high;
-
-    int stop = 0;*/
 }
 
 CPU::CPU(char* romPath) : CPU()
@@ -134,7 +121,7 @@ void CPU::Reset()
 
 void CPU::DefaultValues()
 {
-    // MANUAL BIOS 
+    // Default BIOS 
     regs.AF.high = 0x01;
     regs.AF.low = 0xB0;
     regs.BC.word = 0x0013;
@@ -177,18 +164,16 @@ void CPU::DefaultValues()
 
 void CPU::Loop()
 {
-    Uint64 frameStart = SDL_GetPerformanceCounter();
-                              
+    Uint64 frameStart = SDL_GetPerformanceCounter();              
 
-    if (counter == 0)
+    if (counter == 0) // instruction cycle counter
     {
-        
         // Handle interrupts
         if (regs.ime)
         {
             u8 interruptFired = mmu->ReadByte(0xFFFF) & mmu->ReadByte(0xFF0F);
             
-            if (interruptFired & VBLANK_INTERRUPT_BIT)
+            if (interruptFired & VBLANK_INTERRUPT_BIT) // VBLANK
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
@@ -197,7 +182,7 @@ void CPU::Loop()
                 RST40();
                 halt = false;
             }
-            else if (interruptFired & LCDSTAT_INTERRUPT_BIT)
+            else if (interruptFired & LCDSTAT_INTERRUPT_BIT) // STAT
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
@@ -206,7 +191,7 @@ void CPU::Loop()
                 RST48();
                 halt = false;
             }
-            else if (interruptFired & TIMER_INTERRUPT_BIT)
+            else if (interruptFired & TIMER_INTERRUPT_BIT) // TIMER
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
@@ -215,7 +200,7 @@ void CPU::Loop()
                 RST50();
                 halt = false;
             }
-            else if (interruptFired & SERIAL_INTERRUPT_BIT)
+            else if (interruptFired & SERIAL_INTERRUPT_BIT) // SERIAL
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
@@ -224,7 +209,7 @@ void CPU::Loop()
                 RST58();
                 halt = false;
             }
-            else if (interruptFired & JOYPAD_INTERRUPT_BIT)
+            else if (interruptFired & JOYPAD_INTERRUPT_BIT) // JOYPAD
             {
                 regs.ime = 0x00; // Disable IME
                 u8 byte = mmu->ReadByte(0xFF0F);
@@ -238,22 +223,14 @@ void CPU::Loop()
 
         if (!halt)
         {
-            ProcessInstruction();   // 
+            ProcessInstruction();   // process instruction
         }
 
-        display->Step(counter); // This has to be after the instruction is executed (so that the counter is not 0)
+		display->Step(counter); // This has to be after the instruction is executed (so that the counter is not 0)
 
         mmu->StepTimers(counter);
 
-
-        ProcessEvents();
-        //counter = 0;
-        //display->Update();
-        // else
-        //running = false;
-
-        //std::cout << (mmu->ReadByte(0xFFFF) == 0x00 ? "off" : "on") << std::endl;
-        
+        ProcessEvents(); // user input
 
     }
     else
@@ -261,7 +238,8 @@ void CPU::Loop()
         counter--;
     }
 
-
+	
+    
 
     //int freq = SDL_GetPerformanceFrequency();
     //timerFps = ((SDL_GetPerformanceCounter() - frameStart));
@@ -293,13 +271,13 @@ void CPU::ProcessEvents()
             joypad->KeysDown(e);
             if (e.key.keysym.sym == SDLK_ESCAPE)
             {
-                mmu->WriteSaveFile();
+                mmu->WriteSaveFile(); // write save file on program quit
                 Stop();
             }
             else if (e.key.keysym.sym == SDLK_F1)
             {
                 //mmu->WriteSaveFile();
-                //DumpToFile();
+                
 				// Tetris score writing
 				mmu->WriteByte(0xC0A0, 0xFF);
 				mmu->WriteByte(0xC0A1, 0xFF);
@@ -325,6 +303,8 @@ void CPU::ProcessEvents()
         case SDL_QUIT:
             running = false;
             break;
+
+            // controller
         case SDL_CONTROLLERDEVICEADDED:
             if (SDL_IsGameController(e.cdevice.which)) {
                 SDL_GameController *pad = SDL_GameControllerOpen(e.cdevice.which);
@@ -332,10 +312,6 @@ void CPU::ProcessEvents()
                 if (pad) {
                     SDL_Joystick *joy = SDL_GameControllerGetJoystick(pad);
                     int instanceID = SDL_JoystickInstanceID(joy);
-
-                    std::cout << "Game Controller Detected" << std::endl;
-                    // You can add to your own map of joystick IDs to controllers here.
-                    //YOUR_FUNCTION_THAT_CREATES_A_MAPPING(id, pad);
                 }
             }
 
@@ -353,6 +329,7 @@ void CPU::ProcessEvents()
 }
 
 // Called by keyboard class when a joypad key is pressed
+// (stops Joypad requiring access to MMU)
 void CPU::JoypadInterrupt()
 {
 	u8 byte = mmu->ReadByte(0xFF0F);
@@ -390,7 +367,6 @@ void CPU::ProcessInstruction()
     
    //totalInstructions++;
 }
-
 
 // Prints info about the instructions that have been used since the start of the current session
 void CPU::PrintProfilingInfo()

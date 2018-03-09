@@ -15,6 +15,7 @@
 const u32 MEMORY_SIZE = 0x2000; //4096
 const u32 PROGRAM_START = 0x0100; // after execution hand off from bios
 
+// Flag bits constants
 const u8 ZERO_FLAG = 0x80;
 const u8 SUBTRACT_FLAG = 0x40;
 const u8 HALF_CARRY_FLAG = 0x20;
@@ -73,6 +74,7 @@ private:
 
     registers regs;
 
+    // references to other components
     MMU* mmu;
     Display* display;
     Joypad* joypad;
@@ -84,6 +86,7 @@ private:
     bool halt = false;
     bool log = false;
 
+    // profiling
     int totalInstructions = 0;
     u32 instructionProfiling[0x100];
     u32 instructionProfilingCB[0x100];
@@ -99,9 +102,12 @@ public:
 
     void Start();
     void Stop();
+
+    // Set ROM and bios path, calls mmu to read these files in
     void SetRom(char* path);
     void SetBios(char* path);
-	void JoypadInterrupt(); // Needs to be public to be called by the joypad class when an interrupt occurs
+	
+    void JoypadInterrupt(); // Needs to be public to be called by the joypad class when an interrupt occurs
 
 private:
 
@@ -124,7 +130,6 @@ private:
 	//----------------------
 	inline void SetFlag(u8 flag) { regs.AF.low |= flag; }
 	inline void UnsetFlag(u8 flag) { regs.AF.low &= ~flag; };
-
 
     // Helper Functions
     inline void INC(u8 &reg);

@@ -64,6 +64,9 @@ MBC1::MBC1(char* path, u8* buffer, u32 size) : Cartridge(path, buffer)
         }
         else
         {
+
+            std::cout << "Save file does not exist, creating..." << std::endl;
+
             RAMArray = new u8[ramSize];
             memset(RAMArray, 0x00, numberOfRamBanks * EIGHT_KB); // All 0's
             WriteSaveFile();
@@ -78,8 +81,6 @@ MBC1::MBC1(char* path, u8* buffer, u32 size) : Cartridge(path, buffer)
 
 }
 
-	
-
 MBC1::~MBC1()
 {
 	delete ROMArray;
@@ -88,7 +89,6 @@ MBC1::~MBC1()
 		delete RAMArray;
 
 }
-
 
 u8 MBC1::ReadROMByte(u16 addr)
 {
@@ -110,7 +110,6 @@ u8 MBC1::ReadROMByte(u16 addr)
 // A write to addr 0x0000 to 0x7FFF
 void MBC1::WriteROMByte(u16 addr, u8 byte)
 {
-	// None
 	if (addr >= 0x0000 && addr <= 0x1FFF) // RAM Enable
 	{
         if (byte == 0x0A)

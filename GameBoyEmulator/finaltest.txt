@@ -1,0 +1,36 @@
+
+
+0x0452 -> VBLANK interrupt -> 0x0040
+0x0040 jump a16 -> 0x0225
+0x0229 call a16 -> FF80 -> NOP loop
+
+
+What if it is the instructions at before 0x0452 that overwrite the HRAM instructions that get called on vblank interrupt.
+If that is the case then by the time 0x0452 is hit, the damage is already done.
+test at what point does 0x00 get written to HRAM.
+	-> 0xFF80 is set to 0x00 at regs.PC 0x0332
+
+This happens in BGB too, so it is part of the test, it stops writing at 0xFFFB
+Also writes 0xAAAA to the entire stack starting at 0xD001
+Loop 0x0452 to 0x454
+
+
+     if (regs.pc == 0x0038)
+     {
+         int stop = 0;
+     }
+
+     if (mmu->ReadByte(0xFF80) == 0x00)
+     {
+         int stop = 0;
+     }
+	 //if (regs.pc == 0x0455)
+     if (regs.pc == 0x0454)
+     {
+         if (regs.HL.word == 0xD6B4)
+         {
+			 //regs.ime = 0x00;
+             int stop = 0;
+         }
+         int stop = 0;
+     }

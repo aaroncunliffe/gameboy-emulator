@@ -5,17 +5,16 @@ MMU::MMU()
 
 }
 
-
 MMU::MMU(Display* d, Joypad* j)
 {
-    srand(time(NULL));
-
+    // Sets references
     display = d;
 	joypad = j;
 	cart = nullptr;
 
     biosComplete = false;
 
+    // Sets all stores to 0
     memset(internalRam, 0x00, SIXTEEN_KB * sizeof(u8));
     memset(IORegs, 0x00, 0x7F *sizeof(u8));
     memset(hram, 0x00, 0x7F *sizeof(u8));
@@ -27,7 +26,6 @@ MMU::~MMU()
     if(cart != nullptr)
         delete cart;
 }
-
 
 bool MMU::LoadRom(char* path)
 {
@@ -46,7 +44,7 @@ bool MMU::LoadRom(char* path)
 
         file.seekg(0, std::ios::beg); // Move pointer back to the beginning of file
         
-        // Create buffer of the right size and read data to it
+        // Create buffer of the right size and read data to it, pointer to this is then used by cartridge
         u8* buffer = new u8[romSize];
         file.read((char*)buffer, romSize);
 
@@ -65,6 +63,8 @@ bool MMU::LoadRom(char* path)
 				cart = new MBC1(romPath, buffer, romSize);
 				break;
 
+            // expansions here for other MBC chips
+
 		}
 
 		assert(cart != nullptr); // Assert if the cart hasn't been made correctly
@@ -72,12 +72,10 @@ bool MMU::LoadRom(char* path)
         std::cout << "Rom loaded successfully" << std::endl;
         file.close();
 		
-        //delete buffer;
         return true;
     }
     return false;
 }
-
 
 bool MMU::LoadBios(char* path)
 {
@@ -103,10 +101,10 @@ bool MMU::LoadBios(char* path)
         std::cout << std::endl;
         file.close();
 
-        // Moves the data from the buffer to the array
+        // Moves the data from the buffer to the bios array
         for (int byte = 0; byte < size; ++byte)
         {
-            bios[byte] = buffer[byte];
+            bios[byte] = buffer[byte]; 
         }
 
         delete buffer;
@@ -125,9 +123,8 @@ void MMU::StepTimers(u8 count)
         DIV++; // 8 bit unsigned value, will automatically wrap
     }
 
-
+    // use of TIMA, TMA, TAC expansion here
 }
-
 
 u8 MMU::ReadByte(u16 addr)
 {
@@ -136,13 +133,14 @@ u8 MMU::ReadByte(u16 addr)
     {
         
     case 0x0: case 0x1: case 0x2: case 0x3:
+
 		if (biosComplete)
 			return cart->ReadROMByte(addr);
-        else
+        else // Runbios
             if (addr < 0x100)
                 return bios[addr];
             else
-                return cart->ReadROMByte(addr); // BIOS still needs to access rom data
+                return cart->ReadROMByte(addr); // BIOS still needs to access rom data for the logo
 
         break;
 
@@ -172,21 +170,19 @@ u8 MMU::ReadByte(u16 addr)
         break;
 
     case 0xE:
-        // RAM Shadow
-        
+        // RAM Shadow / ECHO, unused
         break;
-
 
     case 0xF: // Rest of RAM shadow, sprite table, I/O registers, HRAM, Interupts
 
         switch ((addr & 0x0F00) >> 8)   //0x0F00 -  lower nibble of the 2nd byte
         {
         case 0x1: case 0x2: case 0x3: case 0x4: case 0x5: case 0x6: case 0x7: case 0x8: case 0x9: case 0xA: case 0xB: case 0xC: case 0xD:
-            // RAM shadow - 0xE000 to 0xFDFF
+            // RAM shadow - 0xE000 to 0xFDFF - unused
             break;
 
         case 0xE: // OAM Table
-            if (addr > 0xFE9F) // Not addressable
+            if (addr > 0xFE9F) // Not addressable portion
             {
                 break;
             }
@@ -264,7 +260,7 @@ u8 MMU::ReadByte(u16 addr)
                     return IEReg;
                 }
 
-                return hram[addr - HRAM_START];
+                return hram[addr - HRAM_START]; // high RAM 
                 break;
             }
         }
@@ -272,7 +268,7 @@ u8 MMU::ReadByte(u16 addr)
     
 
     default:
-        std::cout << "ERROR - attempt to read from invalid address: " << std::hex << addr << std::endl;
+        std::cout << "ERROR - attempt to read from invalid address: " << std::hex << addr << std::endl; // Fits no case
         break;
     }     
 
@@ -422,8 +418,6 @@ void MMU::WriteByte(u16 addr, u8 byte)
         std::cout << "ERROR - attempt to write to invalid address: " << std::hex << addr << std::endl;
         break;
     }
-      
-
    
 }
 
@@ -437,24 +431,23 @@ u16 MMU::ReadTwoBytes(u16 addr)
 {
     u8 lowByte = ReadByte(addr);
     u16 highByte = ReadByte(addr + 1) << 8;
-    return highByte | lowByte;
+    return highByte | lowByte; // combine
 }
 
 void MMU::PushTwoBytes(u16 &sp, u16 data)
 {
-    sp -= 2;
+    sp -= 2; // stack pointer is decremented first, sp is a reference
     WriteTwoBytes(sp, data);
 }
 
 u16 MMU::PopTwoBytes(u16 &sp)
 {
     u16 data = ReadTwoBytes(sp);
-    sp += 2;
+    sp += 2; // increment stack pointer after read, sp is a reference
     return data;
 }
 
 void MMU::WriteSaveFile()
 {
     cart->WriteSaveFile();
-
 }

@@ -3,12 +3,10 @@
 #include <iomanip>
 
 
-
 Cartridge::Cartridge()
 {
 
 }
-
 
 Cartridge::Cartridge(char* path, u8* data)
 {
@@ -21,10 +19,7 @@ Cartridge::Cartridge(char* path, u8* data)
 
 	activeRomBank = 1; // Switched rom bank segment starts at bank 1
 	activeRamBank = 0;
-
 }
-
-
 
 Cartridge::~Cartridge()
 {
@@ -35,8 +30,8 @@ bool Cartridge::ReadSaveFile()
 {
     std::string filename = romPath;
     int lastindex = filename.find_last_of(".");
-    std::string rawname = filename.substr(0, lastindex);
-    rawname += ".sav";
+    std::string rawname = filename.substr(0, lastindex); 
+    rawname += ".sav"; // original filename with extension replaced with .sav
 
     std::ifstream file;
 
@@ -62,7 +57,6 @@ bool Cartridge::ReadSaveFile()
     }
     else
     {
-        std::cout << "Save file does not exist, creating..." << std::endl;
         return false;
     }
 
@@ -71,7 +65,7 @@ bool Cartridge::ReadSaveFile()
 
 void Cartridge::WriteSaveFile()
 {
-    if (ramSize > 0x0000)
+    if (ramSize > 0x0000) // if cartridge has RAM
     {
         std::string filename = romPath;
         int lastindex = filename.find_last_of(".");
@@ -94,7 +88,6 @@ void Cartridge::WriteSaveFile()
     }
     
 }
-
 
 // Reads all data from the header
 void Cartridge::ParseHeader()

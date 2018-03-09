@@ -81,24 +81,25 @@ public:
 	Cartridge(char* path, u8* data);
 	~Cartridge();
 
+    // print header info to the screen
     void PrintFormattedData();
 
-
+    // pure virtual
 	virtual u8 ReadROMByte(u16 addr) = 0;
 	virtual void WriteROMByte(u16 addr, u8 byte) = 0;
 
-
+    // pure virtual
 	virtual u8 ReadRAMByte(u16 addr) = 0;
 	virtual void WriteRAMByte(u16 addr, u8 byte) = 0;
-
 
     bool ReadSaveFile();
     void WriteSaveFile();
 
-
 private: // Functions Cartridge uses
 
     void ReadTitle();
+
+    // Compare graphics from the header
     void CompareGraphics();
     void ParseHeader();
     

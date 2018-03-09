@@ -6,6 +6,8 @@
 Joypad::Joypad(CPU* c)
 {
 	cpu = c;
+    
+    // Set values to all unpressed
 	row1 = 0x0F;
 	row2 = 0x0F;
 }

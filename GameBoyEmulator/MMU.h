@@ -30,7 +30,6 @@ private:
 
     char* romPath;
     u32 romSize;
-
     
     u8 internalRam[SIXTEEN_KB];             // 1 bank in GB 1-7 banks in GBC
     u8 IORegs[0x80];
@@ -142,7 +141,7 @@ public:
     */
     u16 PopTwoBytes(u16 &sp);
 
-
+    // BIOS getter and setter
     void SetBiosComplete(bool val) { biosComplete = val; }
     bool GetBiosComplete() { return biosComplete; }
 
