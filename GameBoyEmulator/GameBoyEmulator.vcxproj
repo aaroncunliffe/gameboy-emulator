@@ -75,6 +75,8 @@
     <IntDir>$(SolutionDir)bin\$(Configuration)\Intermediates\</IntDir>
     <IncludePath>$(SolutionDir)\Dependencies\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Dependencies\lib\x86;$(LibraryPath)</LibraryPath>
+    <CodeAnalysisRuleSet>A:\Drive Locations\PROGRAMS\Visual Studio\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -85,6 +87,8 @@
     <IntDir>$(SolutionDir)bin\$(Configuration)\Intermediates\</IntDir>
     <IncludePath>$(SolutionDir)\Dependencies\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Dependencies\lib\x86;$(LibraryPath)</LibraryPath>
+    <CodeAnalysisRuleSet>A:\Drive Locations\PROGRAMS\Visual Studio\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -96,6 +100,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,6 +131,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

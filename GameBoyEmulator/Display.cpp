@@ -70,7 +70,7 @@ void Display::init(int multiplier)
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); // Accelerated or software | Accelerated fails with Tamagotchi.gb?
     screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, DISPLAY_WIDTH, DISPLAY_HEIGHT); // STATIC or STREAMING - Also pixel format is ABGR
 
-
+	
 	//SDL_SetWindowGrab(window, SDL_TRUE);
 
     // Clear VRAM, Tileset and raw pixel store
@@ -81,9 +81,6 @@ void Display::init(int multiplier)
     
     memset(pixels, 0x00000000, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(SDL_Color));
 
-	//SDL_SetTextureBlendMode(screen, SDL_BLENDMODE_MOD);
-    //SDL_UpdateTexture(screen, NULL, pixels, DISPLAY_WIDTH * sizeof(u32));
-    //Update();
 
     activeMode = OAM;
     LY = 0;
@@ -572,25 +569,25 @@ void Display::SetWinX(u8 val)
     // Make sure that winX doesn't get set below 0.
     // otherwise it will wrap round and be shown off the screen.
     // This was found in Zelda
-    if (((s16)winX - 7) < 0x00)
-    {
-        winX = 0x00;
-    }
-    else
-    {
+    //if (((s16)winX - 7) < 0x00)
+    //{
+        //winX = 0x00;
+    //}
+    //else
+    //{
         winX = val - 7;
 
-    }
+    //}
 
         
 }
 
 void Display::SetWinY(u8 val)
 {
-    if (val < DISPLAY_HEIGHT)
-    {
+    //if (val < DISPLAY_HEIGHT) //  Not needed, e.g. if zelda wants to hide window it sets this to 0xFF
+    //{
       winY = val;
-    }
+    //}
     
 }
 

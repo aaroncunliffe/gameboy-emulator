@@ -241,22 +241,18 @@ void CPU::Loop()
 	
     
 
-    //int freq = SDL_GetPerformanceFrequency();
-    //timerFps = ((SDL_GetPerformanceCounter() - frameStart));
+    int freq = SDL_GetPerformanceFrequency();
+    timerFps = ((SDL_GetPerformanceCounter() - frameStart));
 
-    //std::cout << std::dec << timerFps << std::endl;
 
-    //while (timerFps / freq * 1000 < (1000 / 59))
-    //{
-    //    timerFps += SDL_GetPerformanceCounter();
-    //    //std::cout << timerFps << std::endl;
-    //     
-    //}
+    while ((timerFps / freq) * 1000 < (1000 / 59))
+    {
+        timerFps += SDL_GetPerformanceCounter();
+         
+    }
 
-    //timerFps /= 0xFFFFFFFF;
-    //totalInstructions = timerFps;
-
-    // volatile
+    timerFps /= 0xFFFFFFFF;
+    totalInstructions = timerFps;
 
 }
  

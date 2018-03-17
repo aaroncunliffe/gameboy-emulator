@@ -26,8 +26,6 @@ class MMU
 
 private:
 	
-    Cartridge* cart;
-
     char* romPath;
     u32 romSize;
     
@@ -46,6 +44,9 @@ private:
     u8 bios[0x100];
     bool biosComplete;
 
+
+
+    Cartridge* cart;
     Display* display;
 	Joypad* joypad;
 

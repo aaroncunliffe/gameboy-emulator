@@ -19,7 +19,7 @@ typedef signed int s32;
 #define Key_Down	SDLK_DOWN
 #define Key_A		SDLK_s      // Changed to match BGB
 #define Key_B		SDLK_a
-#define Key_Select	SDLK_LSHIFT
+#define Key_Select	SDLK_RSHIFT
 #define Key_Start	SDLK_RETURN
 
 // Controller keybinds
