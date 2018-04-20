@@ -569,15 +569,15 @@ void Display::SetWinX(u8 val)
     // Make sure that winX doesn't get set below 0.
     // otherwise it will wrap round and be shown off the screen.
     // This was found in Zelda
-    //if (((s16)winX - 7) < 0x00)
-    //{
-        //winX = 0x00;
-    //}
-    //else
-    //{
-        winX = val - 7;
+    if (((s16)winX - 7) < 0x00)
+    {
+      //winX = 0x00;
+    }
+    else
+    {
+      winX = val - 7;
 
-    //}
+    }
 
         
 }
